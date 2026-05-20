@@ -44,27 +44,35 @@ export function Renace360({
         aria-hidden
       >
         <defs>
-          <radialGradient id="renace-core-gradient" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#2BB68A" />
-            <stop offset="100%" stopColor="#0F6E56" />
+          <radialGradient id="renace-core-gradient" cx="35%" cy="35%" r="75%">
+            <stop offset="0%" stopColor="#26BB7C" />
+            <stop offset="60%" stopColor="#0FA065" />
+            <stop offset="100%" stopColor="#0B6A45" />
           </radialGradient>
+          <linearGradient id="renace-track-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#0FA065" />
+            <stop offset="100%" stopColor="#6F4FE8" />
+          </linearGradient>
+          <filter id="renace-core-shadow" x="-50%" y="-50%" width="200%" height="200%">
+            <feDropShadow dx="0" dy="6" stdDeviation="8" floodColor="#0A8554" floodOpacity="0.35" />
+          </filter>
         </defs>
-        <circle cx="180" cy="180" r="160" fill="none" stroke="#C5D0BF" strokeWidth="1" strokeDasharray="2 4" />
-        <circle cx="180" cy="180" r="160" fill="none" stroke="#ECEFE9" strokeWidth="4" />
+        <circle cx="180" cy="180" r="160" fill="none" stroke="#D6D3CE" strokeWidth="1" strokeDasharray="2 4" />
+        <circle cx="180" cy="180" r="160" fill="none" stroke="#ECEAE6" strokeWidth="6" />
         <circle
           cx="180"
           cy="180"
           r="160"
           fill="none"
-          stroke="#0F6E56"
-          strokeWidth="4"
+          stroke="url(#renace-track-gradient)"
+          strokeWidth="6"
           strokeLinecap="round"
           strokeDasharray={2 * Math.PI * 160}
           strokeDashoffset={2 * Math.PI * 160 * (1 - totalPercent / 100)}
           transform="rotate(-90 180 180)"
         />
-        <circle cx="180" cy="180" r="68" fill="url(#renace-core-gradient)" />
-        <circle cx="180" cy="180" r="68" fill="none" stroke="#fff" strokeWidth="4" />
+        <circle cx="180" cy="180" r="68" fill="url(#renace-core-gradient)" filter="url(#renace-core-shadow)" />
+        <circle cx="180" cy="180" r="68" fill="none" stroke="#fff" strokeWidth="3" strokeOpacity="0.6" />
       </svg>
 
       {(["emocional", "fisica", "juridica", "laboral", "comunidad"] as AreaId[]).map((area, i) => (

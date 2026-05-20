@@ -72,6 +72,7 @@ const config: Config = {
           strong: palette.border.strong
         },
         brand: palette.brand,
+        accent: palette.accent,
         state: palette.state,
         area: areaColors
       },
@@ -80,6 +81,29 @@ const config: Config = {
       },
       minWidth: {
         tap: spacing.tap
+      },
+      boxShadow: {
+        soft: "0 1px 2px 0 rgba(15, 17, 21, 0.04), 0 1px 3px 0 rgba(15, 17, 21, 0.06)",
+        card: "0 1px 2px 0 rgba(15, 17, 21, 0.04), 0 8px 24px -8px rgba(15, 17, 21, 0.08)",
+        lift: "0 2px 4px 0 rgba(15, 17, 21, 0.05), 0 16px 40px -12px rgba(15, 17, 21, 0.12)",
+        ring: "0 0 0 4px rgba(111, 79, 232, 0.12)",
+        "brand-glow": "0 12px 32px -8px rgba(10, 133, 84, 0.35)",
+        "accent-glow": "0 12px 32px -8px rgba(111, 79, 232, 0.35)"
+      },
+      backdropBlur: {
+        xs: "2px"
+      },
+      backgroundImage: {
+        "brand-gradient": "linear-gradient(135deg, #0FA065 0%, #0A8554 100%)",
+        "accent-gradient": "linear-gradient(135deg, #8A6CFB 0%, #5A3DCC 100%)",
+        "hero-gradient":
+          "radial-gradient(120% 80% at 50% 0%, #ECFBF3 0%, #F4F1FF 45%, #FAFAF9 100%)",
+        "shimmer-line":
+          "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.6) 50%, transparent 100%)"
+      },
+      transitionTimingFunction: {
+        "out-expo": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "in-out-expo": "cubic-bezier(0.87, 0, 0.13, 1)"
       }
     }
   },

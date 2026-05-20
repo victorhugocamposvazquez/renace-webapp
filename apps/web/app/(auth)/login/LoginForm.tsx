@@ -2,9 +2,23 @@
 
 import { useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import {
+  IconArrowRight,
+  IconCheck,
+  IconLock,
+  IconMail,
+  IconSparkles,
+  IconUserPlus
+} from "@tabler/icons-react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 type Mode = "magic" | "password" | "signup";
+
+const MODES: { id: Mode; label: string; icon: typeof IconMail }[] = [
+  { id: "magic", label: "Magic link", icon: IconSparkles },
+  { id: "password", label: "Contraseña", icon: IconLock },
+  { id: "signup", label: "Crear cuenta", icon: IconUserPlus }
+];
 
 export function LoginForm() {
   const router = useRouter();
@@ -61,104 +75,181 @@ export function LoginForm() {
 
   if (sent) {
     return (
-      <div className="card text-center" role="status">
+      <div className="card-glass flex flex-col items-center gap-3 text-center" role="status">
+        <div
+          aria-hidden
+          className="grid h-12 w-12 place-items-center rounded-full bg-brand-100 text-brand-700"
+        >
+          <IconCheck size={26} stroke={2.4} />
+        </div>
         <h2 className="text-xl font-semibold text-ink-primary">Revisa tu correo</h2>
-        <p className="mt-2 text-base text-ink-muted">
-          Te hemos enviado un enlace a <strong>{email}</strong>. Ábrelo desde el mismo móvil para
-          entrar.
+        <p className="max-w-[28ch] text-sm leading-snug text-ink-muted">
+          Te hemos enviado un enlace a <strong className="text-ink-primary">{email}</strong>.
+          Ábrelo desde el mismo dispositivo para entrar.
         </p>
+        <button
+          type="button"
+          onClick={() => {
+            setSent(false);
+            setError(null);
+          }}
+          className="btn-ghost mt-1"
+        >
+          Usar otro correo
+        </button>
       </div>
     );
   }
 
   return (
-    <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
-      <div role="tablist" aria-label="Tipo de acceso" className="flex gap-2">
-        <ModeTab id="magic" current={mode} onSelect={setMode}>Magic link</ModeTab>
-        <ModeTab id="password" current={mode} onSelect={setMode}>Contraseña</ModeTab>
-        <ModeTab id="signup" current={mode} onSelect={setMode}>Crear cuenta</ModeTab>
+    <form className="flex flex-col gap-5" onSubmit={handleSubmit} noValidate>
+      <div role="tablist" aria-label="Tipo de acceso" className="segmented">
+        {MODES.map((m) => {
+          const active = m.id === mode;
+          const Icon = m.icon;
+          return (
+            <button
+              key={m.id}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              onClick={() => {
+                setMode(m.id);
+                setError(null);
+              }}
+              className={`segmented-item ${active ? "segmented-item-active" : ""}`}
+            >
+              <Icon size={14} aria-hidden className="mr-1.5" stroke={2.2} />
+              {m.label}
+            </button>
+          );
+        })}
       </div>
 
-      <label className="flex flex-col gap-1.5">
-        <span className="text-sm font-semibold text-ink-secondary">Email</span>
-        <input
+      <div className="card-glass flex flex-col gap-4">
+        <Field
+          id="email"
+          label="Correo electrónico"
+          icon={IconMail}
           type="email"
           inputMode="email"
           autoComplete="email"
-          required
-          className="tap-target rounded-lg border border-outline-medium bg-elevated px-4 text-base text-ink-primary outline-none focus:border-brand-600"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          aria-label="Correo electrónico"
+          onChange={setEmail}
+          placeholder="tu@correo.com"
+          required
         />
-      </label>
 
-      {(mode === "password" || mode === "signup") && (
-        <label className="flex flex-col gap-1.5">
-          <span className="text-sm font-semibold text-ink-secondary">Contraseña</span>
-          <input
+        {(mode === "password" || mode === "signup") && (
+          <Field
+            id="password"
+            label={mode === "signup" ? "Crea una contraseña" : "Contraseña"}
+            icon={IconLock}
             type="password"
             autoComplete={mode === "signup" ? "new-password" : "current-password"}
-            required
-            minLength={8}
-            className="tap-target rounded-lg border border-outline-medium bg-elevated px-4 text-base text-ink-primary outline-none focus:border-brand-600"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            aria-label="Contraseña"
+            onChange={setPassword}
+            placeholder={mode === "signup" ? "Mínimo 8 caracteres" : "••••••••"}
+            minLength={8}
+            required
           />
-        </label>
-      )}
+        )}
 
-      {error && (
-        <p role="alert" className="text-sm font-semibold text-state-danger">
-          {error}
-        </p>
-      )}
+        {error && (
+          <p
+            role="alert"
+            className="rounded-xl border border-state-danger/20 bg-state-danger/5 px-3 py-2 text-sm font-medium text-state-danger"
+          >
+            {error}
+          </p>
+        )}
 
-      <button type="submit" className="btn-primary" disabled={isPending}>
-        {isPending
-          ? "Enviando…"
-          : mode === "magic"
-          ? "Recibir enlace"
-          : mode === "password"
-          ? "Entrar"
-          : "Crear cuenta"}
-      </button>
+        <button type="submit" className="btn-primary" disabled={isPending}>
+          {isPending ? (
+            <span className="inline-flex items-center gap-2">
+              <Spinner /> Enviando…
+            </span>
+          ) : (
+            <>
+              {mode === "magic"
+                ? "Recibir enlace mágico"
+                : mode === "password"
+                ? "Entrar"
+                : "Crear mi cuenta"}
+              <IconArrowRight size={18} stroke={2.4} aria-hidden />
+            </>
+          )}
+        </button>
 
-      <p className="text-center text-xs text-ink-subtle">
-        Al continuar aceptas el tratamiento confidencial de tus datos. Tu información solo la ves tú
-        y los profesionales autorizados.
-      </p>
+        {mode === "magic" && (
+          <p className="text-center text-[11px] leading-relaxed text-ink-subtle">
+            Te enviaremos un enlace seguro. Sin contraseñas que recordar.
+          </p>
+        )}
+      </div>
     </form>
   );
 }
 
-function ModeTab({
+function Field({
   id,
-  current,
-  onSelect,
-  children
+  label,
+  icon: Icon,
+  value,
+  onChange,
+  ...rest
 }: {
-  id: Mode;
-  current: Mode;
-  onSelect: (m: Mode) => void;
-  children: React.ReactNode;
-}) {
-  const active = id === current;
+  id: string;
+  label: string;
+  icon: typeof IconMail;
+  value: string;
+  onChange: (v: string) => void;
+} & Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange" | "value">) {
   return (
-    <button
-      type="button"
-      role="tab"
-      aria-selected={active}
-      onClick={() => onSelect(id)}
-      className={
-        "flex-1 rounded-full border px-3 py-2 text-xs font-semibold transition-colors " +
-        (active
-          ? "border-brand-600 bg-brand-600 text-ink-inverse"
-          : "border-outline-medium bg-elevated text-ink-secondary")
-      }
+    <label htmlFor={id} className="flex flex-col gap-1.5">
+      <span className="text-[13px] font-semibold text-ink-secondary">{label}</span>
+      <div className="relative">
+        <Icon
+          aria-hidden
+          size={18}
+          stroke={1.8}
+          className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-ink-subtle"
+        />
+        <input
+          {...rest}
+          id={id}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="input pl-11"
+          aria-label={label}
+        />
+      </div>
+    </label>
+  );
+}
+
+function Spinner() {
+  return (
+    <svg
+      className="h-4 w-4 animate-spin"
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden
     >
-      {children}
-    </button>
+      <circle
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        strokeOpacity="0.25"
+        strokeWidth="3"
+      />
+      <path
+        d="M22 12a10 10 0 0 1-10 10"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinecap="round"
+      />
+    </svg>
   );
 }

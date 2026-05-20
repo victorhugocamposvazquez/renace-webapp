@@ -1,46 +1,62 @@
 /**
- * Paleta RENACE. Los hex provienen del prototipo v5 con ajustes
- * para asegurar AA contra los fondos crudos (#F5F7F4 / #ECEFE9).
- * Cada `area` color contiene `core`, `tint` (fondo suave), `border` y `text`.
+ * Paleta RENACE — refresh "app 2026".
+ * - Neutros cálidos (zinc + sutil tinte cálido) para fondos limpios.
+ * - Brand verde RENACE conservado pero recalibrado con un 600 más vibrante.
+ * - Acento púrpura (`accent`) para gradients y CTAs especiales (Aria).
+ * - Tonos `text` casi negros para un contraste moderno tipo iOS / 2026.
  */
 export const palette = {
   /* Fondos y neutros */
   background: {
-    canvas: "#ECEFE9",
-    surface: "#F5F7F4",
+    canvas: "#F4F4F2",
+    surface: "#FAFAF9",
     elevated: "#FFFFFF"
   },
   border: {
-    soft: "#D8E0D4",
-    medium: "#C5D0BF",
-    strong: "#8A9388"
+    soft: "#ECEAE6",
+    medium: "#D6D3CE",
+    strong: "#9CA39B"
   },
   text: {
-    primary: "#1A2E1F",
-    secondary: "#2C3A2E",
-    muted: "#3D4A3F",
-    subtle: "#5C6759",
-    disabled: "#8A9388",
+    primary: "#0A0A0A",
+    secondary: "#27272A",
+    muted: "#52525B",
+    subtle: "#71717A",
+    disabled: "#A1A1AA",
     onColor: "#FFFFFF"
   },
 
   /* Verde RENACE — color de marca y Área Física */
   brand: {
-    50: "#E7F4ED",
-    100: "#DFF1E8",
-    200: "#C7E4D5",
-    400: "#2BB68A",
-    500: "#1A8A6A",
-    600: "#0F6E56",
-    700: "#0B5443"
+    50: "#ECFBF3",
+    100: "#D5F4E2",
+    200: "#A6E7C2",
+    300: "#5FD49C",
+    400: "#26BB7C",
+    500: "#0FA065",
+    600: "#0A8554",
+    700: "#0B6A45",
+    800: "#0C5238"
+  },
+
+  /* Acento púrpura para Aria, gradients y CTAs premium */
+  accent: {
+    50: "#F4F1FF",
+    100: "#E8E2FF",
+    200: "#CFC1FF",
+    300: "#AE96FF",
+    400: "#8A6CFB",
+    500: "#6F4FE8",
+    600: "#5A3DCC",
+    700: "#4530A3"
   },
 
   /* Estados */
   state: {
-    danger: "#E24B4A",
-    warning: "#B47119",
-    success: "#0F6E56",
-    info: "#1B6FC2"
+    danger: "#E11D48",
+    warning: "#C2410C",
+    success: "#0A8554",
+    info: "#2563EB"
   }
 } as const;
 

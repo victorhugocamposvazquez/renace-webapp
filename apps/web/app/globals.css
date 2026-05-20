@@ -5,6 +5,7 @@
 @layer base {
   :root {
     color-scheme: light;
+    --stage-max-w: 480px;
   }
 
   html,
@@ -12,31 +13,51 @@
     height: 100%;
   }
 
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
-    @apply bg-canvas text-ink-primary font-sans;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    @apply bg-canvas text-ink-primary font-sans antialiased;
     text-rendering: optimizeLegibility;
+    font-feature-settings: "cv11", "ss01", "ss03";
   }
 
-  /* Mobile-first: limitar viewport en desktop como preview */
+  /* Mobile-first: limitar viewport en desktop como preview "device frame" */
   .stage {
-    @apply mx-auto min-h-screen w-full max-w-[480px] bg-surface;
+    @apply mx-auto min-h-screen w-full bg-surface;
+    max-width: var(--stage-max-w);
   }
 
-  /* Hit target accesible para iconos pulsables */
+  @media (min-width: 520px) {
+    body {
+      @apply bg-canvas;
+      background-image:
+        radial-gradient(60% 60% at 50% 0%, rgba(111, 79, 232, 0.06) 0%, transparent 70%),
+        radial-gradient(80% 60% at 50% 100%, rgba(15, 160, 101, 0.05) 0%, transparent 70%);
+      background-attachment: fixed;
+    }
+
+    .stage {
+      @apply my-6 rounded-3xl shadow-lift;
+      min-height: calc(100vh - 48px);
+      max-width: var(--stage-max-w);
+      overflow: clip;
+    }
+  }
+
   .tap-target {
     @apply min-h-tap min-w-tap;
   }
 
-  /* Anillos invisibles más legibles que el outline por defecto del browser */
   *:focus-visible {
-    outline: 3px solid theme("colors.brand.500");
-    outline-offset: 2px;
-    border-radius: 6px;
+    outline: none;
+    box-shadow:
+      0 0 0 2px theme("colors.elevated"),
+      0 0 0 4px theme("colors.brand.500");
+    border-radius: 8px;
   }
 
-  /* prefers-reduced-motion */
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
@@ -45,35 +66,141 @@
       animation-iteration-count: 1 !important;
       transition-duration: 0.001ms !important;
     }
+
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
+  /* Selección de texto */
+  ::selection {
+    background: theme("colors.accent.200");
+    color: theme("colors.ink.primary");
+  }
+
+  /* Scrollbar minimal */
+  *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  *::-webkit-scrollbar-thumb {
+    background: theme("colors.outline.medium");
+    border-radius: 8px;
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background: theme("colors.outline.strong");
   }
 }
 
 @layer components {
+  /* ----- Surfaces ----- */
   .card {
-    @apply rounded-xl border border-outline-soft bg-elevated p-4;
+    @apply rounded-2xl border border-outline-soft/80 bg-elevated p-5 shadow-soft;
+  }
+
+  .card-lift {
+    @apply rounded-2xl border border-outline-soft/80 bg-elevated p-5 shadow-card;
+  }
+
+  .card-glass {
+    @apply rounded-2xl border border-white/40 bg-white/70 p-5 shadow-card backdrop-blur-xl;
   }
 
   .card-coloured {
-    @apply rounded-xl p-4 text-ink-inverse;
+    @apply rounded-2xl p-5 text-ink-inverse shadow-card;
   }
 
+  .panel {
+    @apply rounded-3xl border border-outline-soft/80 bg-elevated p-6 shadow-card;
+  }
+
+  /* ----- Pills / chips ----- */
   .pill {
-    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold;
+    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-outline-medium bg-elevated px-3 py-1.5 text-xs font-semibold text-ink-secondary;
+  }
+
+  .chip-active {
+    @apply border-brand-500 bg-brand-50 text-brand-700;
   }
 
   .label-eyebrow {
-    @apply text-xs font-bold uppercase tracking-wider text-ink-subtle;
+    @apply text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-subtle;
   }
 
+  /* ----- Buttons ----- */
   .btn-primary {
-    @apply tap-target w-full rounded-lg bg-brand-600 px-4 py-3 text-md font-semibold text-ink-inverse transition-opacity active:opacity-90 disabled:opacity-50;
+    @apply tap-target inline-flex w-full items-center justify-center gap-2 rounded-full bg-brand-gradient px-5 py-3.5 text-md font-semibold text-ink-inverse shadow-brand-glow transition-transform duration-200 ease-out-expo hover:brightness-105 active:scale-[0.98] disabled:opacity-50 disabled:shadow-none;
+  }
+
+  .btn-accent {
+    @apply tap-target inline-flex w-full items-center justify-center gap-2 rounded-full bg-accent-gradient px-5 py-3.5 text-md font-semibold text-ink-inverse shadow-accent-glow transition-transform duration-200 ease-out-expo hover:brightness-105 active:scale-[0.98] disabled:opacity-50 disabled:shadow-none;
   }
 
   .btn-secondary {
-    @apply tap-target w-full rounded-lg border border-outline-medium bg-elevated px-4 py-3 text-base font-semibold text-ink-primary transition-colors active:bg-canvas disabled:opacity-50;
+    @apply tap-target inline-flex w-full items-center justify-center gap-2 rounded-full border border-outline-medium bg-elevated px-5 py-3.5 text-base font-semibold text-ink-primary shadow-soft transition-colors duration-200 hover:bg-canvas active:scale-[0.98] disabled:opacity-50;
+  }
+
+  .btn-ghost {
+    @apply tap-target inline-flex items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-ink-secondary transition-colors duration-200 hover:bg-canvas;
   }
 
   .btn-white {
-    @apply tap-target w-full rounded-lg bg-elevated px-4 py-3 text-md font-semibold text-ink-primary transition-opacity active:opacity-90;
+    @apply tap-target inline-flex w-full items-center justify-center gap-2 rounded-full bg-elevated px-5 py-3.5 text-md font-semibold text-ink-primary shadow-soft transition-transform duration-200 ease-out-expo active:scale-[0.98];
+  }
+
+  /* ----- Inputs ----- */
+  .input {
+    @apply tap-target w-full rounded-xl border border-outline-medium bg-elevated px-4 text-base text-ink-primary placeholder:text-ink-subtle outline-none transition-shadow duration-200;
+  }
+
+  .input:focus {
+    @apply border-brand-500;
+    box-shadow: 0 0 0 4px theme("colors.brand.100");
+  }
+
+  /* ----- Segmented control (tabs estilo iOS 2026) ----- */
+  .segmented {
+    @apply relative grid auto-cols-fr grid-flow-col gap-1 rounded-full border border-outline-soft bg-canvas p-1;
+  }
+
+  .segmented-item {
+    @apply flex items-center justify-center rounded-full px-3 py-2 text-xs font-semibold text-ink-secondary transition-all duration-200 ease-out-expo;
+  }
+
+  .segmented-item-active {
+    @apply bg-elevated text-ink-primary shadow-soft;
+  }
+
+  /* ----- Decorative ----- */
+  .divider {
+    @apply h-px w-full bg-outline-soft;
+  }
+
+  .skeleton {
+    @apply relative overflow-hidden rounded-xl bg-canvas;
+  }
+
+  .skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: theme("backgroundImage.shimmer-line");
+    animation: shimmer 1.4s ease-in-out infinite;
+  }
+
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
   }
 }

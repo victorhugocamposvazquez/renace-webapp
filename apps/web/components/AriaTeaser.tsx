@@ -11,22 +11,34 @@ export function AriaTeaser({
   return (
     <Link
       href="/aria"
-      className="block rounded-2xl bg-brand-600 p-4 text-ink-inverse active:opacity-90"
+      className="group relative block overflow-hidden rounded-3xl bg-accent-gradient p-5 text-ink-inverse shadow-accent-glow transition-transform duration-200 ease-out-expo active:scale-[0.99]"
     >
-      <div className="flex items-center gap-3">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -right-8 -top-12 h-40 w-40 rounded-full bg-white/15 blur-2xl"
+      />
+      <div className="relative flex items-center gap-3">
         <span
           aria-hidden
-          className="grid h-11 w-11 place-items-center rounded-xl bg-white/20"
+          className="grid h-12 w-12 place-items-center rounded-2xl bg-white/20 backdrop-blur-sm"
         >
-          <IconSparkles size={22} aria-hidden />
+          <IconSparkles size={22} aria-hidden stroke={2.2} />
         </span>
         <div className="flex-1">
-          <div className="text-md font-bold">{ariaName}</div>
-          <div className="text-xs font-medium text-white/85">Tu acompañante</div>
+          <div className="text-lg font-bold tracking-tight">{ariaName}</div>
+          <div className="text-xs font-medium uppercase tracking-[0.14em] text-white/80">
+            Tu acompañante
+          </div>
         </div>
-        <IconArrowRight size={20} aria-hidden />
+        <IconArrowRight
+          size={20}
+          aria-hidden
+          className="transition-transform duration-200 group-hover:translate-x-1"
+        />
       </div>
-      <p className="mt-3 text-base font-medium leading-relaxed">{intro}</p>
+      <p className="relative mt-4 text-[15px] font-medium leading-relaxed text-white/95">
+        {intro}
+      </p>
     </Link>
   );
 }

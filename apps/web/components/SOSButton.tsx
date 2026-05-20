@@ -26,7 +26,7 @@ export function SOSButton({ contacts }: { contacts: TrustedContact[] }) {
           onClick={() => setOpen(false)}
         >
           <div
-            className="w-full max-w-[460px] rounded-2xl bg-elevated p-5 shadow-xl"
+            className="w-full max-w-[460px] rounded-3xl border border-outline-soft bg-elevated p-5 shadow-lift"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-start justify-between">
@@ -49,7 +49,11 @@ export function SOSButton({ contacts }: { contacts: TrustedContact[] }) {
             <div className="mt-4 flex flex-col gap-2">
               <a
                 href="tel:024"
-                className="btn-primary flex items-center justify-center gap-2 bg-state-danger"
+                style={{
+                  background: "linear-gradient(135deg, #F43F5E 0%, #E11D48 100%)",
+                  boxShadow: "0 12px 32px -8px rgba(225, 29, 72, 0.4)"
+                }}
+                className="tap-target inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3.5 text-md font-semibold text-ink-inverse transition-transform duration-200 active:scale-[0.98]"
               >
                 <IconPhone size={18} aria-hidden /> 024 · Crisis emocional
               </a>

@@ -13,7 +13,12 @@ import { cn } from "@/lib/cn";
 type Tab = {
   href: string;
   label: string;
-  icon: React.ComponentType<{ size?: number; "aria-hidden"?: boolean; stroke?: number }>;
+  icon: React.ComponentType<{
+    size?: number;
+    "aria-hidden"?: boolean;
+    stroke?: number;
+    className?: string;
+  }>;
   matches: (pathname: string) => boolean;
 };
 
@@ -49,26 +54,35 @@ export function BottomNav() {
   return (
     <nav
       aria-label="Navegación principal"
-      className="sticky bottom-0 z-30 mt-auto flex gap-1 border-t border-outline-soft bg-elevated px-3 pb-[max(env(safe-area-inset-bottom),12px)] pt-2"
+      className="sticky bottom-0 z-30 mt-auto px-3 pb-[max(env(safe-area-inset-bottom),10px)] pt-2"
     >
-      {TABS.map((tab) => {
-        const Icon = tab.icon;
-        const active = tab.matches(pathname);
-        return (
-          <Link
-            key={tab.href}
-            href={tab.href}
-            aria-current={active ? "page" : undefined}
-            className={cn(
-              "tap-target flex flex-1 flex-col items-center justify-center gap-1 rounded-lg py-2 text-xs font-semibold",
-              active ? "bg-brand-100 text-brand-600" : "text-ink-subtle"
-            )}
-          >
-            <Icon size={24} aria-hidden stroke={active ? 2.2 : 1.8} />
-            <span className="text-[11px] leading-none">{tab.label}</span>
-          </Link>
-        );
-      })}
+      <div className="flex gap-1 rounded-full border border-outline-soft bg-white/85 px-1.5 py-1.5 shadow-card backdrop-blur-xl">
+        {TABS.map((tab) => {
+          const Icon = tab.icon;
+          const active = tab.matches(pathname);
+          return (
+            <Link
+              key={tab.href}
+              href={tab.href}
+              aria-current={active ? "page" : undefined}
+              className={cn(
+                "group relative flex flex-1 flex-col items-center justify-center gap-0.5 rounded-full py-2 text-[11px] font-semibold transition-all duration-200 ease-out",
+                active
+                  ? "bg-ink-primary text-ink-inverse shadow-soft"
+                  : "text-ink-subtle hover:text-ink-secondary"
+              )}
+            >
+              <Icon
+                size={22}
+                aria-hidden
+                stroke={active ? 2.2 : 1.8}
+                className="transition-transform duration-200 group-active:scale-90"
+              />
+              <span className="leading-none">{tab.label}</span>
+            </Link>
+          );
+        })}
+      </div>
     </nav>
   );
 }
