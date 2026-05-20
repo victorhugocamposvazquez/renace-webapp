@@ -164,6 +164,15 @@
     box-shadow: 0 0 0 4px theme("colors.brand.100");
   }
 
+  /* ----- Utility: hide scrollbar (carousels) ----- */
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
   /* ----- Segmented control (tabs estilo iOS 2026) ----- */
   .segmented {
     @apply relative grid auto-cols-fr grid-flow-col gap-1 rounded-full border border-outline-soft bg-canvas p-1;

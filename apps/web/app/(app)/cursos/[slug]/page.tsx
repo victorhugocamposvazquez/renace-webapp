@@ -1,0 +1,261 @@
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import {
+  IconClockHour3,
+  IconPlayerPlayFilled,
+  IconBookmark,
+  IconCheck,
+  IconBroadcast,
+  IconBellRinging,
+  IconVideo,
+  IconCalendarTime
+} from "@tabler/icons-react";
+import { requireUser } from "@/lib/auth";
+import { getCourseBySlug } from "@renace/supabase";
+import { formatCountdown, formatDuration } from "@renace/core";
+import { BackLink } from "@/components/BackLink";
+import { CourseThumbnail } from "@/components/cursos/CourseThumbnail";
+import { ProgressControls } from "@/components/cursos/ProgressControls";
+import { ReminderToggleForm } from "@/components/cursos/ReminderToggleForm";
+import { EnrollButton } from "@/components/cursos/EnrollButton";
+
+type Props = { params: Promise<{ slug: string }> };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  return { title: `${slug} · RENACE` };
+}
+
+const AREA_HREF = {
+  laboral: "/laboral",
+  emocional: "/emocional",
+  fisica: "/fisica",
+  juridica: "/juridica",
+  comunidad: "/comunidad"
+} as const;
+
+const AREA_LABEL = {
+  laboral: "Laboral",
+  emocional: "Emocional",
+  fisica: "Física",
+  juridica: "Jurídica",
+  comunidad: "Comunidad"
+} as const;
+
+export default async function CourseDetailPage({ params }: Props) {
+  const { slug } = await params;
+  const { client, userId } = await requireUser();
+  const course = await getCourseBySlug(client, userId, slug);
+  if (!course) notFound();
+
+  const enrolled = course.enrollment;
+  const progress = enrolled?.progress_percent ?? 0;
+  const completed = !!enrolled?.completed_at;
+  const isLive = course.kind === "live_class";
+  const startsAt = course.starts_at ? new Date(course.starts_at) : null;
+  const diffMs = startsAt ? startsAt.getTime() - Date.now() : 0;
+  const isAirNow = startsAt ? diffMs <= 0 && diffMs > -90 * 60 * 1000 : false;
+  const isSoon = startsAt ? diffMs > 0 && diffMs <= 30 * 60 * 1000 : false;
+
+  return (
+    <div className="flex flex-1 flex-col gap-5 px-5 py-5">
+      <BackLink fallbackHref={AREA_HREF[course.area]} label={AREA_LABEL[course.area]} />
+
+      {/* HERO */}
+      <header className="relative -mx-5 -mt-5">
+        <div
+          className="relative overflow-hidden px-5 pb-6 pt-8 text-ink-inverse"
+          style={{
+            background: `linear-gradient(135deg, ${course.accent_color} 0%, ${darken(course.accent_color, 22)} 100%)`
+          }}
+        >
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -right-24 -top-12 h-64 w-64 rounded-full opacity-20"
+            style={{ background: "radial-gradient(circle, #fff 0%, transparent 70%)" }}
+          />
+          <div className="relative flex items-center gap-4">
+            <CourseThumbnail
+              accent={course.accent_color}
+              emoji={course.emoji}
+              size="sm"
+              rounded="2xl"
+            />
+            <div className="flex flex-col gap-1">
+              <span className="inline-flex w-fit items-center gap-1 rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
+                {isLive ? (
+                  <>
+                    <IconBroadcast size={11} aria-hidden /> Clase en directo
+                  </>
+                ) : (
+                  <>{AREA_LABEL[course.area]} · Curso</>
+                )}
+              </span>
+              {course.instructor_name && (
+                <p className="text-xs font-medium opacity-90">
+                  con {course.instructor_name}
+                  {course.instructor_role ? ` · ${course.instructor_role}` : ""}
+                </p>
+              )}
+            </div>
+          </div>
+          <h1 className="relative mt-4 text-2xl font-bold leading-tight">
+            {course.title}
+          </h1>
+          {course.description && (
+            <p className="relative mt-2 text-sm text-white/85">{course.description}</p>
+          )}
+
+          <div className="relative mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] font-medium opacity-95">
+            <span className="inline-flex items-center gap-1">
+              <IconClockHour3 size={13} aria-hidden />
+              {formatDuration(course.total_minutes)}
+            </span>
+            <span aria-hidden>·</span>
+            <span>{course.lessons_count} {isLive ? "sesión" : "lecciones"}</span>
+            {startsAt && (
+              <>
+                <span aria-hidden>·</span>
+                <span className="inline-flex items-center gap-1">
+                  <IconCalendarTime size={13} aria-hidden />
+                  {formatCountdown(startsAt)}
+                </span>
+              </>
+            )}
+          </div>
+        </div>
+      </header>
+
+      {/* CTA principal */}
+      {isLive ? (
+        isAirNow || isSoon ? (
+          <a
+            href="#join"
+            className="btn-primary text-center"
+            style={{ background: course.accent_color }}
+          >
+            <IconVideo size={16} aria-hidden />
+            <span>{isAirNow ? "Unirme ahora" : "Preparar entrada"}</span>
+          </a>
+        ) : (
+          <ReminderToggleForm
+            courseId={course.id}
+            initial={!!enrolled?.reminder_set}
+            accent={course.accent_color}
+          />
+        )
+      ) : completed ? (
+        <button
+          disabled
+          className="btn-secondary cursor-default"
+          aria-label="Curso completado"
+        >
+          <IconCheck size={16} aria-hidden /> Completado
+        </button>
+      ) : enrolled ? (
+        <ProgressControls
+          courseId={course.id}
+          totalLessons={course.lessons_count}
+          progress={progress}
+          currentLesson={enrolled.current_lesson}
+          accent={course.accent_color}
+        />
+      ) : (
+        <EnrollButton courseId={course.id} accent={course.accent_color} />
+      )}
+
+      {/* Meta secundaria */}
+      <section className="card">
+        <h2 className="text-sm font-bold text-ink-primary">Qué vas a conseguir</h2>
+        <p className="mt-1 text-sm text-ink-secondary">{course.exit_market}</p>
+        {course.format && (
+          <p className="mt-2 text-xs text-ink-muted">Formato: {course.format}</p>
+        )}
+      </section>
+
+      {/* Lecciones */}
+      {!isLive && (
+        <section>
+          <h2 className="label-eyebrow mb-2">Lecciones</h2>
+          <ol className="card divide-y divide-outline-soft p-0">
+            {Array.from({ length: course.lessons_count }).map((_, i) => {
+              const done = enrolled ? i < (enrolled.current_lesson ?? 0) : false;
+              const current = enrolled ? i === (enrolled.current_lesson ?? 0) : false;
+              return (
+                <li
+                  key={i}
+                  className="flex items-center gap-3 px-4 py-3"
+                >
+                  <span
+                    className="grid h-8 w-8 place-items-center rounded-full text-xs font-bold"
+                    style={{
+                      background: done
+                        ? course.accent_color
+                        : current
+                          ? `${course.accent_color}22`
+                          : "var(--paper-tint, #F4F4F2)",
+                      color: done
+                        ? "#fff"
+                        : current
+                          ? course.accent_color
+                          : "var(--ink-muted, #6E6E6E)"
+                    }}
+                  >
+                    {done ? <IconCheck size={14} aria-hidden /> : i + 1}
+                  </span>
+                  <div className="flex-1">
+                    <div className="text-sm font-semibold text-ink-primary">
+                      Lección {i + 1}
+                    </div>
+                    <div className="text-[11px] text-ink-subtle">
+                      {Math.max(5, Math.round(course.total_minutes / course.lessons_count))} min
+                    </div>
+                  </div>
+                  {current && (
+                    <span
+                      className="grid h-8 w-8 place-items-center rounded-full text-ink-inverse"
+                      style={{ background: course.accent_color }}
+                    >
+                      <IconPlayerPlayFilled size={12} aria-hidden />
+                    </span>
+                  )}
+                </li>
+              );
+            })}
+          </ol>
+        </section>
+      )}
+
+      {isLive && (
+        <section id="join" className="card">
+          <h2 className="text-sm font-bold text-ink-primary">
+            Cómo participar
+          </h2>
+          <p className="mt-1 text-sm text-ink-secondary">
+            Cuando empiece la clase, te llegará un aviso para entrar. Mientras
+            tanto puedes activar el recordatorio para no perderla.
+          </p>
+          {enrolled?.reminder_set && (
+            <p className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-accent-50 px-2.5 py-1 text-[11px] font-bold text-accent-700">
+              <IconBellRinging size={12} aria-hidden /> Recordatorio activado
+            </p>
+          )}
+          {enrolled && !enrolled.reminder_set && (
+            <p className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-paper-tint px-2.5 py-1 text-[11px] font-bold text-ink-secondary">
+              <IconBookmark size={12} aria-hidden /> Sin recordatorio
+            </p>
+          )}
+        </section>
+      )}
+    </div>
+  );
+}
+
+function darken(hex: string, percent: number): string {
+  const clean = hex.replace("#", "");
+  const num = parseInt(clean, 16);
+  const r = Math.max(0, ((num >> 16) & 0xff) - Math.round((255 * percent) / 100));
+  const g = Math.max(0, ((num >> 8) & 0xff) - Math.round((255 * percent) / 100));
+  const b = Math.max(0, (num & 0xff) - Math.round((255 * percent) / 100));
+  return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+}

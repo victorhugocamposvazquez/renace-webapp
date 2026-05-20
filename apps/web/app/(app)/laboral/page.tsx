@@ -1,26 +1,38 @@
 import type { Metadata } from "next";
-import { IconCheck, IconCompass, IconSchool, IconFileText } from "@tabler/icons-react";
+import { IconCheck, IconCompass, IconFileText } from "@tabler/icons-react";
 import { requireUser } from "@/lib/auth";
-import { listJobOffers, listMyApplications, listCourses } from "@renace/supabase";
+import {
+  listJobOffers,
+  listMyApplications,
+  listAreaCourses,
+  listContinueWatching
+} from "@renace/supabase";
 import { BackLink } from "@/components/BackLink";
 import { AreaHeader } from "@/components/AreaHeader";
 import { OfferCard } from "@/components/laboral/OfferCard";
-import { CourseList } from "@/components/laboral/CourseList";
+import { CourseShelf } from "@/components/cursos/CourseShelf";
+import { ContinueWatchingShelf } from "@/components/cursos/ContinueWatchingShelf";
 
 export const metadata: Metadata = { title: "Laboral · RENACE" };
 
 export default async function LaboralPage() {
   const { client, userId } = await requireUser();
-  const [offers, apps, courses] = await Promise.all([
+  const [offers, apps, areaCourses, continueWatching] = await Promise.all([
     listJobOffers(client, 6),
     listMyApplications(client, userId),
-    listCourses(client)
+    listAreaCourses(client, userId, "laboral"),
+    listContinueWatching(client, userId, 6)
   ]);
   const appliedSet = new Set(apps.map((a) => a.offer_id));
+  const continueLaboral = continueWatching.filter((c) => c.area === "laboral");
+
+  const recommended = areaCourses.filter((c) => !c.enrollment).slice(0, 8);
+  const transverse = areaCourses.filter((c) => c.demand === "transversal");
+  const highDemand = areaCourses.filter((c) => c.demand === "muy_alta");
 
   return (
-    <div className="flex flex-1 flex-col gap-4 px-5 py-5">
-      <BackLink />
+    <div className="flex flex-1 flex-col gap-5 px-5 py-5">
+      <BackLink fallbackHref="/home" />
       <AreaHeader area="laboral" />
 
       <article className="card border-area-laboral-border">
@@ -44,6 +56,24 @@ export default async function LaboralPage() {
         <p className="mt-2 text-xs text-ink-subtle">Próximo hito · primera entrevista real</p>
       </article>
 
+      {continueLaboral.length > 0 && (
+        <ContinueWatchingShelf courses={continueLaboral} />
+      )}
+
+      <CourseShelf
+        title="Cursos para encontrar trabajo"
+        subtitle="Salidas reales, hoy"
+        courses={highDemand.length > 0 ? highDemand : recommended}
+      />
+
+      {transverse.length > 0 && (
+        <CourseShelf
+          title="Hábitos que sostienen"
+          subtitle="Base transversal para cualquier empleo"
+          courses={transverse}
+        />
+      )}
+
       <h2 className="label-eyebrow">Ofertas para ti</h2>
       {offers.length === 0 ? (
         <p className="card text-sm text-ink-muted border-area-laboral-border">
@@ -59,39 +89,32 @@ export default async function LaboralPage() {
         </ul>
       )}
 
-      <h2 className="label-eyebrow">Tu progreso</h2>
+      <h2 className="label-eyebrow">Tu CV</h2>
       <div className="card p-1.5">
         <ul role="list" className="divide-y divide-outline-soft">
           <li className="flex items-center gap-3 px-3 py-3">
-            <span aria-hidden className="grid h-10 w-10 place-items-center rounded-lg bg-area-laboral-tint text-area-laboral">
+            <span
+              aria-hidden
+              className="grid h-10 w-10 place-items-center rounded-lg bg-area-laboral-tint text-area-laboral"
+            >
               <IconCompass size={20} aria-hidden />
             </span>
             <div className="flex-1">
               <div className="text-base font-semibold text-ink-primary">Orientación</div>
               <div className="text-xs text-ink-subtle">Perfil analizado</div>
             </div>
-            <span aria-label="Hecho" className="grid h-7 w-7 place-items-center rounded-full bg-brand-600 text-ink-inverse">
+            <span
+              aria-label="Hecho"
+              className="grid h-7 w-7 place-items-center rounded-full bg-brand-600 text-ink-inverse"
+            >
               <IconCheck size={16} aria-hidden />
             </span>
           </li>
           <li className="flex items-center gap-3 px-3 py-3">
-            <span aria-hidden className="grid h-10 w-10 place-items-center rounded-lg bg-area-laboral-tint text-area-laboral">
-              <IconSchool size={20} aria-hidden />
-            </span>
-            <div className="flex-1">
-              <div className="text-base font-semibold text-ink-primary">Curso de logística</div>
-              <div className="mt-1 flex items-center gap-2">
-                <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-outline-soft">
-                  <div className="h-full bg-area-laboral" style={{ width: "60%" }} aria-hidden />
-                </div>
-                <span className="text-xs font-bold text-ink-secondary" aria-label="60% completado">
-                  60%
-                </span>
-              </div>
-            </div>
-          </li>
-          <li className="flex items-center gap-3 px-3 py-3">
-            <span aria-hidden className="grid h-10 w-10 place-items-center rounded-lg bg-area-laboral-tint text-area-laboral">
+            <span
+              aria-hidden
+              className="grid h-10 w-10 place-items-center rounded-lg bg-area-laboral-tint text-area-laboral"
+            >
               <IconFileText size={20} aria-hidden />
             </span>
             <div className="flex-1">
@@ -101,9 +124,6 @@ export default async function LaboralPage() {
           </li>
         </ul>
       </div>
-
-      <h2 className="label-eyebrow">Catálogo de cursos</h2>
-      <CourseList courses={courses} />
     </div>
   );
 }

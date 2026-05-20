@@ -1,32 +1,31 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import {
-  IconBarbell,
-  IconSalad,
-  IconYoga,
-  IconDeviceWatch,
-  IconBolt
-} from "@tabler/icons-react";
+import { IconBolt } from "@tabler/icons-react";
 import { requireUser } from "@/lib/auth";
-import { getProfile, listRecentMoods } from "@renace/supabase";
+import {
+  getProfile,
+  listRecentMoods,
+  listAreaCourses,
+  listUpcomingLiveClasses,
+  listContinueWatching
+} from "@renace/supabase";
 import { BackLink } from "@/components/BackLink";
 import { AreaHeader } from "@/components/AreaHeader";
 import { MetricGrid } from "@/components/fisica/MetricGrid";
+import { LiveClassesSection } from "@/components/cursos/LiveClassesSection";
+import { CourseShelf } from "@/components/cursos/CourseShelf";
+import { ContinueWatchingShelf } from "@/components/cursos/ContinueWatchingShelf";
 
 export const metadata: Metadata = { title: "Física · RENACE" };
 
-const PLAN = [
-  { id: "deporte", label: "Deporte", subtitle: "4 sesiones / semana", icon: IconBarbell, badge: "Activo" },
-  { id: "nutricion", label: "Nutrición", subtitle: "Plan personalizado", icon: IconSalad },
-  { id: "antiansiedad", label: "Anti-ansiedad", subtitle: "Rutinas guiadas", icon: IconYoga },
-  { id: "smartwatch", label: "Smartwatch", subtitle: "Sincroniza pasos y sueño", icon: IconDeviceWatch, badge: "Conectar" }
-];
-
 export default async function FisicaPage() {
   const { client, userId } = await requireUser();
-  const [profile, recent] = await Promise.all([
+  const [profile, recent, liveClasses, courses, cont] = await Promise.all([
     getProfile(client, userId),
-    listRecentMoods(client, userId, 7)
+    listRecentMoods(client, userId, 7),
+    listUpcomingLiveClasses(client, userId, "fisica"),
+    listAreaCourses(client, userId, "fisica"),
+    listContinueWatching(client, userId, 6)
   ]);
   if (!profile) return null;
 
@@ -34,13 +33,21 @@ export default async function FisicaPage() {
     recent.length === 0
       ? null
       : Math.round((recent.reduce((a, m) => a + m.score, 0) / recent.length) * 10) / 10;
-
   const sparkBars = recent.map((m) => (m.score / 5) * 100);
+  const continueFisica = cont.filter((c) => c.area === "fisica");
+  const recommended = courses.filter((c) => !c.enrollment).slice(0, 8);
 
   return (
-    <div className="flex flex-1 flex-col gap-4 px-5 py-5">
-      <BackLink />
+    <div className="flex flex-1 flex-col gap-5 px-5 py-5">
+      <BackLink fallbackHref="/home" />
       <AreaHeader area="fisica" />
+
+      {/* Las clases en directo son el foco visual de Física */}
+      <LiveClassesSection classes={liveClasses} />
+
+      {continueFisica.length > 0 && (
+        <ContinueWatchingShelf courses={continueFisica} />
+      )}
 
       <MetricGrid
         metrics={[
@@ -85,37 +92,20 @@ export default async function FisicaPage() {
           <IconBolt size={20} aria-hidden />
           <h2 className="text-md font-bold">¿Sientes ansiedad alta?</h2>
         </div>
-        <p className="mt-2 text-base font-medium">Hagamos una respiración guiada de 2 minutos con Aria.</p>
+        <p className="mt-2 text-base font-medium">
+          Hagamos una respiración guiada de 2 minutos con Aria.
+        </p>
         <span className="btn-white mt-3 inline-flex items-center justify-center text-area-fisica-text">
           Empezar ahora
         </span>
       </Link>
 
-      <h2 className="label-eyebrow">Tu plan</h2>
-      <div className="card p-1.5">
-        <ul role="list" className="divide-y divide-outline-soft">
-          {PLAN.map((item) => {
-            const Icon = item.icon;
-            return (
-              <li key={item.id} className="flex items-center gap-3 px-3 py-3">
-                <span
-                  aria-hidden
-                  className="grid h-10 w-10 place-items-center rounded-lg bg-area-fisica-tint text-area-fisica"
-                >
-                  <Icon size={20} aria-hidden />
-                </span>
-                <div className="flex-1">
-                  <div className="text-base font-semibold text-ink-primary">{item.label}</div>
-                  <div className="text-xs text-ink-subtle">{item.subtitle}</div>
-                </div>
-                {item.badge && (
-                  <span className="pill bg-area-fisica-tint text-area-fisica-text">{item.badge}</span>
-                )}
-              </li>
-            );
-          })}
-        </ul>
-      </div>
+      <CourseShelf
+        title="Mueve tu cuerpo, sin agobios"
+        subtitle="Rutinas progresivas a tu ritmo"
+        courses={recommended}
+        emptyText="Pronto nuevas rutinas por aquí."
+      />
     </div>
   );
 }

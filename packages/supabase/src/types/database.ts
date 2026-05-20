@@ -142,6 +142,14 @@ export type Database = {
           format: string;
           emoji: string | null;
           description: string | null;
+          area: AreaId;
+          kind: "course" | "live_class";
+          instructor_name: string | null;
+          instructor_role: string | null;
+          accent_color: string;
+          total_minutes: number;
+          lessons_count: number;
+          starts_at: string | null;
         };
         Insert: {
           slug: string;
@@ -153,8 +161,39 @@ export type Database = {
           format?: string;
           emoji?: string | null;
           description?: string | null;
+          area?: AreaId;
+          kind?: "course" | "live_class";
+          instructor_name?: string | null;
+          instructor_role?: string | null;
+          accent_color?: string;
+          total_minutes?: number;
+          lessons_count?: number;
+          starts_at?: string | null;
         };
         Update: Partial<Database["public"]["Tables"]["courses"]["Insert"]>;
+        Relationships: [];
+      };
+      course_enrollments: {
+        Row: {
+          user_id: string;
+          course_id: string;
+          progress_percent: number;
+          current_lesson: number;
+          enrolled_at: string;
+          last_seen_at: string;
+          completed_at: string | null;
+          reminder_set: boolean;
+        };
+        Insert: {
+          user_id: string;
+          course_id: string;
+          progress_percent?: number;
+          current_lesson?: number;
+          last_seen_at?: string;
+          completed_at?: string | null;
+          reminder_set?: boolean;
+        };
+        Update: Partial<Database["public"]["Tables"]["course_enrollments"]["Insert"]>;
         Relationships: [];
       };
       job_offers: {
@@ -318,6 +357,7 @@ export type AreaProgress = Tables["area_progress"]["Row"];
 export type LegalCase = Tables["legal_cases"]["Row"];
 export type ConsultRequest = Tables["consult_requests"]["Row"];
 export type Course = Tables["courses"]["Row"];
+export type CourseEnrollment = Tables["course_enrollments"]["Row"];
 export type JobOffer = Tables["job_offers"]["Row"];
 export type JobApplication = Tables["job_applications"]["Row"];
 export type CommunityPost = Tables["community_posts"]["Row"];
