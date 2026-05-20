@@ -1,9 +1,16 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { useChat } from "ai/react";
-import { IconArrowLeft, IconSend2, IconSparkles } from "@tabler/icons-react";
+import {
+  IconArrowLeft,
+  IconSend2,
+  IconSparkles,
+  IconTrash
+} from "@tabler/icons-react";
+import { ConfirmModal } from "@/components/ConfirmModal";
+import { clearAriaHistoryAction } from "@/app/(app)/aria/actions";
 
 type Msg = { id: string; role: "user" | "assistant" | "system"; content: string };
 
@@ -54,6 +61,17 @@ export function AriaChat({
 
   const visibleMessages = messages.filter((m) => m.role !== "system");
 
+  const [confirmClear, setConfirmClear] = useState(false);
+  const [isClearing, startClear] = useTransition();
+
+  function handleClear() {
+    startClear(async () => {
+      await clearAriaHistoryAction();
+      setMessages([]);
+      setConfirmClear(false);
+    });
+  }
+
   return (
     <div className="flex h-[100dvh] flex-1 flex-col bg-canvas">
       <header className="flex items-center gap-3 border-b border-outline-soft bg-elevated px-4 py-3">
@@ -77,10 +95,11 @@ export function AriaChat({
         {messages.length > 0 && (
           <button
             type="button"
-            onClick={() => setMessages([])}
-            className="tap-target rounded-full border border-outline-medium bg-elevated px-3 text-xs font-semibold text-ink-secondary"
+            onClick={() => setConfirmClear(true)}
+            aria-label="Empezar conversación nueva"
+            className="tap-target inline-flex items-center gap-1.5 rounded-full border border-outline-soft bg-elevated px-3 text-xs font-semibold text-ink-secondary shadow-soft transition-colors hover:text-state-danger"
           >
-            Nuevo
+            <IconTrash size={14} aria-hidden stroke={2} /> Nueva
           </button>
         )}
       </header>
@@ -135,6 +154,30 @@ export function AriaChat({
           <IconSend2 size={20} aria-hidden />
         </button>
       </form>
+
+      <ConfirmModal
+        open={confirmClear}
+        onCancel={() => !isClearing && setConfirmClear(false)}
+        onConfirm={handleClear}
+        busy={isClearing}
+        tone="danger"
+        icon={<IconTrash size={22} stroke={2.2} aria-hidden />}
+        title={`¿Empezar una conversación nueva con ${ariaName}?`}
+        description={
+          <>
+            <p>
+              Vamos a borrar el historial de mensajes con {ariaName}. Tus datos del
+              diario, ánimo y áreas <strong>no se ven afectados</strong>.
+            </p>
+            <p className="mt-2 text-ink-subtle">
+              Sirve para empezar de cero si quieres cambiar de tema o ya no necesitas
+              recordar lo hablado.
+            </p>
+          </>
+        }
+        confirmLabel="Sí, empezar nueva"
+        cancelLabel="Mantener conversación"
+      />
     </div>
   );
 }

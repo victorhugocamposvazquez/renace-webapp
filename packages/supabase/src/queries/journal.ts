@@ -28,3 +28,16 @@ export async function addJournalEntry(
   if (error) throw error;
   return data;
 }
+
+export async function deleteJournalEntry(
+  client: RenaceClient,
+  userId: string,
+  entryId: string
+): Promise<void> {
+  const { error } = await client
+    .from("journal_entries")
+    .delete()
+    .eq("id", entryId)
+    .eq("user_id", userId);
+  if (error) throw error;
+}

@@ -5,6 +5,7 @@ import { MoodLogInputSchema, JournalEntryInputSchema, TriggerInputSchema, type T
 import {
   logMood,
   addJournalEntry,
+  deleteJournalEntry,
   addTrigger,
   deleteTrigger
 } from "@renace/supabase";
@@ -32,6 +33,17 @@ export async function addJournalAction(formData: FormData) {
     return { ok: false as const, error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
   }
   await addJournalEntry(client, userId, parsed.data);
+  revalidatePath("/emocional");
+  return { ok: true as const };
+}
+
+export async function deleteJournalAction(formData: FormData) {
+  const { client, userId } = await requireUser();
+  const id = formData.get("id");
+  if (typeof id !== "string" || id.length === 0) {
+    return { ok: false as const, error: "Entrada no encontrada" };
+  }
+  await deleteJournalEntry(client, userId, id);
   revalidatePath("/emocional");
   return { ok: true as const };
 }

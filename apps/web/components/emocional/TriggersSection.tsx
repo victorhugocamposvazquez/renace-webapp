@@ -5,6 +5,7 @@ import { IconShieldCheck, IconTrash } from "@tabler/icons-react";
 import type { Trigger } from "@renace/supabase";
 import { TRIGGER_SEVERITY_LABEL, type TriggerSeverity } from "@renace/core";
 import { addTriggerAction, deleteTriggerAction } from "@/app/(app)/emocional/actions";
+import { ConfirmModal } from "@/components/ConfirmModal";
 
 const SEVERITY_STYLES: Record<TriggerSeverity, string> = {
   1: "bg-area-emocional-tint text-ink-muted",
@@ -16,6 +17,7 @@ export function TriggersSection({ triggers }: { triggers: Trigger[] }) {
   const [label, setLabel] = useState("");
   const [severity, setSeverity] = useState<TriggerSeverity>(2);
   const [error, setError] = useState<string | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<Trigger | null>(null);
   const [isPending, startTransition] = useTransition();
 
   function submit() {
@@ -36,11 +38,13 @@ export function TriggersSection({ triggers }: { triggers: Trigger[] }) {
     });
   }
 
-  function remove(id: string) {
+  function confirmRemove() {
+    if (!pendingDelete) return;
     startTransition(async () => {
       const fd = new FormData();
-      fd.set("id", id);
+      fd.set("id", pendingDelete.id);
       await deleteTriggerAction(fd);
+      setPendingDelete(null);
     });
   }
 
@@ -106,9 +110,9 @@ export function TriggersSection({ triggers }: { triggers: Trigger[] }) {
               <span className="flex-1 text-sm text-ink-primary">{t.label}</span>
               <button
                 type="button"
-                onClick={() => remove(t.id)}
+                onClick={() => setPendingDelete(t)}
                 aria-label={`Borrar ${t.label}`}
-                className="tap-target -mr-2 grid place-items-center text-ink-subtle"
+                className="tap-target -mr-2 grid place-items-center rounded-full text-ink-subtle transition-colors hover:text-state-danger"
               >
                 <IconTrash size={18} aria-hidden />
               </button>
@@ -116,6 +120,26 @@ export function TriggersSection({ triggers }: { triggers: Trigger[] }) {
           ))}
         </ul>
       )}
+
+      <ConfirmModal
+        open={!!pendingDelete}
+        onCancel={() => !isPending && setPendingDelete(null)}
+        onConfirm={confirmRemove}
+        busy={isPending}
+        tone="danger"
+        icon={<IconTrash size={22} stroke={2.2} aria-hidden />}
+        title="¿Borrar este disparador?"
+        description={
+          pendingDelete ? (
+            <p>
+              Vamos a borrar <strong className="font-semibold text-ink-primary">«{pendingDelete.label}»</strong>{" "}
+              de tu lista. Si vuelve a aparecer en tu vida, lo puedes añadir otra vez.
+            </p>
+          ) : null
+        }
+        confirmLabel="Sí, borrar"
+        cancelLabel="Mantener"
+      />
     </section>
   );
 }

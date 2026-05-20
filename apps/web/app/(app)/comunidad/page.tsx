@@ -46,7 +46,7 @@ export default async function ComunidadPage() {
         <ul role="list" className="flex flex-col gap-2.5">
           {posts.map((p) => (
             <li key={p.id}>
-              <PostCard post={p} />
+              <PostCard post={p} currentUserId={userId} />
             </li>
           ))}
         </ul>

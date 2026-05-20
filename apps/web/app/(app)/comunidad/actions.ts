@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { CommunityPostInputSchema } from "@renace/core";
 import {
   createCommunityPost,
+  deleteCommunityPost,
   toggleLike,
   toggleAttendance
 } from "@renace/supabase";
@@ -16,6 +17,20 @@ export async function createPostAction(formData: FormData) {
     return { ok: false as const, error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
   }
   await createCommunityPost(client, userId, parsed.data);
+  revalidatePath("/comunidad");
+  return { ok: true as const };
+}
+
+export async function deletePostAction(formData: FormData) {
+  const { client, userId } = await requireUser();
+  const id = formData.get("id");
+  if (typeof id !== "string" || id.length === 0) {
+    return { ok: false as const, error: "Post no encontrado" };
+  }
+  const deleted = await deleteCommunityPost(client, userId, id);
+  if (!deleted) {
+    return { ok: false as const, error: "Solo puedes borrar tus propios posts" };
+  }
   revalidatePath("/comunidad");
   return { ok: true as const };
 }

@@ -61,6 +61,25 @@ export async function createCommunityPost(
   return data;
 }
 
+/**
+ * Borra un post propio. RLS garantiza que solo el autor puede borrar.
+ * Devuelve true si efectivamente se borró una fila.
+ */
+export async function deleteCommunityPost(
+  client: RenaceClient,
+  userId: string,
+  postId: string
+): Promise<boolean> {
+  const { data, error } = await client
+    .from("community_posts")
+    .delete()
+    .eq("id", postId)
+    .eq("user_id", userId)
+    .select("id");
+  if (error) throw error;
+  return (data?.length ?? 0) > 0;
+}
+
 export async function toggleLike(
   client: RenaceClient,
   userId: string,
