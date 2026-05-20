@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { ProfileOnboardingSchema, DEFAULT_MILESTONES } from "@renace/core";
 import {
   completeOnboarding,
@@ -36,6 +37,17 @@ export async function completeOnboardingAction(formData: FormData) {
       upsertAreaProgress(client, userId, area, { percent: 0, status: "on_track" })
     )
   );
+
+  // Cookie de cache para que el middleware salte el query de profiles en cada
+  // navegación. Ver lib/supabase/middleware.ts para detalle.
+  const cookieStore = await cookies();
+  cookieStore.set("renace_onboarded", "yes", {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 60 * 60 * 24 * 30,
+    path: "/"
+  });
 
   revalidatePath("/", "layout");
   redirect("/home");

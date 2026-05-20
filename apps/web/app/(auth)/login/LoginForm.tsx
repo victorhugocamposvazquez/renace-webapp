@@ -53,7 +53,6 @@ export function LoginForm() {
           const { error } = await supabase.auth.signInWithPassword({ email, password });
           if (error) throw error;
           router.replace(redirectTo);
-          router.refresh();
         } else {
           const { error } = await supabase.auth.signUp({
             email,

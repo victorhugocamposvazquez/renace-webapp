@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { TrustedContactInputSchema } from "@renace/core";
 import {
   addTrustedContact,
@@ -47,5 +48,9 @@ export async function updateAriaPreferenceAction(formData: FormData) {
 export async function signOutAction() {
   const supabase = await createSupabaseServerClient();
   await supabase.auth.signOut();
+  // Limpiamos la cookie de cache de onboarding para evitar inconsistencias
+  // si después entra otro usuario en el mismo navegador.
+  const cookieStore = await cookies();
+  cookieStore.delete("renace_onboarded");
   redirect("/login");
 }
