@@ -41,7 +41,7 @@ export function CourseShelf({
       </header>
 
       {courses.length === 0 ? (
-        <p className="mx-5 rounded-2xl bg-paper-tint px-4 py-6 text-sm text-ink-muted">
+        <p className="mx-5 rounded-2xl bg-canvas px-4 py-6 text-sm text-ink-muted">
           {emptyText}
         </p>
       ) : (

@@ -193,7 +193,7 @@ export default async function CourseDetailPage({ params }: Props) {
                         ? course.accent_color
                         : current
                           ? `${course.accent_color}22`
-                          : "var(--paper-tint, #F4F4F2)",
+                          : "#F4F4F2",
                       color: done
                         ? "#fff"
                         : current
@@ -241,7 +241,7 @@ export default async function CourseDetailPage({ params }: Props) {
             </p>
           )}
           {enrolled && !enrolled.reminder_set && (
-            <p className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-paper-tint px-2.5 py-1 text-[11px] font-bold text-ink-secondary">
+            <p className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-canvas px-2.5 py-1 text-[11px] font-bold text-ink-secondary">
               <IconBookmark size={12} aria-hidden /> Sin recordatorio
             </p>
           )}

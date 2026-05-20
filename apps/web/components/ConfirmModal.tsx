@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef } from "react";
 import { IconAlertTriangle, IconCheck, IconX } from "@tabler/icons-react";
+import { Portal } from "./Portal";
 
 export type ConfirmModalTone = "default" | "primary" | "danger";
 
@@ -91,68 +92,73 @@ export function ConfirmModal({
       : "bg-brand-100 text-brand-700";
 
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby={titleId}
-      aria-describedby={description ? descId : undefined}
-      className="fixed inset-0 z-[60] flex items-end justify-center bg-ink-primary/40 px-4 pb-4 pt-10 animate-[fade-in_180ms_ease-out] sm:items-center"
-      onClick={() => {
-        if (!busy) onCancel();
-      }}
-    >
+    <Portal>
       <div
-        className="w-full max-w-[460px] origin-bottom rounded-3xl border border-outline-soft bg-elevated p-6 shadow-lift animate-[sheet-in_220ms_cubic-bezier(0.16,1,0.3,1)]"
-        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        aria-describedby={description ? descId : undefined}
+        className="fixed inset-0 z-[100] flex items-end justify-center bg-ink-primary/50 px-4 pt-10 backdrop-blur-[2px] animate-[fade-in_180ms_ease-out] sm:items-center"
+        style={{
+          paddingBottom: "max(env(safe-area-inset-bottom), 16px)"
+        }}
+        onClick={() => {
+          if (!busy) onCancel();
+        }}
       >
-        <div className="flex items-start gap-4">
-          <span
-            aria-hidden
-            className={`grid h-11 w-11 shrink-0 place-items-center rounded-full ${iconColor}`}
-          >
-            {icon ?? defaultIcon}
-          </span>
-          <div className="flex-1">
-            <h2 id={titleId} className="text-lg font-bold tracking-tight text-ink-primary">
-              {title}
-            </h2>
-            {description && (
-              <div id={descId} className="mt-1.5 text-sm leading-relaxed text-ink-muted">
-                {description}
-              </div>
-            )}
+        <div
+          className="w-full max-w-[460px] origin-bottom rounded-3xl border border-outline-soft bg-elevated p-6 shadow-lift animate-[sheet-in_220ms_cubic-bezier(0.16,1,0.3,1)]"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="flex items-start gap-4">
+            <span
+              aria-hidden
+              className={`grid h-11 w-11 shrink-0 place-items-center rounded-full ${iconColor}`}
+            >
+              {icon ?? defaultIcon}
+            </span>
+            <div className="flex-1">
+              <h2 id={titleId} className="text-lg font-bold tracking-tight text-ink-primary">
+                {title}
+              </h2>
+              {description && (
+                <div id={descId} className="mt-1.5 text-sm leading-relaxed text-ink-muted">
+                  {description}
+                </div>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={onCancel}
+              aria-label="Cerrar"
+              disabled={busy}
+              className="tap-target -mr-2 -mt-2 grid place-items-center rounded-full text-ink-subtle transition-colors hover:text-ink-primary"
+            >
+              <IconX size={20} aria-hidden />
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={onCancel}
-            aria-label="Cerrar"
-            disabled={busy}
-            className="tap-target -mr-2 -mt-2 grid place-items-center rounded-full text-ink-subtle transition-colors hover:text-ink-primary"
-          >
-            <IconX size={20} aria-hidden />
-          </button>
-        </div>
-        <div className="mt-5 grid grid-cols-2 gap-3">
-          <button
-            type="button"
-            onClick={onCancel}
-            disabled={busy}
-            className="btn-secondary"
-          >
-            {cancelLabel}
-          </button>
-          <button
-            ref={confirmRef}
-            type="button"
-            onClick={onConfirm}
-            disabled={busy}
-            style={confirmTone}
-            className={confirmClass}
-          >
-            {busy ? "Procesando…" : confirmLabel}
-          </button>
+          <div className="mt-5 grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={onCancel}
+              disabled={busy}
+              className="btn-secondary"
+            >
+              {cancelLabel}
+            </button>
+            <button
+              ref={confirmRef}
+              type="button"
+              onClick={onConfirm}
+              disabled={busy}
+              style={confirmTone}
+              className={confirmClass}
+            >
+              {busy ? "Procesando…" : confirmLabel}
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </Portal>
   );
 }

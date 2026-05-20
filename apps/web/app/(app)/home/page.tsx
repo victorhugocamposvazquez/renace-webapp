@@ -12,6 +12,7 @@ import { AppHeader } from "@/components/AppHeader";
 import { Renace360 } from "@/components/Renace360";
 import { AriaTeaser } from "@/components/AriaTeaser";
 import { MicroActionCard } from "@/components/MicroActionCard";
+import { RecoveryProgress } from "@/components/RecoveryProgress";
 
 export const metadata: Metadata = { title: "Inicio · RENACE" };
 
@@ -56,6 +57,15 @@ export default async function HomePage() {
           dayInProgram={profile.day_in_program}
           week={week}
           alias={profile.alias}
+        />
+      </section>
+
+      <section className="px-5">
+        <RecoveryProgress
+          progress={areas}
+          totalPercent={total}
+          dayInProgram={profile.day_in_program}
+          week={week}
         />
       </section>
 

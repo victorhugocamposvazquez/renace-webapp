@@ -17,7 +17,7 @@ export function LiveClassesSection({
         <div className="mb-2 flex items-end justify-between">
           <h2 className="text-base font-bold text-ink-primary">Clases en directo</h2>
         </div>
-        <p className="rounded-2xl bg-paper-tint px-4 py-6 text-sm text-ink-muted">
+        <p className="rounded-2xl bg-canvas px-4 py-6 text-sm text-ink-muted">
           No hay clases programadas ahora mismo. Vuelve en unos días.
         </p>
       </section>

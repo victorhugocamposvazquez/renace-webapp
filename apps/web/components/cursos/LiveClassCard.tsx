@@ -117,7 +117,7 @@ export function LiveClassCard({
               "grid h-10 w-10 place-items-center rounded-full border transition active:scale-95 " +
               (optimisticReminder
                 ? "border-transparent bg-accent-500 text-ink-inverse"
-                : "border-outline bg-paper-tint text-ink-secondary")
+                : "border-outline-soft bg-canvas text-ink-secondary")
             }
           >
             {optimisticReminder ? (

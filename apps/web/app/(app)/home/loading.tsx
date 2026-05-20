@@ -33,6 +33,20 @@ export default function HomeLoading() {
         </div>
       </div>
 
+      {/* Recovery progress skeleton */}
+      <section className="px-5">
+        <div className="rounded-2xl border border-outline-soft/80 bg-elevated p-5 shadow-card">
+          <div className="skeleton mb-2 h-3 w-24 rounded-full" aria-hidden />
+          <div className="skeleton h-10 w-32 rounded-full" aria-hidden />
+          <div className="skeleton mt-4 h-2.5 w-full rounded-full" aria-hidden />
+          <div className="mt-4 grid grid-cols-5 gap-1.5">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="skeleton h-14 rounded-md" aria-hidden />
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section className="px-5">
         <CardSkeleton lines={2} />
       </section>
