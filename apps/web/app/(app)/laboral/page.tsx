@@ -5,7 +5,7 @@ import {
   listJobOffers,
   listMyApplications,
   listAreaCourses,
-  listContinueWatching
+  listInProgressCourses
 } from "@renace/supabase";
 import { BackLink } from "@/components/BackLink";
 import { AreaHeader } from "@/components/AreaHeader";
@@ -17,14 +17,14 @@ export const metadata: Metadata = { title: "Laboral · RENACE" };
 
 export default async function LaboralPage() {
   const { client, userId } = await requireUser();
-  const [offers, apps, areaCourses, continueWatching] = await Promise.all([
+  const [offers, apps, areaCourses, inProgress] = await Promise.all([
     listJobOffers(client, 6),
     listMyApplications(client, userId),
     listAreaCourses(client, userId, "laboral"),
-    listContinueWatching(client, userId, 6)
+    listInProgressCourses(client, userId, 8)
   ]);
   const appliedSet = new Set(apps.map((a) => a.offer_id));
-  const continueLaboral = continueWatching.filter((c) => c.area === "laboral");
+  const continueLaboral = inProgress.filter((c) => c.area === "laboral");
 
   const recommended = areaCourses.filter((c) => !c.enrollment).slice(0, 8);
   const transverse = areaCourses.filter((c) => c.demand === "transversal");
@@ -57,13 +57,17 @@ export default async function LaboralPage() {
       </article>
 
       {continueLaboral.length > 0 && (
-        <ContinueWatchingShelf courses={continueLaboral} />
+        <ContinueWatchingShelf
+          courses={continueLaboral}
+          subtitle="Tus cursos laborales activos"
+        />
       )}
 
       <CourseShelf
         title="Cursos para encontrar trabajo"
         subtitle="Salidas reales, hoy"
         courses={highDemand.length > 0 ? highDemand : recommended}
+        seeAllHref="/cursos?tab=catalog"
       />
 
       {transverse.length > 0 && (

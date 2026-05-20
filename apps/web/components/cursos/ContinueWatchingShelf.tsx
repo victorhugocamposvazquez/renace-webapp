@@ -1,26 +1,43 @@
 import Link from "next/link";
-import { IconPlayerPlayFilled, IconClockHour3 } from "@tabler/icons-react";
+import {
+  IconPlayerPlayFilled,
+  IconClockHour3,
+  IconSparkles
+} from "@tabler/icons-react";
 import type { CourseWithEnrollment } from "@renace/supabase";
 import { formatDuration } from "@renace/core";
 import { CourseThumbnail } from "./CourseThumbnail";
 
 /**
- * Estantería "Continuar viendo" en formato horizontal grande, con cards
- * más anchas que un CourseCard estándar y un foco fuerte en el progreso.
+ * Estantería "Tu plan en marcha": cards horizontales grandes para retomar
+ * cursos en progreso o recién empezados. Foco en CTA de continuar y en el
+ * estado actual (badge + lección + tiempo restante + barra de progreso).
  */
 export function ContinueWatchingShelf({
-  courses
+  courses,
+  title = "Tu plan en marcha",
+  subtitle = "Continúa donde lo dejaste"
 }: {
   courses: CourseWithEnrollment[];
+  title?: string;
+  subtitle?: string;
 }) {
   if (courses.length === 0) return null;
   return (
     <section className="-mx-5">
       <header className="mb-3 flex items-end justify-between gap-3 px-5">
         <div>
-          <h2 className="text-base font-bold text-ink-primary">Continuar viendo</h2>
-          <p className="text-xs text-ink-subtle">Donde lo dejaste</p>
+          <h2 className="text-base font-bold text-ink-primary">{title}</h2>
+          <p className="text-xs text-ink-subtle">{subtitle}</p>
         </div>
+        {courses.length > 2 && (
+          <Link
+            href="/cursos"
+            className="shrink-0 text-xs font-semibold text-brand-700"
+          >
+            Ver todo
+          </Link>
+        )}
       </header>
       <ul
         role="list"
@@ -28,12 +45,14 @@ export function ContinueWatchingShelf({
       >
         {courses.map((c) => {
           const progress = c.enrollment?.progress_percent ?? 0;
+          const fresh = progress === 0;
           const remaining = Math.max(
             5,
             Math.round((c.total_minutes * (100 - progress)) / 100)
           );
+          const currentLesson = (c.enrollment?.current_lesson ?? 0) + 1;
           return (
-            <li key={c.id} className="snap-start" style={{ width: 260 }}>
+            <li key={c.id} className="snap-start" style={{ width: 272 }}>
               <Link
                 href={`/cursos/${c.slug}`}
                 className="card-lift flex flex-col gap-3 p-3 outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
@@ -46,12 +65,29 @@ export function ContinueWatchingShelf({
                     rounded="xl"
                   />
                   <div className="flex flex-1 flex-col">
-                    <h3 className="line-clamp-2 text-sm font-bold text-ink-primary">
+                    <span
+                      className="inline-flex w-fit items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide"
+                      style={{
+                        background: fresh
+                          ? `${c.accent_color}1f`
+                          : `${c.accent_color}29`,
+                        color: c.accent_color
+                      }}
+                    >
+                      {fresh ? (
+                        <>
+                          <IconSparkles size={10} aria-hidden />
+                          Recién empezado
+                        </>
+                      ) : (
+                        <>{progress}% completado</>
+                      )}
+                    </span>
+                    <h3 className="mt-1.5 line-clamp-2 text-sm font-bold text-ink-primary">
                       {c.title}
                     </h3>
                     <p className="line-clamp-1 mt-0.5 text-[11px] text-ink-subtle">
-                      Lección {(c.enrollment?.current_lesson ?? 0) + 1} de{" "}
-                      {c.lessons_count}
+                      Lección {currentLesson} de {c.lessons_count}
                     </p>
                     <div className="mt-auto flex items-center gap-1 text-[11px] font-medium text-ink-muted">
                       <IconClockHour3 size={11} aria-hidden />
@@ -62,23 +98,25 @@ export function ContinueWatchingShelf({
                 <div className="flex items-center gap-2">
                   <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-outline-soft">
                     <div
-                      className="h-full rounded-full"
+                      className="h-full rounded-full transition-all duration-500"
                       style={{
-                        width: `${progress}%`,
-                        background: `linear-gradient(90deg, ${c.accent_color}, ${c.accent_color}dd)`
+                        width: `${Math.max(fresh ? 4 : progress, 4)}%`,
+                        background: fresh
+                          ? `${c.accent_color}66`
+                          : `linear-gradient(90deg, ${c.accent_color}, ${c.accent_color}dd)`
                       }}
                       aria-hidden
                     />
                   </div>
-                  <span className="text-[11px] font-bold text-ink-secondary">
-                    {progress}%
-                  </span>
                   <span
-                    aria-hidden
-                    className="ml-1 grid h-7 w-7 place-items-center rounded-full text-ink-inverse"
-                    style={{ background: c.accent_color }}
+                    className="grid h-8 shrink-0 items-center gap-1 rounded-full px-3 text-[11px] font-bold text-ink-inverse"
+                    style={{
+                      gridAutoFlow: "column",
+                      background: c.accent_color
+                    }}
                   >
-                    <IconPlayerPlayFilled size={12} aria-hidden />
+                    <IconPlayerPlayFilled size={11} aria-hidden />
+                    {fresh ? "Empezar" : "Seguir"}
                   </span>
                 </div>
               </Link>

@@ -147,10 +147,136 @@ export async function listUpcomingLiveClasses(
 }
 
 /**
- * "Continuar viendo": cursos del usuario con progreso > 0 y no completados,
- * ordenados por última vez vistos.
+ * "Tu plan en marcha": cursos del usuario inscritos y NO completados,
+ * ordenados por última vez vistos. Incluye los recién inscritos (0%) para
+ * que el usuario sepa dónde retomar.
+ *
+ * Excluye `live_class`: las clases en directo se gestionan aparte con
+ * `listMyUpcomingLiveClasses`.
  */
-export async function listContinueWatching(
+export async function listInProgressCourses(
+  client: RenaceClient,
+  userId: string,
+  limit = 8
+): Promise<CourseWithEnrollment[]> {
+  try {
+    const { data, error } = await client
+      .from("course_enrollments")
+      .select(
+        `
+        *,
+        course:courses!course_enrollments_course_id_fkey(*)
+      `
+      )
+      .eq("user_id", userId)
+      .is("completed_at", null)
+      .order("last_seen_at", { ascending: false })
+      .limit(limit * 2); // pedimos margen porque luego filtramos live_class
+    if (error) throw error;
+
+    type Row = CourseEnrollment & { course: Course | Course[] | null };
+    const out: CourseWithEnrollment[] = [];
+    for (const row of (data as unknown as Row[]) ?? []) {
+      const courseRaw = Array.isArray(row.course) ? row.course[0] : row.course;
+      if (!courseRaw) continue;
+      if (courseRaw.kind === "live_class") continue;
+      const { course: _c, ...enrollment } = row;
+      void _c;
+      out.push({ ...courseRaw, enrollment });
+      if (out.length >= limit) break;
+    }
+    return out;
+  } catch (err) {
+    console.warn(
+      "[courses] listInProgressCourses failed:",
+      (err as Error).message
+    );
+    return [];
+  }
+}
+
+/**
+ * Alias retro-compatible. @deprecated usar listInProgressCourses
+ */
+export const listContinueWatching = listInProgressCourses;
+
+/**
+ * Todas las clases en directo futuras (cualquier área), joined con la
+ * inscripción del usuario para saber si tiene recordatorio.
+ */
+export async function listAllUpcomingLiveClasses(
+  client: RenaceClient,
+  userId: string,
+  limit = 20
+): Promise<CourseWithEnrollment[]> {
+  try {
+    const { data, error } = await client
+      .from("courses")
+      .select(
+        `
+        *,
+        enrollment:course_enrollments!course_enrollments_course_id_fkey(*)
+      `
+      )
+      .eq("kind", "live_class")
+      .gte("starts_at", new Date().toISOString())
+      .order("starts_at", { ascending: true })
+      .limit(limit);
+    if (error) throw error;
+    type Row = Course & { enrollment: CourseEnrollment[] | null };
+    return ((data as unknown as Row[]) ?? []).map((row) => {
+      const mine = row.enrollment?.find((e) => e.user_id === userId) ?? null;
+      const { enrollment: _e, ...course } = row;
+      void _e;
+      return { ...course, enrollment: mine };
+    });
+  } catch (err) {
+    console.warn(
+      "[courses] listAllUpcomingLiveClasses failed:",
+      (err as Error).message
+    );
+    return [];
+  }
+}
+
+/**
+ * Todos los cursos on-demand del catálogo, joined con el enrollment del usuario.
+ * Útil para el hub global agrupado por área.
+ */
+export async function listAllCourses(
+  client: RenaceClient,
+  userId: string
+): Promise<CourseWithEnrollment[]> {
+  try {
+    const { data, error } = await client
+      .from("courses")
+      .select(
+        `
+        *,
+        enrollment:course_enrollments!course_enrollments_course_id_fkey(*)
+      `
+      )
+      .eq("kind", "course")
+      .order("title", { ascending: true });
+    if (error) throw error;
+    type Row = Course & { enrollment: CourseEnrollment[] | null };
+    return ((data as unknown as Row[]) ?? []).map((row) => {
+      const mine = row.enrollment?.find((e) => e.user_id === userId) ?? null;
+      const { enrollment: _e, ...course } = row;
+      void _e;
+      return { ...course, enrollment: mine };
+    });
+  } catch (err) {
+    console.warn("[courses] listAllCourses failed:", (err as Error).message);
+    return [];
+  }
+}
+
+/**
+ * Clases en directo futuras a las que el usuario tiene recordatorio activo.
+ * Útil para destacar "Tus próximas clases" en home/hub.
+ */
+export async function listMyUpcomingLiveClasses(
   client: RenaceClient,
   userId: string,
   limit = 6
@@ -165,25 +291,26 @@ export async function listContinueWatching(
       `
       )
       .eq("user_id", userId)
-      .is("completed_at", null)
-      .gt("progress_percent", 0)
-      .order("last_seen_at", { ascending: false })
-      .limit(limit);
+      .eq("reminder_set", true)
+      .limit(limit * 3);
     if (error) throw error;
-
     type Row = CourseEnrollment & { course: Course | Course[] | null };
+    const nowIso = new Date().toISOString();
     const out: CourseWithEnrollment[] = [];
     for (const row of (data as unknown as Row[]) ?? []) {
       const courseRaw = Array.isArray(row.course) ? row.course[0] : row.course;
       if (!courseRaw) continue;
+      if (courseRaw.kind !== "live_class") continue;
+      if (!courseRaw.starts_at || courseRaw.starts_at < nowIso) continue;
       const { course: _c, ...enrollment } = row;
       void _c;
       out.push({ ...courseRaw, enrollment });
     }
-    return out;
+    out.sort((a, b) => (a.starts_at ?? "").localeCompare(b.starts_at ?? ""));
+    return out.slice(0, limit);
   } catch (err) {
     console.warn(
-      "[courses] listContinueWatching failed:",
+      "[courses] listMyUpcomingLiveClasses failed:",
       (err as Error).message
     );
     return [];

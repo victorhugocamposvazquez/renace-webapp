@@ -7,7 +7,7 @@ import {
   listRecentMoods,
   listAreaCourses,
   listUpcomingLiveClasses,
-  listContinueWatching
+  listInProgressCourses
 } from "@renace/supabase";
 import { BackLink } from "@/components/BackLink";
 import { AreaHeader } from "@/components/AreaHeader";
@@ -20,12 +20,12 @@ export const metadata: Metadata = { title: "Física · RENACE" };
 
 export default async function FisicaPage() {
   const { client, userId } = await requireUser();
-  const [profile, recent, liveClasses, courses, cont] = await Promise.all([
+  const [profile, recent, liveClasses, courses, inProgress] = await Promise.all([
     getProfile(client, userId),
     listRecentMoods(client, userId, 7),
     listUpcomingLiveClasses(client, userId, "fisica"),
     listAreaCourses(client, userId, "fisica"),
-    listContinueWatching(client, userId, 6)
+    listInProgressCourses(client, userId, 8)
   ]);
   if (!profile) return null;
 
@@ -34,7 +34,7 @@ export default async function FisicaPage() {
       ? null
       : Math.round((recent.reduce((a, m) => a + m.score, 0) / recent.length) * 10) / 10;
   const sparkBars = recent.map((m) => (m.score / 5) * 100);
-  const continueFisica = cont.filter((c) => c.area === "fisica");
+  const continueFisica = inProgress.filter((c) => c.area === "fisica");
   const recommended = courses.filter((c) => !c.enrollment).slice(0, 8);
 
   return (
@@ -46,7 +46,10 @@ export default async function FisicaPage() {
       <LiveClassesSection classes={liveClasses} />
 
       {continueFisica.length > 0 && (
-        <ContinueWatchingShelf courses={continueFisica} />
+        <ContinueWatchingShelf
+          courses={continueFisica}
+          subtitle="Tus rutinas en marcha"
+        />
       )}
 
       <MetricGrid
@@ -104,6 +107,7 @@ export default async function FisicaPage() {
         title="Mueve tu cuerpo, sin agobios"
         subtitle="Rutinas progresivas a tu ritmo"
         courses={recommended}
+        seeAllHref="/cursos?tab=catalog"
         emptyText="Pronto nuevas rutinas por aquí."
       />
     </div>

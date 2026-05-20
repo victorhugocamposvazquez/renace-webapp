@@ -56,6 +56,14 @@ export default async function CourseDetailPage({ params }: Props) {
   const diffMs = startsAt ? startsAt.getTime() - Date.now() : 0;
   const isAirNow = startsAt ? diffMs <= 0 && diffMs > -90 * 60 * 1000 : false;
   const isSoon = startsAt ? diffMs > 0 && diffMs <= 30 * 60 * 1000 : false;
+  // Banner "Te has inscrito ✓": cuando hay enrollment con progreso = 0 y se
+  // creó hace muy poco (después del click en EnrollButton + refresh).
+  const justEnrolled =
+    !isLive &&
+    !!enrolled &&
+    !completed &&
+    progress === 0 &&
+    Date.now() - new Date(enrolled.last_seen_at).getTime() < 60_000;
 
   return (
     <div className="flex flex-1 flex-col gap-5 px-5 py-5">
@@ -125,6 +133,33 @@ export default async function CourseDetailPage({ params }: Props) {
           </div>
         </div>
       </header>
+
+      {justEnrolled && (
+        <div
+          className="flex items-start gap-3 rounded-2xl border p-3"
+          style={{
+            background: `${course.accent_color}14`,
+            borderColor: `${course.accent_color}33`
+          }}
+          role="status"
+        >
+          <span
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-ink-inverse"
+            style={{ background: course.accent_color }}
+            aria-hidden
+          >
+            <IconCheck size={16} />
+          </span>
+          <div className="text-sm">
+            <p className="font-bold text-ink-primary">¡Estás inscrito!</p>
+            <p className="text-xs text-ink-subtle">
+              Este curso ya aparece en <strong>“Tu plan en marcha”</strong> de
+              tu home y de {AREA_LABEL[course.area].toLowerCase()}. Continúa
+              desde donde quieras.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* CTA principal */}
       {isLive ? (

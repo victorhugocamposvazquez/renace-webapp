@@ -8,7 +8,7 @@ import {
   listUpcomingEvents,
   listAreaCourses,
   listUpcomingLiveClasses,
-  listContinueWatching
+  listInProgressCourses
 } from "@renace/supabase";
 import { type MoodScore } from "@renace/core";
 import { BackLink } from "@/components/BackLink";
@@ -26,7 +26,7 @@ export const metadata: Metadata = { title: "Emocional · RENACE" };
 
 export default async function EmocionalPage() {
   const { client, userId } = await requireUser();
-  const [today, journal, triggers, moods, events, courses, liveClasses, cont] =
+  const [today, journal, triggers, moods, events, courses, liveClasses, inProgress] =
     await Promise.all([
       getTodayMood(client, userId),
       listJournal(client, userId, 5),
@@ -35,11 +35,11 @@ export default async function EmocionalPage() {
       listUpcomingEvents(client, userId, 1),
       listAreaCourses(client, userId, "emocional"),
       listUpcomingLiveClasses(client, userId, "emocional"),
-      listContinueWatching(client, userId, 6)
+      listInProgressCourses(client, userId, 8)
     ]);
   const supportEvent =
     events.find((e) => e.kind === "support_group") ?? events[0] ?? null;
-  const continueEmocional = cont.filter((c) => c.area === "emocional");
+  const continueEmocional = inProgress.filter((c) => c.area === "emocional");
 
   const recommended = courses.filter((c) => !c.enrollment).slice(0, 8);
 
@@ -51,7 +51,10 @@ export default async function EmocionalPage() {
       <MoodPicker initialScore={(today?.score as MoodScore | null) ?? null} />
 
       {continueEmocional.length > 0 && (
-        <ContinueWatchingShelf courses={continueEmocional} />
+        <ContinueWatchingShelf
+          courses={continueEmocional}
+          subtitle="Tus cursos emocionales activos"
+        />
       )}
 
       {liveClasses.length > 0 && <LiveClassesSection classes={liveClasses} />}
@@ -60,6 +63,7 @@ export default async function EmocionalPage() {
         title="Cuidarte por dentro"
         subtitle="Sesiones cortas guiadas"
         courses={recommended}
+        seeAllHref="/cursos?tab=catalog"
         emptyText="Pronto nuevos cursos por aquí."
       />
 

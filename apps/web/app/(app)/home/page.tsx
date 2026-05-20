@@ -6,7 +6,9 @@ import {
   listTrustedContacts,
   getTodayMood,
   fillAllAreas,
-  getFirstJournal
+  getFirstJournal,
+  listInProgressCourses,
+  listMyUpcomingLiveClasses
 } from "@renace/supabase";
 import { pickMicroAction, totalProgress, weekFromDay } from "@renace/core";
 import { AppHeader } from "@/components/AppHeader";
@@ -15,17 +17,29 @@ import { AriaTeaser } from "@/components/AriaTeaser";
 import { MicroActionCard } from "@/components/MicroActionCard";
 import { RecoveryProgress } from "@/components/RecoveryProgress";
 import { IntentCard } from "@/components/IntentCard";
+import { ContinueWatchingShelf } from "@/components/cursos/ContinueWatchingShelf";
+import { MyLiveClassesCard } from "@/components/cursos/MyLiveClassesCard";
 
 export const metadata: Metadata = { title: "Inicio · RENACE" };
 
 export default async function HomePage() {
   const { client, userId } = await requireUser();
-  const [profile, rawAreas, contacts, todayMood, firstJournal] = await Promise.all([
+  const [
+    profile,
+    rawAreas,
+    contacts,
+    todayMood,
+    firstJournal,
+    inProgressCourses,
+    myLiveClasses
+  ] = await Promise.all([
     getProfile(client, userId),
     listAreaProgress(client, userId),
     listTrustedContacts(client, userId),
     getTodayMood(client, userId),
-    getFirstJournal(client, userId)
+    getFirstJournal(client, userId),
+    listInProgressCourses(client, userId, 6),
+    listMyUpcomingLiveClasses(client, userId, 3)
   ]);
   if (!profile) {
     // El middleware ya debería habernos llevado a /onboarding, pero por si acaso:
@@ -81,6 +95,18 @@ export default async function HomePage() {
       {showIntent && firstJournal && (
         <section className="px-5">
           <IntentCard entry={firstJournal} dayInProgram={profile.day_in_program} />
+        </section>
+      )}
+
+      {inProgressCourses.length > 0 && (
+        <section className="px-5">
+          <ContinueWatchingShelf courses={inProgressCourses} />
+        </section>
+      )}
+
+      {myLiveClasses.length > 0 && (
+        <section className="px-5">
+          <MyLiveClassesCard classes={myLiveClasses} />
         </section>
       )}
 
