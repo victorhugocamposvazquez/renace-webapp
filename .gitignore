@@ -27,3 +27,7 @@ yarn-error.log*
 .vercel
 supabase/.branches
 supabase/.temp
+
+# Reference materials (not part of the app)
+RENACE_dossier_v2026_completo-V2.pdf
+renace_app_prototype_v5_legibilidad.html
