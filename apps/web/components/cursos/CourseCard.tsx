@@ -35,7 +35,12 @@ export function CourseCard({
       style={{ width: `${width}px` }}
     >
       <div className="relative">
-        <CourseThumbnail accent={course.accent_color} emoji={course.emoji} size="md" />
+        <CourseThumbnail
+          slug={course.slug}
+          accent={course.accent_color}
+          emoji={course.emoji}
+          size="md"
+        />
         {/* Play overlay */}
         <span
           aria-hidden

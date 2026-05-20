@@ -100,7 +100,16 @@ export default async function HomePage() {
 
       {inProgressCourses.length > 0 && (
         <section className="px-5">
-          <ContinueWatchingShelf courses={inProgressCourses} />
+          <ContinueWatchingShelf
+            courses={inProgressCourses}
+            subtitle={
+              inProgressCourses.every(
+                (c) => (c.enrollment?.progress_percent ?? 0) === 0
+              )
+                ? "Acabas de empezar. Da el primer paso cuando quieras."
+                : "Continúa donde lo dejaste"
+            }
+          />
         </section>
       )}
 

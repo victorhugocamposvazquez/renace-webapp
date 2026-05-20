@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import Image from "next/image";
 import {
   IconClockHour3,
   IconPlayerPlayFilled,
@@ -18,6 +19,7 @@ import { CourseThumbnail } from "@/components/cursos/CourseThumbnail";
 import { ProgressControls } from "@/components/cursos/ProgressControls";
 import { ReminderToggleForm } from "@/components/cursos/ReminderToggleForm";
 import { EnrollButton } from "@/components/cursos/EnrollButton";
+import { getCourseImage } from "@/lib/courseImages";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -64,6 +66,7 @@ export default async function CourseDetailPage({ params }: Props) {
     !completed &&
     progress === 0 &&
     Date.now() - new Date(enrolled.last_seen_at).getTime() < 60_000;
+  const heroImage = getCourseImage(course.slug);
 
   return (
     <div className="flex flex-1 flex-col gap-5 px-5 py-5">
@@ -73,10 +76,34 @@ export default async function CourseDetailPage({ params }: Props) {
       <header className="relative -mx-5 -mt-5">
         <div
           className="relative overflow-hidden px-5 pb-6 pt-8 text-ink-inverse"
-          style={{
-            background: `linear-gradient(135deg, ${course.accent_color} 0%, ${darken(course.accent_color, 22)} 100%)`
-          }}
+          style={
+            heroImage
+              ? undefined
+              : {
+                  background: `linear-gradient(135deg, ${course.accent_color} 0%, ${darken(course.accent_color, 22)} 100%)`
+                }
+          }
         >
+          {heroImage && (
+            <>
+              <Image
+                src={heroImage}
+                alt=""
+                fill
+                sizes="100vw"
+                priority
+                className="object-cover"
+                aria-hidden
+              />
+              <div
+                aria-hidden
+                className="absolute inset-0"
+                style={{
+                  background: `linear-gradient(135deg, ${course.accent_color}cc 0%, ${darken(course.accent_color, 22)}f0 100%)`
+                }}
+              />
+            </>
+          )}
           <div
             aria-hidden
             className="pointer-events-none absolute -right-24 -top-12 h-64 w-64 rounded-full opacity-20"
@@ -84,6 +111,7 @@ export default async function CourseDetailPage({ params }: Props) {
           />
           <div className="relative flex items-center gap-4">
             <CourseThumbnail
+              slug={course.slug}
               accent={course.accent_color}
               emoji={course.emoji}
               size="sm"

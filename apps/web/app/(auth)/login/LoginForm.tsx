@@ -15,8 +15,8 @@ import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 type Mode = "magic" | "password";
 
 const MODES: { id: Mode; label: string; icon: typeof IconMail }[] = [
-  { id: "magic", label: "Magic link", icon: IconSparkles },
-  { id: "password", label: "Contraseña", icon: IconLock }
+  { id: "password", label: "Contraseña", icon: IconLock },
+  { id: "magic", label: "Magic link", icon: IconSparkles }
 ];
 
 export function LoginForm() {
@@ -24,7 +24,7 @@ export function LoginForm() {
   const params = useSearchParams();
   const redirectTo = params.get("redirectTo") ?? "/home";
 
-  const [mode, setMode] = useState<Mode>("magic");
+  const [mode, setMode] = useState<Mode>("password");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);

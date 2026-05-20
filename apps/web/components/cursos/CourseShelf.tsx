@@ -47,7 +47,7 @@ export function CourseShelf({
       ) : (
         <ul
           role="list"
-          className="hide-scrollbar flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-2"
+          className="hide-scrollbar flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 scroll-pl-5 [&>li:first-child]:ml-5 [&>li:last-child]:mr-5"
         >
           {courses.map((c) => (
             <li key={c.id} className="snap-start">

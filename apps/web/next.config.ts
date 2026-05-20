@@ -8,6 +8,15 @@ const nextConfig: NextConfig = {
     "@renace/ai",
     "@renace/tokens"
   ],
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+        pathname: "/**"
+      }
+    ]
+  },
   experimental: {
     typedRoutes: false
   }

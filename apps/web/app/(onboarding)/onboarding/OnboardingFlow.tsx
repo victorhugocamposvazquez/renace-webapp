@@ -465,7 +465,7 @@ export function OnboardingFlow({ defaultAlias }: { defaultAlias: string }) {
         )}
         {step < TOTAL_STEPS ? (
           <button type="button" className="btn-primary flex-1" onClick={next}>
-            {step === 2 ? `Estoy listo${firstName ? `, ${firstName}` : ""}` : "Continuar"}
+            {step === 2 ? "Estoy listo, empecemos" : "Continuar"}
             <IconArrowRight size={18} aria-hidden />
           </button>
         ) : (
