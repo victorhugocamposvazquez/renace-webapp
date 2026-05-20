@@ -5,7 +5,8 @@ import {
   listAreaProgress,
   listTrustedContacts,
   getTodayMood,
-  fillAllAreas
+  fillAllAreas,
+  getFirstJournal
 } from "@renace/supabase";
 import { pickMicroAction, totalProgress, weekFromDay } from "@renace/core";
 import { AppHeader } from "@/components/AppHeader";
@@ -13,21 +14,29 @@ import { Renace360 } from "@/components/Renace360";
 import { AriaTeaser } from "@/components/AriaTeaser";
 import { MicroActionCard } from "@/components/MicroActionCard";
 import { RecoveryProgress } from "@/components/RecoveryProgress";
+import { IntentCard } from "@/components/IntentCard";
 
 export const metadata: Metadata = { title: "Inicio · RENACE" };
 
 export default async function HomePage() {
   const { client, userId } = await requireUser();
-  const [profile, rawAreas, contacts, todayMood] = await Promise.all([
+  const [profile, rawAreas, contacts, todayMood, firstJournal] = await Promise.all([
     getProfile(client, userId),
     listAreaProgress(client, userId),
     listTrustedContacts(client, userId),
-    getTodayMood(client, userId)
+    getTodayMood(client, userId),
+    getFirstJournal(client, userId)
   ]);
   if (!profile) {
     // El middleware ya debería habernos llevado a /onboarding, pero por si acaso:
     return null;
   }
+  // La intención se destaca solo las primeras 3 semanas y siempre que la
+  // primera entrada tenga el prefijo del onboarding ("Día 1.").
+  const showIntent =
+    firstJournal !== null &&
+    profile.day_in_program <= 21 &&
+    /^día\s*1/i.test(firstJournal.content);
 
   const areas = fillAllAreas(rawAreas, userId);
   const total = totalProgress(areas);
@@ -68,6 +77,12 @@ export default async function HomePage() {
           week={week}
         />
       </section>
+
+      {showIntent && firstJournal && (
+        <section className="px-5">
+          <IntentCard entry={firstJournal} dayInProgram={profile.day_in_program} />
+        </section>
+      )}
 
       <section className="px-5">
         <MicroActionCard action={action} />

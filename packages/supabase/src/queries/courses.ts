@@ -24,59 +24,83 @@ export async function listCourses(client: RenaceClient): Promise<Course[]> {
 
 /**
  * Curso por slug, con la inscripción del usuario actual si existe.
+ *
+ * Devuelve null si el curso no existe o si la migration `courses_v2` aún
+ * no se aplicó.
  */
 export async function getCourseBySlug(
   client: RenaceClient,
   userId: string,
   slug: string
 ): Promise<CourseWithEnrollment | null> {
-  const { data: course, error: courseErr } = await client
-    .from("courses")
-    .select("*")
-    .eq("slug", slug)
-    .maybeSingle();
-  if (courseErr) throw courseErr;
-  if (!course) return null;
-  const { data: enrollment, error: enrollErr } = await client
-    .from("course_enrollments")
-    .select("*")
-    .eq("course_id", course.id)
-    .eq("user_id", userId)
-    .maybeSingle();
-  if (enrollErr) throw enrollErr;
-  return { ...course, enrollment: enrollment ?? null };
+  try {
+    const { data: course, error: courseErr } = await client
+      .from("courses")
+      .select("*")
+      .eq("slug", slug)
+      .maybeSingle();
+    if (courseErr) throw courseErr;
+    if (!course) return null;
+    let enrollment: CourseEnrollment | null = null;
+    try {
+      const { data, error } = await client
+        .from("course_enrollments")
+        .select("*")
+        .eq("course_id", course.id)
+        .eq("user_id", userId)
+        .maybeSingle();
+      if (error) throw error;
+      enrollment = data ?? null;
+    } catch (err) {
+      console.warn(
+        "[courses] getCourseBySlug enrollment failed:",
+        (err as Error).message
+      );
+    }
+    return { ...course, enrollment };
+  } catch (err) {
+    console.warn("[courses] getCourseBySlug failed:", (err as Error).message);
+    return null;
+  }
 }
 
 /**
  * Cursos on-demand (kind='course') de un área concreta, joined con la
  * inscripción del usuario si existe (progress, last_seen_at, etc.).
+ *
+ * Defensive: si la migration `courses_v2` aún no se aplicó, devuelve [] en
+ * lugar de tirar para que la página padre no rompa.
  */
 export async function listAreaCourses(
   client: RenaceClient,
   userId: string,
   area: AreaId
 ): Promise<CourseWithEnrollment[]> {
-  const { data, error } = await client
-    .from("courses")
-    .select(
+  try {
+    const { data, error } = await client
+      .from("courses")
+      .select(
+        `
+        *,
+        enrollment:course_enrollments!course_enrollments_course_id_fkey(*)
       `
-      *,
-      enrollment:course_enrollments!course_enrollments_course_id_fkey(*)
-    `
-    )
-    .eq("area", area)
-    .eq("kind", "course")
-    .order("created_at" as never, { ascending: true });
-  if (error) throw error;
+      )
+      .eq("area", area)
+      .eq("kind", "course");
+    if (error) throw error;
 
-  type Row = Course & { enrollment: CourseEnrollment[] | null };
-  return ((data as unknown as Row[]) ?? []).map((row) => {
-    const mine =
-      row.enrollment?.find((e) => e.user_id === userId) ?? null;
-    const { enrollment: _enroll, ...course } = row;
-    void _enroll;
-    return { ...course, enrollment: mine };
-  });
+    type Row = Course & { enrollment: CourseEnrollment[] | null };
+    return ((data as unknown as Row[]) ?? []).map((row) => {
+      const mine =
+        row.enrollment?.find((e) => e.user_id === userId) ?? null;
+      const { enrollment: _enroll, ...course } = row;
+      void _enroll;
+      return { ...course, enrollment: mine };
+    });
+  } catch (err) {
+    console.warn("[courses] listAreaCourses failed:", (err as Error).message);
+    return [];
+  }
 }
 
 /**
@@ -89,29 +113,37 @@ export async function listUpcomingLiveClasses(
   area: AreaId,
   limit = 6
 ): Promise<CourseWithEnrollment[]> {
-  const { data, error } = await client
-    .from("courses")
-    .select(
+  try {
+    const { data, error } = await client
+      .from("courses")
+      .select(
+        `
+        *,
+        enrollment:course_enrollments!course_enrollments_course_id_fkey(*)
       `
-      *,
-      enrollment:course_enrollments!course_enrollments_course_id_fkey(*)
-    `
-    )
-    .eq("area", area)
-    .eq("kind", "live_class")
-    .gte("starts_at", new Date().toISOString())
-    .order("starts_at", { ascending: true })
-    .limit(limit);
-  if (error) throw error;
+      )
+      .eq("area", area)
+      .eq("kind", "live_class")
+      .gte("starts_at", new Date().toISOString())
+      .order("starts_at", { ascending: true })
+      .limit(limit);
+    if (error) throw error;
 
-  type Row = Course & { enrollment: CourseEnrollment[] | null };
-  return ((data as unknown as Row[]) ?? []).map((row) => {
-    const mine =
-      row.enrollment?.find((e) => e.user_id === userId) ?? null;
-    const { enrollment: _enroll, ...course } = row;
-    void _enroll;
-    return { ...course, enrollment: mine };
-  });
+    type Row = Course & { enrollment: CourseEnrollment[] | null };
+    return ((data as unknown as Row[]) ?? []).map((row) => {
+      const mine =
+        row.enrollment?.find((e) => e.user_id === userId) ?? null;
+      const { enrollment: _enroll, ...course } = row;
+      void _enroll;
+      return { ...course, enrollment: mine };
+    });
+  } catch (err) {
+    console.warn(
+      "[courses] listUpcomingLiveClasses failed:",
+      (err as Error).message
+    );
+    return [];
+  }
 }
 
 /**
@@ -123,31 +155,39 @@ export async function listContinueWatching(
   userId: string,
   limit = 6
 ): Promise<CourseWithEnrollment[]> {
-  const { data, error } = await client
-    .from("course_enrollments")
-    .select(
+  try {
+    const { data, error } = await client
+      .from("course_enrollments")
+      .select(
+        `
+        *,
+        course:courses!course_enrollments_course_id_fkey(*)
       `
-      *,
-      course:courses!course_enrollments_course_id_fkey(*)
-    `
-    )
-    .eq("user_id", userId)
-    .is("completed_at", null)
-    .gt("progress_percent", 0)
-    .order("last_seen_at", { ascending: false })
-    .limit(limit);
-  if (error) throw error;
+      )
+      .eq("user_id", userId)
+      .is("completed_at", null)
+      .gt("progress_percent", 0)
+      .order("last_seen_at", { ascending: false })
+      .limit(limit);
+    if (error) throw error;
 
-  type Row = CourseEnrollment & { course: Course | Course[] | null };
-  const out: CourseWithEnrollment[] = [];
-  for (const row of (data as unknown as Row[]) ?? []) {
-    const courseRaw = Array.isArray(row.course) ? row.course[0] : row.course;
-    if (!courseRaw) continue;
-    const { course: _c, ...enrollment } = row;
-    void _c;
-    out.push({ ...courseRaw, enrollment });
+    type Row = CourseEnrollment & { course: Course | Course[] | null };
+    const out: CourseWithEnrollment[] = [];
+    for (const row of (data as unknown as Row[]) ?? []) {
+      const courseRaw = Array.isArray(row.course) ? row.course[0] : row.course;
+      if (!courseRaw) continue;
+      const { course: _c, ...enrollment } = row;
+      void _c;
+      out.push({ ...courseRaw, enrollment });
+    }
+    return out;
+  } catch (err) {
+    console.warn(
+      "[courses] listContinueWatching failed:",
+      (err as Error).message
+    );
+    return [];
   }
-  return out;
 }
 
 /* ------------------------------------------------------------------ */

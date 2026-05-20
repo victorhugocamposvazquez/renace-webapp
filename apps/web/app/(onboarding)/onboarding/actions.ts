@@ -1,20 +1,31 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import { ProfileOnboardingSchema, DEFAULT_MILESTONES } from "@renace/core";
+import {
+  ProfileOnboardingSchema,
+  DEFAULT_MILESTONES,
+  buildIntentJournalEntry
+} from "@renace/core";
 import {
   completeOnboarding,
   seedDefaultMilestones,
-  upsertAreaProgress
+  upsertAreaProgress,
+  addJournalEntry
 } from "@renace/supabase";
 import { requireUser } from "@/lib/auth";
 
-export async function completeOnboardingAction(formData: FormData) {
+export type OnboardingResult =
+  | { ok: true }
+  | { ok: false; error: string };
+
+export async function completeOnboardingAction(
+  formData: FormData
+): Promise<OnboardingResult> {
   const { client, userId } = await requireUser();
   const parsed = ProfileOnboardingSchema.safeParse({
     alias: formData.get("alias"),
+    reasons: formData.getAll("reasons"),
     areaFocus: formData.getAll("areaFocus"),
     ariaName: formData.get("ariaName") || "Aria",
     ariaPersist: formData.get("ariaPersist") === "on"
@@ -38,6 +49,15 @@ export async function completeOnboardingAction(formData: FormData) {
     )
   );
 
+  // Persistimos los motivos como la primera entrada de diario del usuario.
+  // No bloqueamos el flujo si falla: el onboarding ya está completo.
+  try {
+    const content = buildIntentJournalEntry(parsed.data.reasons);
+    await addJournalEntry(client, userId, { content });
+  } catch (err) {
+    console.warn("[onboarding] No se pudo guardar el journal inicial", err);
+  }
+
   // Cookie de cache para que el middleware salte el query de profiles en cada
   // navegación. Ver lib/supabase/middleware.ts para detalle.
   const cookieStore = await cookies();
@@ -50,5 +70,5 @@ export async function completeOnboardingAction(formData: FormData) {
   });
 
   revalidatePath("/", "layout");
-  redirect("/home");
+  return { ok: true };
 }
