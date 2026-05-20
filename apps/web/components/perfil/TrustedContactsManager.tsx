@@ -7,6 +7,7 @@ import {
   addTrustedContactAction,
   deleteTrustedContactAction
 } from "@/app/(app)/perfil/actions";
+import { ConfirmModal } from "@/components/ConfirmModal";
 
 export function TrustedContactsManager({ contacts }: { contacts: TrustedContact[] }) {
   const [open, setOpen] = useState(false);
@@ -14,6 +15,7 @@ export function TrustedContactsManager({ contacts }: { contacts: TrustedContact[
   const [phone, setPhone] = useState("");
   const [relation, setRelation] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<TrustedContact | null>(null);
   const [isPending, startTransition] = useTransition();
 
   function submit() {
@@ -38,11 +40,13 @@ export function TrustedContactsManager({ contacts }: { contacts: TrustedContact[
     });
   }
 
-  function remove(id: string) {
+  function confirmRemove() {
+    if (!pendingDelete) return;
     startTransition(async () => {
       const fd = new FormData();
-      fd.set("id", id);
+      fd.set("id", pendingDelete.id);
       await deleteTrustedContactAction(fd);
+      setPendingDelete(null);
     });
   }
 
@@ -76,9 +80,9 @@ export function TrustedContactsManager({ contacts }: { contacts: TrustedContact[
               </div>
               <button
                 type="button"
-                onClick={() => remove(c.id)}
+                onClick={() => setPendingDelete(c)}
                 aria-label={`Borrar ${c.name}`}
-                className="tap-target -mr-2 grid place-items-center text-ink-subtle"
+                className="tap-target -mr-2 grid place-items-center rounded-full text-ink-subtle transition-colors hover:text-state-danger"
               >
                 <IconTrash size={18} aria-hidden />
               </button>
@@ -144,6 +148,27 @@ export function TrustedContactsManager({ contacts }: { contacts: TrustedContact[
           <IconPlus size={18} aria-hidden /> Añadir contacto
         </button>
       )}
+
+      <ConfirmModal
+        open={!!pendingDelete}
+        onCancel={() => !isPending && setPendingDelete(null)}
+        onConfirm={confirmRemove}
+        busy={isPending}
+        tone="danger"
+        icon={<IconTrash size={22} stroke={2.2} aria-hidden />}
+        title="¿Borrar contacto de confianza?"
+        description={
+          pendingDelete ? (
+            <p>
+              <strong className="font-semibold text-ink-primary">{pendingDelete.name}</strong>
+              {" "}desaparecerá del botón SOS y no podrás llamarle desde un momento crítico
+              hasta volver a añadirle.
+            </p>
+          ) : null
+        }
+        confirmLabel="Sí, borrar"
+        cancelLabel="Mantener"
+      />
     </section>
   );
 }

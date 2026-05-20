@@ -32,7 +32,7 @@ export default async function EmocionalPage() {
 
   return (
     <div className="flex flex-1 flex-col gap-4 px-5 py-5">
-      <BackLink href="/home" />
+      <BackLink fallbackHref="/home" />
       <AreaHeader area="emocional" />
 
       <MoodPicker initialScore={(today?.score as MoodScore | null) ?? null} />

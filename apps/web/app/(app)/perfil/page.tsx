@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import {
   IconBell,
   IconShieldLock,
-  IconDeviceWatch,
-  IconLogout
+  IconDeviceWatch
 } from "@tabler/icons-react";
 import { requireUser } from "@/lib/auth";
 import {
@@ -16,7 +15,7 @@ import { weekFromDay } from "@renace/core";
 import { BackLink } from "@/components/BackLink";
 import { AreaRingsGrid } from "@/components/perfil/AreaRingsGrid";
 import { TrustedContactsManager } from "@/components/perfil/TrustedContactsManager";
-import { signOutAction } from "./actions";
+import { SignOutButton } from "@/components/perfil/SignOutButton";
 
 export const metadata: Metadata = { title: "Perfil · RENACE" };
 
@@ -81,17 +80,7 @@ export default async function PerfilPage() {
             <span className="pill bg-canvas text-ink-subtle">Sin conectar</span>
           </li>
           <li className="px-3 py-3">
-            <form action={signOutAction}>
-              <button
-                type="submit"
-                className="tap-target flex w-full items-center justify-between gap-3 text-base font-semibold text-state-danger"
-              >
-                <span className="inline-flex items-center gap-3">
-                  <IconLogout size={22} aria-hidden />
-                  Cerrar sesión
-                </span>
-              </button>
-            </form>
+            <SignOutButton />
           </li>
         </ul>
       </div>

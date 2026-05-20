@@ -1,20 +1,18 @@
 import type { Metadata } from "next";
 import { requireUser } from "@/lib/auth";
 import { getActiveLegalCase, listConsultRequests } from "@renace/supabase";
-import { formatShortDateTime, relativeFromNow } from "@renace/core";
+import { formatShortDateTime } from "@renace/core";
 import { BackLink } from "@/components/BackLink";
 import { AreaHeader } from "@/components/AreaHeader";
 import { ConsultForm } from "@/components/juridica/ConsultForm";
+import { ConsultList } from "@/components/juridica/ConsultList";
 
 export const metadata: Metadata = { title: "Jurídica · RENACE" };
 
-const STATUS_LABEL: Record<string, string> = {
+const CASE_STATUS_LABEL: Record<string, string> = {
   open: "Abierto",
   in_progress: "En curso",
-  closed: "Cerrado",
-  submitted: "Enviada",
-  reviewing: "En revisión",
-  scheduled: "Cita pendiente"
+  closed: "Cerrado"
 };
 
 export default async function JuridicaPage() {
@@ -26,11 +24,14 @@ export default async function JuridicaPage() {
 
   return (
     <div className="flex flex-1 flex-col gap-4 px-5 py-5">
-      <BackLink />
+      <BackLink fallbackHref="/home" />
       <AreaHeader area="juridica" />
 
       {activeCase ? (
-        <article className="rounded-2xl p-4 text-ink-inverse" style={{ backgroundColor: "#1B6FC2" }}>
+        <article
+          className="rounded-3xl p-5 text-ink-inverse shadow-card"
+          style={{ background: "linear-gradient(135deg, #2563EB 0%, #1B6FC2 100%)" }}
+        >
           <div className="flex items-start justify-between">
             <div>
               <p className="text-xs font-bold uppercase tracking-wider text-white/85">
@@ -39,7 +40,7 @@ export default async function JuridicaPage() {
               <h2 className="mt-1 text-lg font-bold">{activeCase.title}</h2>
             </div>
             <span className="pill bg-white/20 text-white">
-              {STATUS_LABEL[activeCase.status] ?? activeCase.status}
+              {CASE_STATUS_LABEL[activeCase.status] ?? activeCase.status}
             </span>
           </div>
           <div className="mt-4 grid grid-cols-2 gap-3 border-t border-white/25 pt-3">
@@ -70,29 +71,7 @@ export default async function JuridicaPage() {
 
       <ConsultForm />
 
-      {consults.length > 0 && (
-        <>
-          <h2 className="label-eyebrow mt-2">Tus consultas</h2>
-          <ul role="list" className="flex flex-col gap-2">
-            {consults.map((c) => (
-              <li
-                key={c.id}
-                className="card flex items-start gap-3 border-area-juridica-border"
-              >
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-ink-primary">{c.body.slice(0, 80)}{c.body.length > 80 ? "…" : ""}</p>
-                  <p className="mt-1 text-xs text-ink-subtle">
-                    {relativeFromNow(new Date(c.created_at))}
-                  </p>
-                </div>
-                <span className="pill bg-area-juridica-tint text-area-juridica-text">
-                  {STATUS_LABEL[c.status] ?? c.status}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
+      <ConsultList consults={consults} />
     </div>
   );
 }

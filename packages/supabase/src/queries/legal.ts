@@ -47,3 +47,27 @@ export async function createConsultRequest(
   if (error) throw error;
   return data;
 }
+
+/**
+ * Borra una solicitud de consulta del propio usuario.
+ * Solo se permite borrar si la consulta todavía está en estado `submitted`
+ * (sin haber sido revisada por el equipo legal).
+ *
+ * Devuelve true si se borró, false si la consulta no era borrable
+ * (ya estaba reviewing/scheduled/closed).
+ */
+export async function deleteConsultRequest(
+  client: RenaceClient,
+  userId: string,
+  consultId: string
+): Promise<boolean> {
+  const { data, error } = await client
+    .from("consult_requests")
+    .delete()
+    .eq("id", consultId)
+    .eq("user_id", userId)
+    .eq("status", "submitted")
+    .select("id");
+  if (error) throw error;
+  return (data?.length ?? 0) > 0;
+}

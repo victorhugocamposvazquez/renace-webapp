@@ -13,9 +13,12 @@
     height: 100%;
   }
 
-  html {
-    scroll-behavior: smooth;
-  }
+  /*
+   * Nota: NO usamos scroll-behavior: smooth aquí. Para la sensación de "app
+   * nativa" preferimos scrolls instantáneos al cambiar de ruta. Las animaciones
+   * de transición las gestionamos vía Page transitions (.page-enter) y el
+   * <TopLoader />.
+   */
 
   body {
     @apply bg-canvas text-ink-primary font-sans antialiased;
@@ -65,10 +68,6 @@
       animation-duration: 0.001ms !important;
       animation-iteration-count: 1 !important;
       transition-duration: 0.001ms !important;
-    }
-
-    html {
-      scroll-behavior: auto;
     }
   }
 
@@ -202,5 +201,71 @@
     100% {
       transform: translateX(100%);
     }
+  }
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes sheet-in {
+    from {
+      opacity: 0;
+      transform: translateY(24px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  /* Top loader (progreso superior al navegar) */
+  .top-loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2.5px;
+    z-index: 100;
+    pointer-events: none;
+    background: linear-gradient(90deg, #0FA065 0%, #6F4FE8 100%);
+    transform-origin: left;
+    transform: scaleX(0);
+    opacity: 0;
+    transition:
+      transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+      opacity 0.2s ease-out;
+  }
+
+  .top-loader[data-state="loading"] {
+    opacity: 1;
+    transform: scaleX(0.75);
+    transition:
+      transform 8s cubic-bezier(0.16, 1, 0.3, 1),
+      opacity 0.15s ease-out;
+  }
+
+  .top-loader[data-state="done"] {
+    opacity: 0;
+    transform: scaleX(1);
+    transition:
+      transform 0.2s ease-out,
+      opacity 0.3s ease-out 0.1s;
+  }
+
+  /* Page transitions sutiles */
+  @keyframes page-in {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .page-enter {
+    animation: page-in 240ms cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 }
