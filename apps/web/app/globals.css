@@ -1,0 +1,79 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  html,
+  body {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-canvas text-ink-primary font-sans;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Mobile-first: limitar viewport en desktop como preview */
+  .stage {
+    @apply mx-auto min-h-screen w-full max-w-[480px] bg-surface;
+  }
+
+  /* Hit target accesible para iconos pulsables */
+  .tap-target {
+    @apply min-h-tap min-w-tap;
+  }
+
+  /* Anillos invisibles más legibles que el outline por defecto del browser */
+  *:focus-visible {
+    outline: 3px solid theme("colors.brand.500");
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  /* prefers-reduced-motion */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-xl border border-outline-soft bg-elevated p-4;
+  }
+
+  .card-coloured {
+    @apply rounded-xl p-4 text-ink-inverse;
+  }
+
+  .pill {
+    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold;
+  }
+
+  .label-eyebrow {
+    @apply text-xs font-bold uppercase tracking-wider text-ink-subtle;
+  }
+
+  .btn-primary {
+    @apply tap-target w-full rounded-lg bg-brand-600 px-4 py-3 text-md font-semibold text-ink-inverse transition-opacity active:opacity-90 disabled:opacity-50;
+  }
+
+  .btn-secondary {
+    @apply tap-target w-full rounded-lg border border-outline-medium bg-elevated px-4 py-3 text-base font-semibold text-ink-primary transition-colors active:bg-canvas disabled:opacity-50;
+  }
+
+  .btn-white {
+    @apply tap-target w-full rounded-lg bg-elevated px-4 py-3 text-md font-semibold text-ink-primary transition-opacity active:opacity-90;
+  }
+}

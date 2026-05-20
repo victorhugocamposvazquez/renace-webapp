@@ -1,0 +1,89 @@
+"use client";
+
+import { useState } from "react";
+import { IconLifebuoy, IconPhone, IconX } from "@tabler/icons-react";
+import type { TrustedContact } from "@renace/supabase";
+
+export function SOSButton({ contacts }: { contacts: TrustedContact[] }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <button
+        type="button"
+        aria-label="Pedir ayuda ahora"
+        onClick={() => setOpen(true)}
+        className="tap-target inline-flex items-center gap-1.5 rounded-full border border-state-danger/30 bg-state-danger/10 px-3 py-2 text-xs font-bold uppercase tracking-wider text-state-danger"
+      >
+        <IconLifebuoy size={16} aria-hidden />
+        Ayuda
+      </button>
+      {open && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Contactos de confianza"
+          className="fixed inset-0 z-50 flex items-end justify-center bg-ink-primary/40 px-4 pb-4"
+          onClick={() => setOpen(false)}
+        >
+          <div
+            className="w-full max-w-[460px] rounded-2xl bg-elevated p-5 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="label-eyebrow text-state-danger">Si lo necesitas</p>
+                <h2 className="mt-1 text-xl font-bold text-ink-primary">Pide ayuda ahora</h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                aria-label="Cerrar"
+                className="tap-target -mr-2 -mt-2 grid place-items-center rounded-full text-ink-subtle"
+              >
+                <IconX size={20} aria-hidden />
+              </button>
+            </div>
+            <p className="mt-2 text-sm text-ink-muted">
+              No estás solo. Hablar con alguien ahora es una decisión valiente.
+            </p>
+            <div className="mt-4 flex flex-col gap-2">
+              <a
+                href="tel:024"
+                className="btn-primary flex items-center justify-center gap-2 bg-state-danger"
+              >
+                <IconPhone size={18} aria-hidden /> 024 · Crisis emocional
+              </a>
+              {contacts.length === 0 ? (
+                <p className="rounded-lg border border-outline-soft bg-canvas p-3 text-sm text-ink-muted">
+                  Aún no has añadido contactos de confianza. Puedes hacerlo desde tu perfil.
+                </p>
+              ) : (
+                contacts.map((c) => (
+                  <a
+                    key={c.id}
+                    href={`tel:${c.phone.replace(/\s+/g, "")}`}
+                    className="flex items-center gap-3 rounded-xl border border-outline-soft bg-canvas px-3 py-3"
+                  >
+                    <span
+                      className="grid h-10 w-10 place-items-center rounded-full bg-brand-100 text-brand-600"
+                      aria-hidden
+                    >
+                      <IconPhone size={18} />
+                    </span>
+                    <span className="flex-1">
+                      <span className="block text-base font-semibold text-ink-primary">{c.name}</span>
+                      <span className="block text-xs text-ink-muted">
+                        {c.phone}
+                        {c.relation ? ` · ${c.relation}` : ""}
+                      </span>
+                    </span>
+                  </a>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}

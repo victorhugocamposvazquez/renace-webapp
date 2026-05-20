@@ -1,0 +1,19 @@
+{
+  "name": "@renace/eslint-config",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./next": "./next.js",
+    "./library": "./library.js"
+  },
+  "files": ["next.js", "library.js"],
+  "dependencies": {
+    "@next/eslint-plugin-next": "^15.1.4",
+    "@typescript-eslint/eslint-plugin": "^8.20.0",
+    "@typescript-eslint/parser": "^8.20.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-react": "^7.37.4",
+    "eslint-plugin-react-hooks": "^5.1.0"
+  }
+}
