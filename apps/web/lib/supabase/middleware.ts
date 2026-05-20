@@ -4,7 +4,7 @@ import type { Database } from "@renace/supabase";
 
 type CookieToSet = { name: string; value: string; options: CookieOptions };
 
-const PUBLIC_PATHS = ["/login", "/auth/callback", "/auth/error"];
+const PUBLIC_PATHS = ["/login", "/signup", "/auth/callback", "/auth/error"];
 const PUBLIC_PREFIXES = ["/_next", "/favicon", "/manifest", "/icons", "/api/health"];
 
 /**
@@ -93,7 +93,7 @@ export async function updateSession(request: NextRequest) {
     }
   }
 
-  if (user && pathname === "/login") {
+  if (user && (pathname === "/login" || pathname === "/signup")) {
     const url = request.nextUrl.clone();
     url.pathname = "/home";
     return NextResponse.redirect(url);

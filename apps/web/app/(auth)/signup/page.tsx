@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { LoginForm } from "./LoginForm";
 import { IconShieldLockFilled, IconSparkles } from "@tabler/icons-react";
+import { SignupForm } from "./SignupForm";
 
 export const metadata: Metadata = {
-  title: "Entrar · RENACE",
-  description: "Tu proceso, paso a paso."
+  title: "Crear cuenta · RENACE",
+  description: "Empieza tu proceso de recuperación."
 };
 
-export default function LoginPage() {
+export default function SignupPage() {
   return (
     <main className="stage relative flex min-h-screen flex-col bg-hero-gradient px-5 pb-10 pt-12">
       {/* Glow decorativo */}
@@ -33,18 +33,18 @@ export default function LoginPage() {
             </span>
           </div>
           <div className="flex flex-col items-center gap-1.5">
-            <p className="label-eyebrow text-accent-600">Bienvenido de nuevo</p>
+            <p className="label-eyebrow text-accent-600">Empieza aquí</p>
             <h1 className="text-[34px] font-bold leading-[1.05] tracking-tight text-ink-primary">
-              Entra en RENACE
+              Crea tu cuenta
             </h1>
-            <p className="max-w-[24ch] text-base leading-snug text-ink-muted">
-              Sigue donde lo dejaste. Tu proceso te está esperando.
+            <p className="max-w-[26ch] text-base leading-snug text-ink-muted">
+              Te acompañamos paso a paso, a tu ritmo. Sin juicios, con privacidad.
             </p>
           </div>
         </header>
 
         <Suspense fallback={null}>
-          <LoginForm />
+          <SignupForm />
         </Suspense>
 
         <footer className="mt-auto flex items-center justify-center gap-2 pt-4">

@@ -1,23 +1,22 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   IconArrowRight,
   IconCheck,
   IconLock,
   IconMail,
-  IconSparkles,
-  IconUserPlus
+  IconSparkles
 } from "@tabler/icons-react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 
-type Mode = "magic" | "password" | "signup";
+type Mode = "magic" | "password";
 
 const MODES: { id: Mode; label: string; icon: typeof IconMail }[] = [
   { id: "magic", label: "Magic link", icon: IconSparkles },
-  { id: "password", label: "Contraseña", icon: IconLock },
-  { id: "signup", label: "Crear cuenta", icon: IconUserPlus }
+  { id: "password", label: "Contraseña", icon: IconLock }
 ];
 
 export function LoginForm() {
@@ -41,7 +40,10 @@ export function LoginForm() {
         if (mode === "magic") {
           const { error } = await supabase.auth.signInWithOtp({
             email,
+            // shouldCreateUser=false → si no existe la cuenta, no la crea en
+            // silencio. Forzamos al usuario a pasar por /signup.
             options: {
+              shouldCreateUser: false,
               emailRedirectTo: `${window.location.origin}/auth/callback?redirectTo=${encodeURIComponent(
                 redirectTo
               )}`
@@ -49,25 +51,17 @@ export function LoginForm() {
           });
           if (error) throw error;
           setSent(true);
-        } else if (mode === "password") {
-          const { error } = await supabase.auth.signInWithPassword({ email, password });
+        } else {
+          const { error } = await supabase.auth.signInWithPassword({
+            email,
+            password
+          });
           if (error) throw error;
           router.replace(redirectTo);
-        } else {
-          const { error } = await supabase.auth.signUp({
-            email,
-            password,
-            options: {
-              emailRedirectTo: `${window.location.origin}/auth/callback?redirectTo=${encodeURIComponent(
-                redirectTo
-              )}`
-            }
-          });
-          if (error) throw error;
-          setSent(true);
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Algo ha fallado");
+        const message = err instanceof Error ? err.message : "Algo ha fallado";
+        setError(translateError(message));
       }
     });
   }
@@ -139,17 +133,16 @@ export function LoginForm() {
           required
         />
 
-        {(mode === "password" || mode === "signup") && (
+        {mode === "password" && (
           <Field
             id="password"
-            label={mode === "signup" ? "Crea una contraseña" : "Contraseña"}
+            label="Contraseña"
             icon={IconLock}
             type="password"
-            autoComplete={mode === "signup" ? "new-password" : "current-password"}
+            autoComplete="current-password"
             value={password}
             onChange={setPassword}
-            placeholder={mode === "signup" ? "Mínimo 8 caracteres" : "••••••••"}
-            minLength={8}
+            placeholder="••••••••"
             required
           />
         )}
@@ -170,11 +163,7 @@ export function LoginForm() {
             </span>
           ) : (
             <>
-              {mode === "magic"
-                ? "Recibir enlace mágico"
-                : mode === "password"
-                ? "Entrar"
-                : "Crear mi cuenta"}
+              {mode === "magic" ? "Recibir enlace mágico" : "Entrar"}
               <IconArrowRight size={18} stroke={2.4} aria-hidden />
             </>
           )}
@@ -186,8 +175,38 @@ export function LoginForm() {
           </p>
         )}
       </div>
+
+      <p className="text-center text-sm text-ink-muted">
+        ¿Aún no tienes cuenta?{" "}
+        <Link
+          href={{
+            pathname: "/signup",
+            query: redirectTo !== "/home" ? { redirectTo } : undefined
+          }}
+          className="font-bold text-brand-700 underline-offset-4 hover:underline"
+        >
+          Crear una cuenta
+        </Link>
+      </p>
     </form>
   );
+}
+
+function translateError(message: string): string {
+  const lower = message.toLowerCase();
+  if (lower.includes("signups not allowed") || lower.includes("user not found")) {
+    return "No encontramos esa cuenta. ¿Te has registrado ya?";
+  }
+  if (lower.includes("invalid login credentials")) {
+    return "Email o contraseña incorrectos.";
+  }
+  if (lower.includes("email not confirmed")) {
+    return "Confirma tu correo antes de entrar.";
+  }
+  if (lower.includes("rate limit")) {
+    return "Demasiados intentos. Prueba en unos minutos.";
+  }
+  return message;
 }
 
 function Field({
