@@ -1,12 +1,12 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth";
 import {
   enrollInCourse,
   updateCourseProgress,
   toggleClassReminder
 } from "@renace/supabase";
+import { syncProgressAndRevalidate } from "@/lib/progress";
 
 export type CoursesActionResult =
   | { ok: true }
@@ -28,10 +28,7 @@ export async function enrollCourseAction(
   } catch {
     return { error: "No pudimos inscribirte. Intenta de nuevo." };
   }
-  revalidatePath("/laboral");
-  revalidatePath("/emocional");
-  revalidatePath("/fisica");
-  revalidatePath("/cursos");
+  await syncProgressAndRevalidate(client, userId);
   return { ok: true };
 }
 
@@ -59,10 +56,7 @@ export async function updateProgressAction(
   } catch {
     return { error: "No pudimos guardar tu progreso." };
   }
-  revalidatePath("/laboral");
-  revalidatePath("/emocional");
-  revalidatePath("/fisica");
-  revalidatePath(`/cursos`);
+  await syncProgressAndRevalidate(client, userId);
   return { ok: true };
 }
 
@@ -78,9 +72,7 @@ export async function toggleClassReminderAction(
   const { client, userId } = await requireUser();
   try {
     const res = await toggleClassReminder(client, userId, courseId);
-    revalidatePath("/fisica");
-    revalidatePath("/emocional");
-    revalidatePath("/cursos");
+    await syncProgressAndRevalidate(client, userId);
     return { ok: true, reminder_set: res.reminder_set };
   } catch {
     return { error: "No pudimos guardar el recordatorio." };

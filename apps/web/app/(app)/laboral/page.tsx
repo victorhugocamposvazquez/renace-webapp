@@ -5,8 +5,10 @@ import {
   listJobOffers,
   listMyApplications,
   listAreaCourses,
-  listInProgressCourses
+  listInProgressCourses,
+  listAreaProgress
 } from "@renace/supabase";
+import { laboralPhaseFromPercent } from "@renace/core";
 import { BackLink } from "@/components/BackLink";
 import { AreaHeader } from "@/components/AreaHeader";
 import { OfferCard } from "@/components/laboral/OfferCard";
@@ -17,12 +19,15 @@ export const metadata: Metadata = { title: "Laboral · RENACE" };
 
 export default async function LaboralPage() {
   const { client, userId } = await requireUser();
-  const [offers, apps, areaCourses, inProgress] = await Promise.all([
+  const [offers, apps, areaCourses, inProgress, areaProgress] = await Promise.all([
     listJobOffers(client, 6),
     listMyApplications(client, userId),
     listAreaCourses(client, userId, "laboral"),
-    listInProgressCourses(client, userId, 8)
+    listInProgressCourses(client, userId, 8),
+    listAreaProgress(client, userId)
   ]);
+  const laboralPercent = areaProgress.find((a) => a.area === "laboral")?.percent ?? 0;
+  const laboralPhase = laboralPhaseFromPercent(laboralPercent);
   const appliedSet = new Set(apps.map((a) => a.offer_id));
   const continueLaboral = inProgress.filter((c) => c.area === "laboral");
 
@@ -38,8 +43,10 @@ export default async function LaboralPage() {
       <article className="card border-area-laboral-border">
         <div className="flex items-center justify-between">
           <div>
-            <p className="label-eyebrow text-area-laboral-text">Fase 3 de 4</p>
-            <p className="mt-0.5 text-base font-bold text-ink-primary">Búsqueda activa</p>
+            <p className="label-eyebrow text-area-laboral-text">
+              Fase {laboralPhase.phase} de 4
+            </p>
+            <p className="mt-0.5 text-base font-bold text-ink-primary">{laboralPhase.label}</p>
           </div>
           <div className="flex gap-1.5" aria-hidden>
             {[1, 2, 3, 4].map((n) => (
@@ -47,13 +54,13 @@ export default async function LaboralPage() {
                 key={n}
                 className={
                   "h-1.5 w-6 rounded-full " +
-                  (n <= 3 ? "bg-area-laboral" : "bg-outline-soft")
+                  (n <= laboralPhase.phase ? "bg-area-laboral" : "bg-outline-soft")
                 }
               />
             ))}
           </div>
         </div>
-        <p className="mt-2 text-xs text-ink-subtle">Próximo hito · primera entrevista real</p>
+        <p className="mt-2 text-xs text-ink-subtle">{laboralPhase.subtitle}</p>
       </article>
 
       {continueLaboral.length > 0 && (

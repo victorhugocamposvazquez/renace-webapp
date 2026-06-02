@@ -1,8 +1,8 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { markInterested } from "@renace/supabase";
 import { requireUser } from "@/lib/auth";
+import { syncProgressAndRevalidate } from "@/lib/progress";
 
 export async function markInterestedAction(formData: FormData) {
   const { client, userId } = await requireUser();
@@ -11,6 +11,6 @@ export async function markInterestedAction(formData: FormData) {
     return { ok: false as const, error: "Falta oferta" };
   }
   await markInterested(client, userId, offerId);
-  revalidatePath("/laboral");
+  await syncProgressAndRevalidate(client, userId);
   return { ok: true as const };
 }

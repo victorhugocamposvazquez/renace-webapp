@@ -188,7 +188,50 @@ export function LoginForm() {
           Crear una cuenta
         </Link>
       </p>
+
+      {process.env.NEXT_PUBLIC_DEMO_MODE === "true" && (
+        <DemoLoginButton redirectTo={redirectTo} />
+      )}
     </form>
+  );
+}
+
+function DemoLoginButton({ redirectTo }: { redirectTo: string }) {
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
+  const email = process.env.NEXT_PUBLIC_DEMO_EMAIL ?? "demo@renace.app";
+  const password = process.env.NEXT_PUBLIC_DEMO_PASSWORD ?? "DemoRenace2026!";
+
+  function enterDemo() {
+    setError(null);
+    startTransition(async () => {
+      const supabase = getSupabaseBrowserClient();
+      const { error: signErr } = await supabase.auth.signInWithPassword({ email, password });
+      if (signErr) {
+        setError("No pudimos entrar con la cuenta demo. ¿Ejecutaste seed-demo-user.sql?");
+        return;
+      }
+      router.replace(redirectTo);
+    });
+  }
+
+  return (
+    <div className="flex flex-col gap-2 border-t border-outline-soft pt-4">
+      <button
+        type="button"
+        onClick={enterDemo}
+        disabled={isPending}
+        className="btn-secondary w-full border-brand-200 bg-brand-50 text-brand-800"
+      >
+        {isPending ? "Entrando…" : "Entrar como demo (inversores)"}
+      </button>
+      {error && (
+        <p role="alert" className="text-center text-xs text-state-danger">
+          {error}
+        </p>
+      )}
+    </div>
   );
 }
 

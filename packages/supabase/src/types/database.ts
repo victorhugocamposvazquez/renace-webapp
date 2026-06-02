@@ -22,6 +22,7 @@ export type Database = {
           age: number | null;
           is_mentor: boolean;
           onboarding_completed: boolean;
+          last_active_date: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -36,6 +37,7 @@ export type Database = {
           age?: number | null;
           is_mentor?: boolean;
           onboarding_completed?: boolean;
+          last_active_date?: string | null;
         };
         Update: Partial<Database["public"]["Tables"]["profiles"]["Insert"]>;
         Relationships: [];

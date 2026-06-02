@@ -1,0 +1,144 @@
+-- RENACE — cuenta demo para inversores
+--
+-- PRE-REQUISITO: crear el usuario en Supabase Auth (Dashboard → Authentication → Users):
+--   Email:    demo@renace.app
+--   Password: DemoRenace2026!
+--   Auto Confirm User: sí
+--
+-- Luego ejecutar este script en el SQL Editor.
+
+do $$
+declare
+  demo_id uuid;
+  course_resp uuid;
+  course_alfa uuid;
+  course_habitos uuid;
+  course_live uuid;
+begin
+  select id into demo_id from auth.users where email = 'demo@renace.app' limit 1;
+  if demo_id is null then
+    raise exception 'Usuario demo@renace.app no encontrado. Créalo primero en Auth.';
+  end if;
+
+  -- Perfil enriquecido (semana 2)
+  insert into public.profiles (
+    id, alias, area_focus, aria_name, aria_persist,
+    day_in_program, onboarding_completed, last_active_date, city
+  ) values (
+    demo_id,
+    'María Demo',
+    array['emocional','fisica','laboral']::public.area_id[],
+    'Aria',
+    true,
+    14,
+    true,
+    current_date,
+    'Madrid'
+  )
+  on conflict (id) do update set
+    alias = excluded.alias,
+    area_focus = excluded.area_focus,
+    aria_persist = excluded.aria_persist,
+    day_in_program = excluded.day_in_program,
+    onboarding_completed = true,
+    last_active_date = excluded.last_active_date,
+    city = excluded.city;
+
+  -- Áreas con progreso visible en el 360
+  insert into public.area_progress (user_id, area, percent, status) values
+    (demo_id, 'emocional', 42, 'on_track'),
+    (demo_id, 'fisica', 28, 'on_track'),
+    (demo_id, 'laboral', 55, 'on_track'),
+    (demo_id, 'juridica', 18, 'attention'),
+    (demo_id, 'comunidad', 12, 'on_track')
+  on conflict (user_id, area) do update set
+    percent = excluded.percent,
+    status = excluded.status,
+    updated_at = now();
+
+  -- Mood de hoy
+  delete from public.mood_logs where user_id = demo_id and created_at::date = current_date;
+  insert into public.mood_logs (user_id, score, note)
+  values (demo_id, 4, 'Mejor que ayer, con ganas de avanzar');
+
+  -- Diario
+  delete from public.journal_entries where user_id = demo_id;
+  insert into public.journal_entries (user_id, content, sentiment) values
+    (demo_id, 'Día 1. Quiero recuperar estabilidad y encontrar un trabajo digno.', 'mixed'),
+    (demo_id, 'Hoy he respirado antes de una llamada difícil. Pequeño paso, pero cuenta.', 'positive');
+
+  -- Cursos en marcha
+  select id into course_resp from public.courses where slug = 'respiracion-478';
+  select id into course_alfa from public.courses where slug = 'alfabetizacion-digital';
+  select id into course_habitos from public.courses where slug = 'habitos-reinsercion';
+  select id into course_live from public.courses where slug = 'live-yoga-suave';
+
+  if course_resp is not null then
+    insert into public.course_enrollments (user_id, course_id, progress_percent, current_lesson, last_seen_at)
+    values (demo_id, course_resp, 33, 1, now() - interval '2 hours')
+    on conflict (user_id, course_id) do update set
+      progress_percent = 33, current_lesson = 1, last_seen_at = excluded.last_seen_at;
+  end if;
+
+  if course_alfa is not null then
+    insert into public.course_enrollments (user_id, course_id, progress_percent, current_lesson, last_seen_at)
+    values (demo_id, course_alfa, 17, 1, now() - interval '1 day')
+    on conflict (user_id, course_id) do update set
+      progress_percent = 17, current_lesson = 1, last_seen_at = excluded.last_seen_at;
+  end if;
+
+  if course_habitos is not null then
+    insert into public.course_enrollments (user_id, course_id, progress_percent, current_lesson, last_seen_at)
+    values (demo_id, course_habitos, 0, 0, now())
+    on conflict (user_id, course_id) do update set last_seen_at = excluded.last_seen_at;
+  end if;
+
+  if course_live is not null then
+    insert into public.course_enrollments (user_id, course_id, reminder_set, last_seen_at)
+    values (demo_id, course_live, true, now())
+    on conflict (user_id, course_id) do update set reminder_set = true;
+  end if;
+
+  -- Caso jurídico
+  delete from public.legal_cases where user_id = demo_id;
+  insert into public.legal_cases (user_id, title, status, lawyer_name, next_meeting_at)
+  values (
+    demo_id,
+    'Regularización documental',
+    'in_progress',
+    'Dra. Carmen Ruiz',
+    now() + interval '5 days'
+  );
+
+  -- Consulta jurídica
+  insert into public.consult_requests (user_id, category, body, status)
+  select demo_id, 'docs', 'Necesito ayuda para renovar mi DNI caducado.', 'reviewing'
+  where not exists (
+    select 1 from public.consult_requests where user_id = demo_id limit 1
+  );
+
+  -- Ofertas laborales
+  insert into public.job_applications (user_id, offer_id, status)
+  select demo_id, jo.id, 'interested'
+  from public.job_offers jo
+  order by jo.match_score desc
+  limit 2
+  on conflict (user_id, offer_id) do nothing;
+
+  -- Contacto de confianza
+  delete from public.trusted_contacts where user_id = demo_id;
+  insert into public.trusted_contacts (user_id, name, phone, relation)
+  values (demo_id, 'Ana (hermana)', '612 345 678', 'Familia');
+
+  -- Milestones
+  delete from public.timeline_milestones where user_id = demo_id;
+  insert into public.timeline_milestones (user_id, week, title, body, status, order_index) values
+    (demo_id, 1, 'Primeros pasos', 'Completar onboarding y registrar tu ánimo.', 'done', 0),
+    (demo_id, 1, 'Contacto de confianza', 'Añade al menos una persona a quien llamar.', 'done', 1),
+    (demo_id, 2, 'Primer curso', 'Inscríbete y avanza en una lección.', 'done', 2),
+    (demo_id, 2, 'Diario emocional', 'Escribe tres líneas sobre cómo te sientes.', 'in_progress', 3),
+    (demo_id, 3, 'Grupo de apoyo', 'Asiste a un evento de comunidad.', 'pending', 4),
+    (demo_id, 4, 'Entrevista', 'Consigue tu primera entrevista laboral.', 'pending', 5);
+
+  raise notice 'Cuenta demo configurada para user_id=%', demo_id;
+end $$;

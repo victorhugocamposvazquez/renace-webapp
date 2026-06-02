@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { requireUser } from "@/lib/auth";
 import {
@@ -19,6 +20,7 @@ import { RecoveryProgress } from "@/components/RecoveryProgress";
 import { IntentCard } from "@/components/IntentCard";
 import { ContinueWatchingShelf } from "@/components/cursos/ContinueWatchingShelf";
 import { MyLiveClassesCard } from "@/components/cursos/MyLiveClassesCard";
+import { WelcomeTour } from "@/components/WelcomeTour";
 
 export const metadata: Metadata = { title: "Inicio · RENACE" };
 
@@ -67,6 +69,9 @@ export default async function HomePage() {
 
   return (
     <div className="flex flex-1 flex-col gap-4 pb-4">
+      <Suspense fallback={null}>
+        <WelcomeTour />
+      </Suspense>
       <AppHeader
         alias={profile.alias.split(" ")[0] ?? profile.alias}
         trustedContacts={contacts}

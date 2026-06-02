@@ -5,7 +5,8 @@ import {
   addJournalEntry,
   listJournal,
   listUpcomingEvents,
-  createConsultRequest
+  createConsultRequest,
+  syncUserProgress
 } from "@renace/supabase";
 import type { RenaceClient } from "@renace/supabase";
 import { ConsultCategorySchema } from "@renace/core";
@@ -25,6 +26,7 @@ export function createAriaTools(client: RenaceClient, userId: string) {
       }),
       execute: async ({ score, note }) => {
         const r = await logMood(client, userId, { score, note });
+        await syncUserProgress(client, userId).catch(() => undefined);
         return { ok: true, id: r.id, score };
       }
     }),
@@ -112,6 +114,7 @@ export function createAriaTools(client: RenaceClient, userId: string) {
       }),
       execute: async ({ content }) => {
         const r = await addJournalEntry(client, userId, { content });
+        await syncUserProgress(client, userId).catch(() => undefined);
         return { ok: true, id: r.id };
       }
     })

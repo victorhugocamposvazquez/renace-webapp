@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 import {
   IconClockHour3,
   IconPlayerPlayFilled,
@@ -8,17 +9,17 @@ import {
   IconCheck,
   IconBroadcast,
   IconBellRinging,
-  IconVideo,
   IconCalendarTime
 } from "@tabler/icons-react";
 import { requireUser } from "@/lib/auth";
 import { getCourseBySlug } from "@renace/supabase";
-import { formatCountdown, formatDuration } from "@renace/core";
+import { formatCountdown, formatDuration, getCourseLessons, AREA_LABEL, AREA_HREF } from "@renace/core";
 import { BackLink } from "@/components/BackLink";
 import { CourseThumbnail } from "@/components/cursos/CourseThumbnail";
 import { ProgressControls } from "@/components/cursos/ProgressControls";
 import { ReminderToggleForm } from "@/components/cursos/ReminderToggleForm";
 import { EnrollButton } from "@/components/cursos/EnrollButton";
+import { LiveClassJoinButton } from "@/components/cursos/LiveClassJoinButton";
 import { getCourseImage } from "@/lib/courseImages";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -28,21 +29,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return { title: `${slug} · RENACE` };
 }
 
-const AREA_HREF = {
-  laboral: "/laboral",
-  emocional: "/emocional",
-  fisica: "/fisica",
-  juridica: "/juridica",
-  comunidad: "/comunidad"
-} as const;
-
-const AREA_LABEL = {
-  laboral: "Laboral",
-  emocional: "Emocional",
-  fisica: "Física",
-  juridica: "Jurídica",
-  comunidad: "Comunidad"
-} as const;
+const AREA_HREF_MAP = AREA_HREF;
+const AREA_LABEL_MAP = AREA_LABEL;
 
 export default async function CourseDetailPage({ params }: Props) {
   const { slug } = await params;
@@ -67,10 +55,11 @@ export default async function CourseDetailPage({ params }: Props) {
     progress === 0 &&
     Date.now() - new Date(enrolled.last_seen_at).getTime() < 60_000;
   const heroImage = getCourseImage(course.slug);
+  const lessons = getCourseLessons(course.slug, course.lessons_count);
 
   return (
     <div className="flex flex-1 flex-col gap-5 px-5 py-5">
-      <BackLink fallbackHref={AREA_HREF[course.area]} label={AREA_LABEL[course.area]} />
+      <BackLink fallbackHref={AREA_HREF_MAP[course.area]} label={AREA_LABEL_MAP[course.area]} />
 
       {/* HERO */}
       <header className="relative -mx-5 -mt-5">
@@ -124,7 +113,7 @@ export default async function CourseDetailPage({ params }: Props) {
                     <IconBroadcast size={11} aria-hidden /> Clase en directo
                   </>
                 ) : (
-                  <>{AREA_LABEL[course.area]} · Curso</>
+                  <>{AREA_LABEL_MAP[course.area]} · Curso</>
                 )}
               </span>
               {course.instructor_name && (
@@ -182,7 +171,7 @@ export default async function CourseDetailPage({ params }: Props) {
             <p className="font-bold text-ink-primary">¡Estás inscrito!</p>
             <p className="text-xs text-ink-subtle">
               Este curso ya aparece en <strong>“Tu plan en marcha”</strong> de
-              tu home y de {AREA_LABEL[course.area].toLowerCase()}. Continúa
+              tu home y de {AREA_LABEL_MAP[course.area].toLowerCase()}. Continúa
               desde donde quieras.
             </p>
           </div>
@@ -192,14 +181,12 @@ export default async function CourseDetailPage({ params }: Props) {
       {/* CTA principal */}
       {isLive ? (
         isAirNow || isSoon ? (
-          <a
-            href="#join"
-            className="btn-primary text-center"
-            style={{ background: course.accent_color }}
-          >
-            <IconVideo size={16} aria-hidden />
-            <span>{isAirNow ? "Unirme ahora" : "Preparar entrada"}</span>
-          </a>
+          <LiveClassJoinButton
+            title={course.title}
+            instructorName={course.instructor_name}
+            accent={course.accent_color}
+            label={isAirNow ? "Unirme ahora" : "Entrar a sala demo"}
+          />
         ) : (
           <ReminderToggleForm
             courseId={course.id}
@@ -218,6 +205,7 @@ export default async function CourseDetailPage({ params }: Props) {
       ) : enrolled ? (
         <ProgressControls
           courseId={course.id}
+          slug={slug}
           totalLessons={course.lessons_count}
           progress={progress}
           currentLesson={enrolled.current_lesson}
@@ -241,16 +229,15 @@ export default async function CourseDetailPage({ params }: Props) {
         <section>
           <h2 className="label-eyebrow mb-2">Lecciones</h2>
           <ol className="card divide-y divide-outline-soft p-0">
-            {Array.from({ length: course.lessons_count }).map((_, i) => {
+            {lessons.map((lesson, i) => {
               const done = enrolled ? i < (enrolled.current_lesson ?? 0) : false;
               const current = enrolled ? i === (enrolled.current_lesson ?? 0) : false;
-              return (
-                <li
-                  key={i}
-                  className="flex items-center gap-3 px-4 py-3"
-                >
+              const lessonNum = i + 1;
+              const canOpen = enrolled && (done || current || i <= (enrolled.current_lesson ?? 0));
+              const inner = (
+                <>
                   <span
-                    className="grid h-8 w-8 place-items-center rounded-full text-xs font-bold"
+                    className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-xs font-bold"
                     style={{
                       background: done
                         ? course.accent_color
@@ -264,23 +251,39 @@ export default async function CourseDetailPage({ params }: Props) {
                           : "var(--ink-muted, #6E6E6E)"
                     }}
                   >
-                    {done ? <IconCheck size={14} aria-hidden /> : i + 1}
+                    {done ? <IconCheck size={14} aria-hidden /> : lessonNum}
                   </span>
-                  <div className="flex-1">
-                    <div className="text-sm font-semibold text-ink-primary">
-                      Lección {i + 1}
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-semibold text-ink-primary truncate">
+                      {lesson.title}
                     </div>
                     <div className="text-[11px] text-ink-subtle">
-                      {Math.max(5, Math.round(course.total_minutes / course.lessons_count))} min
+                      {lesson.durationMin} min
                     </div>
                   </div>
-                  {current && (
+                  {(current || (!enrolled && i === 0)) && (
                     <span
-                      className="grid h-8 w-8 place-items-center rounded-full text-ink-inverse"
+                      className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-ink-inverse"
                       style={{ background: course.accent_color }}
                     >
                       <IconPlayerPlayFilled size={12} aria-hidden />
                     </span>
+                  )}
+                </>
+              );
+              return (
+                <li key={i}>
+                  {canOpen || (!enrolled && i === 0) ? (
+                    <Link
+                      href={`/cursos/${slug}/leccion/${lessonNum}`}
+                      className="flex items-center gap-3 px-4 py-3 transition active:bg-canvas"
+                    >
+                      {inner}
+                    </Link>
+                  ) : (
+                    <div className="flex items-center gap-3 px-4 py-3 opacity-60">
+                      {inner}
+                    </div>
                   )}
                 </li>
               );

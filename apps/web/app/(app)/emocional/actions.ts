@@ -10,6 +10,7 @@ import {
   deleteTrigger
 } from "@renace/supabase";
 import { requireUser } from "@/lib/auth";
+import { syncProgressAndRevalidate } from "@/lib/progress";
 
 export async function logMoodAction(formData: FormData) {
   const { client, userId } = await requireUser();
@@ -21,8 +22,7 @@ export async function logMoodAction(formData: FormData) {
     return { ok: false as const, error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
   }
   await logMood(client, userId, parsed.data);
-  revalidatePath("/emocional");
-  revalidatePath("/home");
+  await syncProgressAndRevalidate(client, userId);
   return { ok: true as const };
 }
 
@@ -33,7 +33,7 @@ export async function addJournalAction(formData: FormData) {
     return { ok: false as const, error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
   }
   await addJournalEntry(client, userId, parsed.data);
-  revalidatePath("/emocional");
+  await syncProgressAndRevalidate(client, userId);
   return { ok: true as const };
 }
 
@@ -59,7 +59,7 @@ export async function addTriggerAction(formData: FormData) {
     return { ok: false as const, error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
   }
   await addTrigger(client, userId, { label: parsed.data.label, severity: parsed.data.severity });
-  revalidatePath("/emocional");
+  await syncProgressAndRevalidate(client, userId);
   return { ok: true as const };
 }
 

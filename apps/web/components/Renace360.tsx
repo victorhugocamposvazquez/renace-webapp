@@ -8,6 +8,7 @@ import {
 } from "@tabler/icons-react";
 import { AREA_THEMES, type AreaId } from "@renace/tokens";
 import type { AreaProgress } from "@renace/supabase";
+import { ProgressRing } from "./Renace360Ring";
 
 const AREA_ICON: Record<
   AreaId,
@@ -77,34 +78,10 @@ export function Renace360({
             <feDropShadow dx="0" dy="6" stdDeviation="8" floodColor="#0A8554" floodOpacity="0.35" />
           </filter>
         </defs>
-        <circle
-          cx="180"
-          cy="180"
-          r={RING_RADIUS_SVG}
-          fill="none"
-          stroke="#D6D3CE"
-          strokeWidth="1"
-          strokeDasharray="2 4"
-        />
-        <circle
-          cx="180"
-          cy="180"
-          r={RING_RADIUS_SVG}
-          fill="none"
-          stroke="#ECEAE6"
-          strokeWidth="6"
-        />
-        <circle
-          cx="180"
-          cy="180"
-          r={RING_RADIUS_SVG}
-          fill="none"
-          stroke="url(#renace-track-gradient)"
-          strokeWidth="6"
-          strokeLinecap="round"
-          strokeDasharray={ringCircumference}
-          strokeDashoffset={ringCircumference * (1 - totalPercent / 100)}
-          transform="rotate(-90 180 180)"
+        <ProgressRing
+          totalPercent={totalPercent}
+          ringCircumference={ringCircumference}
+          ringRadius={RING_RADIUS_SVG}
         />
         <circle
           cx="180"

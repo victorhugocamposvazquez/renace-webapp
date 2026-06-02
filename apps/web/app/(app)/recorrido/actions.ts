@@ -1,9 +1,9 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { MilestoneStatusUpdateSchema } from "@renace/core";
 import { setMilestoneStatus } from "@renace/supabase";
 import { requireUser } from "@/lib/auth";
+import { syncProgressAndRevalidate } from "@/lib/progress";
 
 export async function updateMilestoneStatusAction(formData: FormData) {
   const { client, userId } = await requireUser();
@@ -15,7 +15,6 @@ export async function updateMilestoneStatusAction(formData: FormData) {
     return { ok: false as const, error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
   }
   await setMilestoneStatus(client, userId, parsed.data.id, parsed.data.status);
-  revalidatePath("/recorrido");
-  revalidatePath("/home");
+  await syncProgressAndRevalidate(client, userId);
   return { ok: true as const };
 }

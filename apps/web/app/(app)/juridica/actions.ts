@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { ConsultRequestInputSchema } from "@renace/core";
 import { createConsultRequest, deleteConsultRequest } from "@renace/supabase";
 import { requireUser } from "@/lib/auth";
+import { syncProgressAndRevalidate } from "@/lib/progress";
 
 export async function submitConsultRequestAction(formData: FormData) {
   const { client, userId } = await requireUser();
@@ -15,7 +16,7 @@ export async function submitConsultRequestAction(formData: FormData) {
     return { ok: false as const, error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
   }
   await createConsultRequest(client, userId, parsed.data);
-  revalidatePath("/juridica");
+  await syncProgressAndRevalidate(client, userId);
   return { ok: true as const };
 }
 

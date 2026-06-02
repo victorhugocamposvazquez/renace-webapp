@@ -9,22 +9,26 @@ import {
   getProfile,
   listAreaProgress,
   listTrustedContacts,
-  fillAllAreas
+  fillAllAreas,
+  listRecentMoods
 } from "@renace/supabase";
 import { weekFromDay } from "@renace/core";
+import Link from "next/link";
 import { BackLink } from "@/components/BackLink";
 import { AreaRingsGrid } from "@/components/perfil/AreaRingsGrid";
 import { TrustedContactsManager } from "@/components/perfil/TrustedContactsManager";
 import { SignOutButton } from "@/components/perfil/SignOutButton";
+import { MoodWeekChart } from "@/components/perfil/MoodWeekChart";
 
 export const metadata: Metadata = { title: "Perfil · RENACE" };
 
 export default async function PerfilPage() {
   const { client, userId } = await requireUser();
-  const [profile, rawAreas, contacts] = await Promise.all([
+  const [profile, rawAreas, contacts, moods] = await Promise.all([
     getProfile(client, userId),
     listAreaProgress(client, userId),
-    listTrustedContacts(client, userId)
+    listTrustedContacts(client, userId),
+    listRecentMoods(client, userId, 14)
   ]);
   if (!profile) return null;
   const areas = fillAllAreas(rawAreas, userId);
@@ -57,6 +61,17 @@ export default async function PerfilPage() {
 
       <h2 className="label-eyebrow mt-2">Tu perfil 360°</h2>
       <AreaRingsGrid progress={areas} />
+
+      <h2 className="label-eyebrow mt-2">Tu semana</h2>
+      <MoodWeekChart moods={moods} />
+
+      <Link
+        href="/recorrido"
+        className="card flex items-center justify-between px-4 py-3 text-sm font-bold text-ink-primary active:scale-[0.99]"
+      >
+        Ver tu recorrido completo
+        <span className="text-ink-subtle" aria-hidden>→</span>
+      </Link>
 
       <h2 className="label-eyebrow mt-2">Tus contactos</h2>
       <TrustedContactsManager contacts={contacts} />

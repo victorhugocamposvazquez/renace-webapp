@@ -11,3 +11,4 @@ export * from "./courses";
 export * from "./timeline";
 export * from "./aria";
 export * from "./trusted";
+export * from "./progressSync";

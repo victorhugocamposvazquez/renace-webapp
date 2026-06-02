@@ -9,6 +9,7 @@ import {
   toggleAttendance
 } from "@renace/supabase";
 import { requireUser } from "@/lib/auth";
+import { syncProgressAndRevalidate } from "@/lib/progress";
 
 export async function createPostAction(formData: FormData) {
   const { client, userId } = await requireUser();
@@ -17,7 +18,7 @@ export async function createPostAction(formData: FormData) {
     return { ok: false as const, error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
   }
   await createCommunityPost(client, userId, parsed.data);
-  revalidatePath("/comunidad");
+  await syncProgressAndRevalidate(client, userId);
   return { ok: true as const };
 }
 
@@ -53,6 +54,6 @@ export async function toggleAttendanceAction(formData: FormData) {
     return { ok: false as const, error: "Falta evento" };
   }
   const r = await toggleAttendance(client, userId, eventId);
-  revalidatePath("/comunidad");
+  await syncProgressAndRevalidate(client, userId);
   return { ok: true as const, attending: r.attending };
 }

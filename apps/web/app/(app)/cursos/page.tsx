@@ -13,6 +13,7 @@ import {
   listAllCourses
 } from "@renace/supabase";
 import type { AreaId } from "@renace/supabase";
+import { AREA_LABEL, AREA_ORDER } from "@renace/core";
 import { BackLink } from "@/components/BackLink";
 import { ContinueWatchingShelf } from "@/components/cursos/ContinueWatchingShelf";
 import { CourseShelf } from "@/components/cursos/CourseShelf";
@@ -27,22 +28,6 @@ const TABS: { id: Tab; label: string; icon: typeof IconBookmark }[] = [
   { id: "mine", label: "En marcha", icon: IconBookmark },
   { id: "live", label: "En directo", icon: IconBroadcast },
   { id: "catalog", label: "Catálogo", icon: IconCompass }
-];
-
-const AREA_LABEL: Record<AreaId, string> = {
-  laboral: "Laboral",
-  emocional: "Emocional",
-  fisica: "Física",
-  juridica: "Jurídica",
-  comunidad: "Comunidad"
-};
-
-const AREA_ORDER: AreaId[] = [
-  "laboral",
-  "emocional",
-  "fisica",
-  "juridica",
-  "comunidad"
 ];
 
 export default async function CursosHubPage({ searchParams }: Props) {

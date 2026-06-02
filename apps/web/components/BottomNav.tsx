@@ -7,7 +7,8 @@ import {
   IconHome2,
   IconSparkles,
   IconUsers,
-  IconUser
+  IconUser,
+  IconSchool
 } from "@tabler/icons-react";
 import { cn } from "@/lib/cn";
 
@@ -29,6 +30,12 @@ const TABS: Tab[] = [
     label: "Inicio",
     icon: IconHome2,
     matches: (p) => p === "/home"
+  },
+  {
+    href: "/cursos",
+    label: "Cursos",
+    icon: IconSchool,
+    matches: (p) => p.startsWith("/cursos")
   },
   {
     href: "/aria",

@@ -88,6 +88,41 @@ Pensado para Vercel + Supabase administrado:
 2. Configurar las variables de entorno en el dashboard de Vercel (mismas que `.env.example`).
 3. Para Supabase, integración nativa del Marketplace de Vercel o conexión manual.
 
+## Demo para inversores
+
+### Preparación (una vez)
+
+1. Aplicar migrations en `supabase/migrations/` (incluye `courses_v2` y `progress_sync`).
+2. Ejecutar `supabase/seed.sql` para el catálogo.
+3. Crear usuario en Supabase Auth: `demo@renace.app` / `DemoRenace2026!` (confirmado).
+4. Ejecutar `supabase/seed-demo-user.sql` para poblar la cuenta demo.
+5. En `.env.local`:
+
+   ```bash
+   NEXT_PUBLIC_DEMO_MODE=true
+   NEXT_PUBLIC_DEMO_EMAIL=demo@renace.app
+   NEXT_PUBLIC_DEMO_PASSWORD=DemoRenace2026!
+   ```
+
+### Guion de pitch (~8 min)
+
+| Min | Pantalla | Qué mostrar |
+|-----|----------|-------------|
+| 0–1 | `/login` → demo | Botón "Entrar como demo" |
+| 1–2 | `/home` | Círculo 360 con áreas distintas, curso en marcha, clase live |
+| 2–3 | `/emocional` | Mood de hoy, diario, curso Respiración 4-7-8 |
+| 3–4 | `/cursos/respiracion-478/leccion/2` | Lección con contenido real, marcar progreso |
+| 4–5 | `/home` | 360 sube, "Continuar viendo" actualizado |
+| 5–6 | `/laboral` | Fase dinámica, ofertas, curso digital |
+| 6–7 | `/aria` | Chat que registra ánimo ("me siento bien, un 4") |
+| 7–8 | SOS + `/recorrido` | Contacto de confianza, milestones completados |
+
+### Deploy Vercel
+
+1. `vercel link` desde `apps/web`.
+2. Mismas variables de entorno + `NEXT_PUBLIC_DEMO_MODE=true` en Preview/Production.
+3. Supabase linkeado vía Marketplace o manual.
+
 ## Lo que NO entra en este MVP
 
 - Vista desktop real (mobile-first puro con preview centrado en desktop).

@@ -67,7 +67,7 @@ export function OnboardingFlow({ defaultAlias }: { defaultAlias: string }) {
   useEffect(() => {
     if (!done) return;
     const t = window.setTimeout(() => {
-      router.push("/home");
+      router.push("/home?welcome=1");
     }, 2400);
     return () => window.clearTimeout(t);
   }, [done, router]);
@@ -150,7 +150,7 @@ export function OnboardingFlow({ defaultAlias }: { defaultAlias: string }) {
         <button
           type="button"
           className="btn-primary mt-2 w-full max-w-[320px]"
-          onClick={() => router.push("/home")}
+          onClick={() => router.push("/home?welcome=1")}
         >
           Entrar a mi RENACE
           <IconArrowRight size={18} aria-hidden />

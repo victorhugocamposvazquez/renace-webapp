@@ -49,7 +49,7 @@ export const DEFAULT_MICRO_ACTIONS: MicroAction[] = [
     title: "Avanza 10 minutos en tu curso",
     body: "10 minutos hoy son un capítulo esta semana.",
     cta: "Ir al curso",
-    href: "/laboral",
+    href: "/cursos?tab=catalog",
     areaHint: "laboral"
   }
 ];
