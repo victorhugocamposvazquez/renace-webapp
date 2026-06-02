@@ -108,7 +108,17 @@ export default async function HomePage() {
             embedded
           />
 
-          <p className="label-eyebrow text-brand-700">Mi día</p>
+          <section className="mt-2">
+            <Renace360
+              progress={areas}
+              totalPercent={total}
+              dayInProgram={profile.day_in_program}
+              week={week}
+              alias={profile.alias}
+            />
+          </section>
+
+          <p className="label-eyebrow mt-4 text-brand-700">Mi día</p>
 
           <HomeHero
             dayInProgram={profile.day_in_program}
@@ -137,16 +147,6 @@ export default async function HomePage() {
               />
             </section>
           )}
-
-          <section className="mt-4">
-            <Renace360
-              progress={areas}
-              totalPercent={total}
-              dayInProgram={profile.day_in_program}
-              week={week}
-              alias={profile.alias}
-            />
-          </section>
         </div>
       </div>
 
