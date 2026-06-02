@@ -1,15 +1,16 @@
-import { IconMoodSmile, IconTrendingUp } from "@tabler/icons-react";
+import Link from "next/link";
+import { IconCalendarWeek, IconMoodSmile, IconTrendingUp, IconChevronRight } from "@tabler/icons-react";
 import type { MoodLog } from "@renace/supabase";
-import type { ProgramDayEntry } from "@renace/core";
 import { MOOD_LABELS, type MoodScore } from "@renace/core";
-import { ProgramDayStrip } from "./ProgramDayStrip";
 
 export function HomeHero({
-  programDays,
+  dayInProgram,
+  week,
   totalPercent,
   todayMood
 }: {
-  programDays: ProgramDayEntry[];
+  dayInProgram: number;
+  week: number;
   totalPercent: number;
   todayMood: MoodLog | null;
 }) {
@@ -20,7 +21,19 @@ export function HomeHero({
 
   return (
     <div className="relative mb-2 mt-3 flex gap-2 overflow-x-auto pb-1 hide-scrollbar">
-      <ProgramDayStrip days={programDays} />
+      <Link
+        href="/recorrido/dias"
+        className="flex min-w-[118px] shrink-0 flex-col gap-1 rounded-2xl border border-outline-soft/80 bg-elevated/80 px-3 py-2.5 shadow-soft backdrop-blur-sm transition-all hover:border-brand-200 hover:bg-brand-50/50 active:scale-[0.98]"
+      >
+        <div className="flex items-center justify-between gap-1">
+          <div className="flex items-center gap-1.5">
+            <IconCalendarWeek size={14} aria-hidden className="text-brand-700 opacity-80" />
+            <span className="text-[13px] font-bold text-ink-primary">Día {dayInProgram}</span>
+          </div>
+          <IconChevronRight size={14} aria-hidden className="text-brand-600 opacity-70" />
+        </div>
+        <span className="text-[11px] font-medium text-ink-muted">Semana {week} · Ver histórico</span>
+      </Link>
       <StatPill
         icon={IconTrendingUp}
         label={`${totalPercent}%`}

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { listMilestones, seedDefaultMilestones } from "@renace/supabase";
 import { DEFAULT_MILESTONES } from "@renace/core";
@@ -20,6 +21,12 @@ export default async function RecorridoPage() {
         <h1 className="mt-0.5 text-3xl font-bold tracking-tight text-ink-primary">
           De cero a estable
         </h1>
+        <Link
+          href="/recorrido/dias"
+          className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-brand-700"
+        >
+          Ver histórico día a día
+        </Link>
       </header>
 
       <div className="flex gap-2 overflow-x-auto pb-2">

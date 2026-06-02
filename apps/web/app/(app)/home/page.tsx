@@ -9,10 +9,9 @@ import {
   fillAllAreas,
   getFirstJournal,
   listInProgressCourses,
-  listMyUpcomingLiveClasses,
-  listRecentMoods
+  listMyUpcomingLiveClasses
 } from "@renace/supabase";
-import { pickMicroAction, totalProgress, weekFromDay, buildProgramDayHistory } from "@renace/core";
+import { pickMicroAction, totalProgress, weekFromDay } from "@renace/core";
 import { AppHeader } from "@/components/AppHeader";
 import { Renace360 } from "@/components/Renace360";
 import { AriaTeaser } from "@/components/AriaTeaser";
@@ -35,8 +34,7 @@ export default async function HomePage() {
     todayMood,
     firstJournal,
     inProgressCourses,
-    myLiveClasses,
-    recentMoods
+    myLiveClasses
   ] = await Promise.all([
     getProfile(client, userId),
     listAreaProgress(client, userId),
@@ -44,8 +42,7 @@ export default async function HomePage() {
     getTodayMood(client, userId),
     getFirstJournal(client, userId),
     listInProgressCourses(client, userId, 6),
-    listMyUpcomingLiveClasses(client, userId, 3),
-    listRecentMoods(client, userId, 30)
+    listMyUpcomingLiveClasses(client, userId, 3)
   ]);
   if (!profile) return null;
 
@@ -57,11 +54,6 @@ export default async function HomePage() {
   const areas = fillAllAreas(rawAreas, userId);
   const total = totalProgress(areas);
   const week = weekFromDay(profile.day_in_program);
-  const programDays = buildProgramDayHistory({
-    dayInProgram: profile.day_in_program,
-    lastActiveDate: profile.last_active_date,
-    moods: recentMoods
-  });
   const action = pickMicroAction({
     dayInProgram: profile.day_in_program,
     lastMood: todayMood?.score ?? null
@@ -91,7 +83,8 @@ export default async function HomePage() {
             embedded
           />
           <HomeHero
-            programDays={programDays}
+            dayInProgram={profile.day_in_program}
+            week={week}
             totalPercent={total}
             todayMood={todayMood}
           />

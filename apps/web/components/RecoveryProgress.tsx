@@ -124,13 +124,22 @@ export function RecoveryProgress({
         })}
       </ul>
 
-      <Link
-        href="/recorrido"
-        className="flex items-center justify-between gap-2 border-t border-outline-soft/60 px-5 py-3 text-xs font-bold text-brand-700 transition-colors hover:bg-brand-50/40"
-      >
-        <span>Ver tu recorrido completo</span>
-        <IconChevronRight size={14} aria-hidden />
-      </Link>
+      <div className="grid grid-cols-2 border-t border-outline-soft/60">
+        <Link
+          href="/recorrido/dias"
+          className="flex items-center justify-between gap-2 border-r border-outline-soft/60 px-4 py-3 text-xs font-bold text-brand-700 transition-colors hover:bg-brand-50/40"
+        >
+          <span>Histórico diario</span>
+          <IconChevronRight size={14} aria-hidden />
+        </Link>
+        <Link
+          href="/recorrido"
+          className="flex items-center justify-between gap-2 px-4 py-3 text-xs font-bold text-brand-700 transition-colors hover:bg-brand-50/40"
+        >
+          <span>Hitos del recorrido</span>
+          <IconChevronRight size={14} aria-hidden />
+        </Link>
+      </div>
     </article>
   );
 }
