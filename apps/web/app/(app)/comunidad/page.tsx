@@ -7,7 +7,7 @@ import { Composer } from "@/components/comunidad/Composer";
 import { PostCard } from "@/components/comunidad/PostCard";
 import { EventCard } from "@/components/comunidad/EventCard";
 
-export const metadata: Metadata = { title: "Comunidad · RENACE" };
+export const metadata: Metadata = { title: "Red · RENACE" };
 
 export default async function ComunidadPage() {
   const { client, userId } = await requireUser();

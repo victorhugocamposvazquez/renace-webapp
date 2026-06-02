@@ -56,10 +56,22 @@ begin
     status = excluded.status,
     updated_at = now();
 
-  -- Mood de hoy
-  delete from public.mood_logs where user_id = demo_id and created_at::date = current_date;
-  insert into public.mood_logs (user_id, score, note)
-  values (demo_id, 4, 'Mejor que ayer, con ganas de avanzar');
+  -- Mood de hoy + histórico (últimos 14 días del programa)
+  delete from public.mood_logs where user_id = demo_id;
+  insert into public.mood_logs (user_id, score, note, created_at) values
+    (demo_id, 4, 'Mejor que ayer, con ganas de avanzar', now()),
+    (demo_id, 3, 'Día tranquilo, sigo el plan', now() - interval '1 day'),
+    (demo_id, 2, 'Costó levantarme pero entré', now() - interval '2 days'),
+    (demo_id, 4, 'Buen día en el curso de respiración', now() - interval '3 days'),
+    (demo_id, 3, 'Neutro, sin sobresaltos', now() - interval '4 days'),
+    (demo_id, 5, 'Gran sesión con el grupo de apoyo', now() - interval '5 days'),
+    (demo_id, 3, 'Rutina cumplida', now() - interval '6 days'),
+    (demo_id, 2, 'Ansiedad por la entrevista', now() - interval '7 days'),
+    (demo_id, 4, 'Me siento más fuerte', now() - interval '8 days'),
+    (demo_id, 3, 'Día normal', now() - interval '9 days'),
+    (demo_id, 4, 'Avancé en alfabetización digital', now() - interval '10 days'),
+    (demo_id, 2, 'Día difícil emocionalmente', now() - interval '11 days'),
+    (demo_id, 3, 'Primer registro de ánimo', now() - interval '13 days');
 
   -- Diario
   delete from public.journal_entries where user_id = demo_id;

@@ -1,15 +1,15 @@
-import { IconCalendarWeek, IconMoodSmile, IconTrendingUp } from "@tabler/icons-react";
+import { IconMoodSmile, IconTrendingUp } from "@tabler/icons-react";
 import type { MoodLog } from "@renace/supabase";
+import type { ProgramDayEntry } from "@renace/core";
 import { MOOD_LABELS, type MoodScore } from "@renace/core";
+import { ProgramDayStrip } from "./ProgramDayStrip";
 
 export function HomeHero({
-  dayInProgram,
-  week,
+  programDays,
   totalPercent,
   todayMood
 }: {
-  dayInProgram: number;
-  week: number;
+  programDays: ProgramDayEntry[];
   totalPercent: number;
   todayMood: MoodLog | null;
 }) {
@@ -20,7 +20,7 @@ export function HomeHero({
 
   return (
     <div className="relative mb-2 mt-3 flex gap-2 overflow-x-auto pb-1 hide-scrollbar">
-      <StatPill icon={IconCalendarWeek} label={`Día ${dayInProgram}`} sub={`Semana ${week}`} />
+      <ProgramDayStrip days={programDays} />
       <StatPill
         icon={IconTrendingUp}
         label={`${totalPercent}%`}

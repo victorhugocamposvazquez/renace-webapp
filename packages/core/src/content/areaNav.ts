@@ -5,7 +5,7 @@ export const AREA_LABEL: Record<AreaId, string> = {
   emocional: "Emocional",
   fisica: "Física",
   juridica: "Jurídica",
-  comunidad: "Comunidad"
+  comunidad: "Red"
 };
 
 export const AREA_HREF: Record<AreaId, string> = {

@@ -25,7 +25,7 @@ export const AREA_META: Record<
     eyebrow: "Área 4 · Reinserción"
   },
   comunidad: {
-    label: "Comunidad",
+    label: "Red",
     subtitle: "No estás solo en esto",
     eyebrow: "Apoyo entre iguales"
   }

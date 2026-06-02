@@ -67,7 +67,7 @@ export const AREA_THEMES: Record<AreaId, AreaTheme> = {
   },
   comunidad: {
     id: "comunidad",
-    label: "Comunidad",
+    label: "Red",
     subtitle: "No estás solo en esto",
     core: "#5A4FB8",
     tint: "#E5E3FA",

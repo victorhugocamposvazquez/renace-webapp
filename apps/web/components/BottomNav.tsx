@@ -51,7 +51,7 @@ const TABS: Tab[] = [
   },
   {
     href: "/comunidad",
-    label: "Comunidad",
+    label: "Red",
     shortLabel: "Red",
     icon: IconUsers,
     matches: (p) => p.startsWith("/comunidad")
@@ -138,7 +138,7 @@ export function BottomNav() {
                   active ? "opacity-100" : "opacity-70"
                 )}
               >
-                {active ? tab.label : tab.shortLabel}
+                {tab.label}
               </span>
             </Link>
           );

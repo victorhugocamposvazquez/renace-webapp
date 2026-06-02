@@ -23,7 +23,9 @@ export function AppHeader({
   const initial = alias.slice(0, 1).toUpperCase();
 
   return (
-    <header className={`flex flex-col gap-4 ${embedded ? "pt-4" : "px-5 pt-6"}`}>
+    <header
+      className={`flex flex-col gap-4 ${embedded ? "pt-4" : "px-5 pt-[max(env(safe-area-inset-top),24px)]"}`}
+    >
       <div className="flex items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-3">
           <Link

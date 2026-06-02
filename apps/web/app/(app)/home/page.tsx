@@ -9,9 +9,10 @@ import {
   fillAllAreas,
   getFirstJournal,
   listInProgressCourses,
-  listMyUpcomingLiveClasses
+  listMyUpcomingLiveClasses,
+  listRecentMoods
 } from "@renace/supabase";
-import { pickMicroAction, totalProgress, weekFromDay } from "@renace/core";
+import { pickMicroAction, totalProgress, weekFromDay, buildProgramDayHistory } from "@renace/core";
 import { AppHeader } from "@/components/AppHeader";
 import { Renace360 } from "@/components/Renace360";
 import { AriaTeaser } from "@/components/AriaTeaser";
@@ -34,7 +35,8 @@ export default async function HomePage() {
     todayMood,
     firstJournal,
     inProgressCourses,
-    myLiveClasses
+    myLiveClasses,
+    recentMoods
   ] = await Promise.all([
     getProfile(client, userId),
     listAreaProgress(client, userId),
@@ -42,7 +44,8 @@ export default async function HomePage() {
     getTodayMood(client, userId),
     getFirstJournal(client, userId),
     listInProgressCourses(client, userId, 6),
-    listMyUpcomingLiveClasses(client, userId, 3)
+    listMyUpcomingLiveClasses(client, userId, 3),
+    listRecentMoods(client, userId, 30)
   ]);
   if (!profile) return null;
 
@@ -54,6 +57,11 @@ export default async function HomePage() {
   const areas = fillAllAreas(rawAreas, userId);
   const total = totalProgress(areas);
   const week = weekFromDay(profile.day_in_program);
+  const programDays = buildProgramDayHistory({
+    dayInProgram: profile.day_in_program,
+    lastActiveDate: profile.last_active_date,
+    moods: recentMoods
+  });
   const action = pickMicroAction({
     dayInProgram: profile.day_in_program,
     lastMood: todayMood?.score ?? null
@@ -70,12 +78,12 @@ export default async function HomePage() {
         <WelcomeTour />
       </Suspense>
 
-      <div className="home-hero relative -mx-5 overflow-hidden">
+      <div className="home-hero relative overflow-hidden">
         <div
           aria-hidden
           className="pointer-events-none absolute inset-x-0 top-0 h-[420px] bg-hero-gradient"
         />
-        <div className="relative px-5">
+        <div className="relative px-5 pt-[max(env(safe-area-inset-top),0px)]">
           <AppHeader
             alias={profile.alias.split(" ")[0] ?? profile.alias}
             trustedContacts={contacts}
@@ -83,8 +91,7 @@ export default async function HomePage() {
             embedded
           />
           <HomeHero
-            dayInProgram={profile.day_in_program}
-            week={week}
+            programDays={programDays}
             totalPercent={total}
             todayMood={todayMood}
           />
