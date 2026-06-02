@@ -95,17 +95,43 @@
 }
 
 @layer components {
+  /* ----- Layout ----- */
+  .page-stack {
+    @apply flex flex-1 flex-col gap-6 pb-4;
+  }
+
+  .page-inset {
+    @apply px-5;
+  }
+
+  .home-hero {
+    @apply relative overflow-hidden;
+  }
+
   /* ----- Surfaces ----- */
   .card {
-    @apply rounded-2xl border border-outline-soft/80 bg-elevated p-5 shadow-soft;
+    @apply rounded-[20px] border border-outline-soft/70 bg-elevated p-5 shadow-soft;
+  }
+
+  .card-interactive {
+    @apply rounded-[20px] border border-outline-soft/70 bg-elevated p-5 shadow-soft transition-all duration-200 ease-out-expo hover:shadow-card active:scale-[0.99];
   }
 
   .card-lift {
-    @apply rounded-2xl border border-outline-soft/80 bg-elevated p-5 shadow-card;
+    @apply rounded-[20px] border border-outline-soft/70 bg-elevated p-5 shadow-card;
   }
 
   .card-glass {
-    @apply rounded-2xl border border-white/40 bg-white/70 p-5 shadow-card backdrop-blur-xl;
+    @apply rounded-[20px] border border-white/50 bg-white/75 p-5 shadow-card backdrop-blur-xl;
+  }
+
+  .card-accent-left {
+    @apply relative overflow-hidden rounded-[20px] border border-outline-soft/70 bg-elevated p-5 shadow-soft;
+  }
+
+  .card-accent-left::before {
+    content: "";
+    @apply absolute inset-y-0 left-0 w-1 rounded-l-[20px] bg-brand-gradient;
   }
 
   .card-coloured {
@@ -130,20 +156,28 @@
   }
 
   .label-eyebrow {
-    @apply text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-subtle;
+    @apply text-[10px] font-bold uppercase tracking-[0.16em] text-ink-subtle;
+  }
+
+  .display-title {
+    @apply text-[32px] font-bold leading-[1.05] tracking-tight text-ink-primary;
+  }
+
+  .display-subtitle {
+    @apply text-[15px] font-medium leading-snug text-ink-muted;
   }
 
   /* ----- Buttons ----- */
   .btn-primary {
-    @apply tap-target inline-flex w-full items-center justify-center gap-2 rounded-full bg-brand-gradient px-5 py-3.5 text-md font-semibold text-ink-inverse shadow-brand-glow transition-transform duration-200 ease-out-expo hover:brightness-105 active:scale-[0.98] disabled:opacity-50 disabled:shadow-none;
+    @apply tap-target inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-gradient px-5 py-3.5 text-md font-semibold text-ink-inverse shadow-brand-glow transition-all duration-200 ease-out-expo hover:brightness-105 hover:shadow-lift active:scale-[0.98] disabled:opacity-50 disabled:shadow-none;
   }
 
   .btn-accent {
-    @apply tap-target inline-flex w-full items-center justify-center gap-2 rounded-full bg-accent-gradient px-5 py-3.5 text-md font-semibold text-ink-inverse shadow-accent-glow transition-transform duration-200 ease-out-expo hover:brightness-105 active:scale-[0.98] disabled:opacity-50 disabled:shadow-none;
+    @apply tap-target inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-accent-gradient px-5 py-3.5 text-md font-semibold text-ink-inverse shadow-accent-glow transition-all duration-200 ease-out-expo hover:brightness-105 hover:shadow-lift active:scale-[0.98] disabled:opacity-50 disabled:shadow-none;
   }
 
   .btn-secondary {
-    @apply tap-target inline-flex w-full items-center justify-center gap-2 rounded-full border border-outline-medium bg-elevated px-5 py-3.5 text-base font-semibold text-ink-primary shadow-soft transition-colors duration-200 hover:bg-canvas active:scale-[0.98] disabled:opacity-50;
+    @apply tap-target inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-outline-medium bg-elevated px-5 py-3.5 text-base font-semibold text-ink-primary shadow-soft transition-all duration-200 hover:bg-canvas hover:shadow-card active:scale-[0.98] disabled:opacity-50;
   }
 
   .btn-ghost {
@@ -156,7 +190,7 @@
 
   /* ----- Inputs ----- */
   .input {
-    @apply tap-target w-full rounded-xl border border-outline-medium bg-elevated px-4 text-base text-ink-primary placeholder:text-ink-subtle outline-none transition-shadow duration-200;
+    @apply tap-target w-full rounded-2xl border border-outline-medium bg-elevated px-4 py-3 text-base text-ink-primary placeholder:text-ink-subtle outline-none transition-all duration-200;
   }
 
   .input:focus {
@@ -295,5 +329,35 @@
 
   .animate-ring-pulse {
     animation: ring-pulse 600ms ease-out;
+  }
+
+  /* Bottom nav tab */
+  .nav-tab {
+    @apply relative flex flex-1 flex-col items-center justify-center gap-0.5 rounded-2xl py-2 transition-all duration-200 ease-out-expo;
+  }
+
+  .nav-tab-active {
+    @apply bg-ink-primary text-ink-inverse shadow-soft;
+  }
+
+  .nav-tab-aria-active {
+    @apply bg-accent-gradient text-ink-inverse shadow-accent-glow;
+  }
+
+  .nav-tab-idle {
+    @apply text-ink-subtle hover:text-ink-secondary;
+  }
+
+  /* Mood picker */
+  .mood-option {
+    @apply tap-target flex flex-1 flex-col items-center gap-1 rounded-2xl border-2 border-transparent py-2.5 transition-all duration-200 ease-out-expo active:scale-95;
+  }
+
+  .mood-option-active {
+    @apply scale-105 border-area-emocional bg-area-emocional-tint shadow-soft;
+  }
+
+  .mood-option-idle {
+    @apply bg-canvas hover:bg-elevated;
   }
 }

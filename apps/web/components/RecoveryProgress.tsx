@@ -37,7 +37,7 @@ export function RecoveryProgress({
   const status = pickStatus(totalPercent);
 
   return (
-    <article className="overflow-hidden rounded-2xl border border-outline-soft/80 bg-elevated shadow-card">
+    <article className="overflow-hidden rounded-[20px] border border-outline-soft/70 bg-elevated shadow-card">
       {/* Top: número + status */}
       <div className="flex items-start justify-between gap-3 px-5 pb-2 pt-5">
         <div className="min-w-0 flex-1">

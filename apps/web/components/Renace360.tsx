@@ -150,19 +150,28 @@ function AreaButton({
     <Link
       href={`/${area}`}
       aria-label={`Área ${theme.label}. Avance ${progress}%`}
-      className="absolute z-10 -translate-x-1/2 -translate-y-1/2 transition-transform duration-200 ease-out-expo active:scale-95"
+      className="absolute z-10 -translate-x-1/2 -translate-y-1/2 transition-transform duration-200 ease-out-expo hover:scale-105 active:scale-95"
       style={{ top: position.top, left: position.left }}
     >
       <span
-        className="flex h-[78px] w-[78px] flex-col items-center justify-center rounded-full border-[2.5px] shadow-card"
+        className="relative flex h-[76px] w-[76px] flex-col items-center justify-center rounded-full border-[2.5px] shadow-card backdrop-blur-sm"
         style={{
-          backgroundColor: theme.tint,
-          borderColor: theme.core
+          backgroundColor: `${theme.tint}ee`,
+          borderColor: theme.core,
+          boxShadow: progress > 0 ? `0 8px 24px -8px ${theme.core}44` : undefined
         }}
       >
-        <Icon size={24} aria-hidden color={theme.core} stroke={2} />
+        {progress > 0 && (
+          <span
+            className="absolute -right-1 -top-1 grid min-w-[22px] place-items-center rounded-full px-1 py-0.5 text-[9px] font-bold text-ink-inverse shadow-soft"
+            style={{ background: theme.core }}
+          >
+            {progress}%
+          </span>
+        )}
+        <Icon size={22} aria-hidden color={theme.core} stroke={2.1} />
         <span
-          className="mt-0.5 text-[10.5px] font-bold leading-none tracking-tight"
+          className="mt-0.5 max-w-[64px] truncate text-[9.5px] font-bold leading-none tracking-tight"
           style={{ color: theme.core }}
         >
           {theme.label}

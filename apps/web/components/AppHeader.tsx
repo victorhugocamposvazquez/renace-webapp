@@ -8,16 +8,39 @@ type AppHeaderProps = {
   alias: string;
   notifications?: number;
   trustedContacts: TrustedContact[];
+  /** Si true, el header vive sobre el hero gradient (sin padding extra arriba). */
+  embedded?: boolean;
 };
 
-export function AppHeader({ alias, notifications = 0, trustedContacts }: AppHeaderProps) {
+export function AppHeader({
+  alias,
+  notifications = 0,
+  trustedContacts,
+  embedded = false
+}: AppHeaderProps) {
   const now = new Date();
   const greeting = greetingFor(now);
+  const initial = alias.slice(0, 1).toUpperCase();
+
   return (
-    <header className="flex flex-col gap-3 px-5 pt-6">
-      <div className="flex items-start justify-between gap-3">
-        <p className="label-eyebrow">{formatLongDate(now)}</p>
-        <div className="flex items-center gap-2">
+    <header className={`flex flex-col gap-4 ${embedded ? "pt-4" : "px-5 pt-6"}`}>
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-3">
+          <Link
+            href="/perfil"
+            aria-label="Ir a tu perfil"
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-brand-gradient text-base font-bold text-ink-inverse shadow-brand-glow transition-transform active:scale-95"
+          >
+            {initial}
+          </Link>
+          <div className="min-w-0">
+            <p className="label-eyebrow">{formatLongDate(now)}</p>
+            <h1 className="mt-0.5 truncate text-xl font-bold tracking-tight text-ink-primary">
+              {greeting}, <span className="text-brand-700">{alias}</span>
+            </h1>
+          </div>
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
           <SOSButton contacts={trustedContacts} />
           <Link
             href="/perfil#notifications"
@@ -26,24 +49,18 @@ export function AppHeader({ alias, notifications = 0, trustedContacts }: AppHead
                 ? `Notificaciones (${notifications} nuevas)`
                 : "Notificaciones"
             }
-            className="tap-target relative grid place-items-center rounded-full border border-outline-soft bg-elevated shadow-soft transition-transform duration-200 active:scale-95"
+            className="tap-target relative grid h-11 w-11 place-items-center rounded-2xl border border-outline-soft/80 bg-elevated/90 shadow-soft backdrop-blur-sm transition-transform duration-200 active:scale-95"
           >
             <IconBell size={20} aria-hidden stroke={1.8} />
             {notifications > 0 && (
               <span
-                className="absolute right-2 top-2 grid h-2.5 w-2.5 place-items-center rounded-full bg-state-danger ring-2 ring-elevated"
+                className="absolute right-2.5 top-2.5 grid h-2 w-2 place-items-center rounded-full bg-state-danger ring-2 ring-elevated"
                 aria-hidden
               />
             )}
           </Link>
         </div>
       </div>
-      <h1 className="text-[30px] font-bold leading-[1.05] tracking-tight text-ink-primary">
-        <span className="block text-ink-secondary">{greeting},</span>
-        <span className="block bg-gradient-to-r from-brand-600 to-accent-500 bg-clip-text text-transparent">
-          {alias}
-        </span>
-      </h1>
     </header>
   );
 }

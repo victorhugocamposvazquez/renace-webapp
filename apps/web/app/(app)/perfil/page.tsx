@@ -35,7 +35,7 @@ export default async function PerfilPage() {
   const week = weekFromDay(profile.day_in_program);
 
   return (
-    <div className="flex flex-1 flex-col gap-4 px-5 py-5">
+    <div className="page-stack px-5 py-5">
       <BackLink />
 
       <header className="flex flex-col items-center gap-2 pt-2 text-center">

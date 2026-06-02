@@ -44,7 +44,7 @@ export default async function EmocionalPage() {
   const recommended = courses.filter((c) => !c.enrollment).slice(0, 8);
 
   return (
-    <div className="flex flex-1 flex-col gap-5 px-5 py-5">
+    <div className="page-stack px-5 py-5">
       <BackLink fallbackHref="/home" />
       <AreaHeader area="emocional" />
 

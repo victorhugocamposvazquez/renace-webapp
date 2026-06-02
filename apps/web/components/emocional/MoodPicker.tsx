@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { IconCheck } from "@tabler/icons-react";
 import { MOOD_LABELS, type MoodScore } from "@renace/core";
 import { logMoodAction } from "@/app/(app)/emocional/actions";
 import { cn } from "@/lib/cn";
@@ -32,14 +33,15 @@ export function MoodPicker({ initialScore = null }: { initialScore?: MoodScore |
   }
 
   return (
-    <section
-      aria-labelledby="mood-title"
-      className="card border-area-emocional-border"
-    >
-      <p id="mood-title" className="label-eyebrow text-ink-primary">
-        ¿Cómo te sientes?
+    <section aria-labelledby="mood-title" className="card border-area-emocional-border/60">
+      <p id="mood-title" className="label-eyebrow text-area-emocional">
+        ¿Cómo te sientes hoy?
       </p>
-      <div className="mt-3 flex justify-between gap-1.5">
+      <p className="mt-1 text-[14px] text-ink-muted">
+        Elige la cara que mejor te represente. Solo tú lo ves.
+      </p>
+
+      <div className="mt-4 flex justify-between gap-2">
         {([1, 2, 3, 4, 5] as MoodScore[]).map((n) => {
           const { emoji, label } = MOOD_LABELS[n]!;
           const active = score === n;
@@ -51,31 +53,38 @@ export function MoodPicker({ initialScore = null }: { initialScore?: MoodScore |
               aria-pressed={active}
               aria-label={label}
               className={cn(
-                "tap-target flex-1 rounded-lg text-2xl",
-                active ? "bg-area-emocional-tint" : "bg-canvas"
+                "mood-option",
+                active ? "mood-option-active" : "mood-option-idle"
               )}
-              style={
-                active
-                  ? { border: "2px solid #B83A66" }
-                  : { border: "2px solid transparent" }
-              }
             >
-              <span aria-hidden>{emoji}</span>
+              <span className="text-[28px] leading-none" aria-hidden>
+                {emoji}
+              </span>
+              <span
+                className={cn(
+                  "text-[10px] font-bold leading-none",
+                  active ? "text-area-emocional" : "text-ink-subtle"
+                )}
+              >
+                {label.split(" ")[0]}
+              </span>
             </button>
           );
         })}
       </div>
 
       {score !== null && (
-        <div className="mt-3 flex flex-col gap-2">
+        <div className="mt-4 flex flex-col gap-3 border-t border-outline-soft/80 pt-4">
           <label className="flex flex-col gap-1.5">
-            <span className="text-sm font-semibold text-ink-secondary">Una nota (opcional)</span>
+            <span className="text-sm font-semibold text-ink-secondary">
+              Una nota (opcional)
+            </span>
             <textarea
               value={note}
               onChange={(e) => setNote(e.target.value)}
               maxLength={500}
               rows={2}
-              className="resize-none rounded-lg border border-outline-medium bg-elevated px-3 py-2 text-sm text-ink-primary outline-none focus:border-area-emocional"
+              className="resize-none rounded-2xl border border-outline-medium bg-canvas px-3 py-2.5 text-sm text-ink-primary outline-none transition-all focus:border-area-emocional focus:shadow-[0_0_0_4px_rgba(184,58,102,0.12)]"
               placeholder="¿Qué ha pasado hoy?"
             />
           </label>
@@ -84,16 +93,22 @@ export function MoodPicker({ initialScore = null }: { initialScore?: MoodScore |
               {error}
             </p>
           )}
-          <div className="flex items-center gap-2">
-            <button type="button" className="btn-primary flex-1" onClick={save} disabled={isPending}>
-              {isPending ? "Guardando…" : saved ? "Guardado" : "Guardar"}
-            </button>
-            {saved && (
-              <span role="status" className="text-sm font-semibold text-brand-600">
-                ✓
-              </span>
-            )}
-          </div>
+          <button
+            type="button"
+            className="btn-primary"
+            onClick={save}
+            disabled={isPending || saved}
+          >
+            {isPending ? "Guardando…" : saved ? "Guardado hoy" : "Guardar mi ánimo"}
+          </button>
+          {saved && (
+            <p
+              role="status"
+              className="flex items-center justify-center gap-1.5 text-sm font-semibold text-brand-700"
+            >
+              <IconCheck size={16} aria-hidden /> Registrado. Gracias por compartirlo.
+            </p>
+          )}
         </div>
       )}
     </section>

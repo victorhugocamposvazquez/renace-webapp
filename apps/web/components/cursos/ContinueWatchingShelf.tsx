@@ -7,6 +7,7 @@ import {
 import type { CourseWithEnrollment } from "@renace/supabase";
 import { formatDuration } from "@renace/core";
 import { CourseThumbnail } from "./CourseThumbnail";
+import { SectionHeader } from "@/components/SectionHeader";
 
 /**
  * Estantería "Tu plan en marcha": cards horizontales grandes para retomar
@@ -25,20 +26,13 @@ export function ContinueWatchingShelf({
   if (courses.length === 0) return null;
   return (
     <section className="-mx-5">
-      <header className="mb-3 flex items-end justify-between gap-3 px-5">
-        <div>
-          <h2 className="text-base font-bold text-ink-primary">{title}</h2>
-          <p className="text-xs text-ink-subtle">{subtitle}</p>
-        </div>
-        {courses.length > 2 && (
-          <Link
-            href="/cursos"
-            className="shrink-0 text-xs font-semibold text-brand-700"
-          >
-            Ver todo
-          </Link>
-        )}
-      </header>
+      <div className="page-inset mb-3">
+        <SectionHeader
+          title={title}
+          subtitle={subtitle}
+          href={courses.length > 2 ? "/cursos" : undefined}
+        />
+      </div>
       <ul
         role="list"
         className="hide-scrollbar flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 scroll-pl-5 [&>li:first-child]:ml-5 [&>li:last-child]:mr-5"
@@ -55,7 +49,7 @@ export function ContinueWatchingShelf({
             <li key={c.id} className="snap-start" style={{ width: 272 }}>
               <Link
                 href={`/cursos/${c.slug}`}
-                className="card-lift flex flex-col gap-3 p-3 outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
+                className="card-interactive flex flex-col gap-3 p-3 outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
               >
                 <div className="flex gap-3">
                   <CourseThumbnail

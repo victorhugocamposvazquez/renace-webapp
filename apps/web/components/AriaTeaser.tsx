@@ -11,7 +11,7 @@ export function AriaTeaser({
   return (
     <Link
       href="/aria"
-      className="group relative block overflow-hidden rounded-3xl bg-accent-gradient p-5 text-ink-inverse shadow-accent-glow transition-transform duration-200 ease-out-expo active:scale-[0.99]"
+      className="group relative block overflow-hidden rounded-[24px] bg-accent-gradient p-5 text-ink-inverse shadow-accent-glow transition-all duration-200 ease-out-expo hover:brightness-105 active:scale-[0.99]"
     >
       <div
         aria-hidden

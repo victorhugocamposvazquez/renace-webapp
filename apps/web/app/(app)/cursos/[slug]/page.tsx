@@ -58,7 +58,7 @@ export default async function CourseDetailPage({ params }: Props) {
   const lessons = getCourseLessons(course.slug, course.lessons_count);
 
   return (
-    <div className="flex flex-1 flex-col gap-5 px-5 py-5">
+    <div className="page-stack px-5 py-5">
       <BackLink fallbackHref={AREA_HREF_MAP[course.area]} label={AREA_LABEL_MAP[course.area]} />
 
       {/* HERO */}

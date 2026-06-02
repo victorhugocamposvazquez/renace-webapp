@@ -57,7 +57,7 @@ export default async function LessonPage({ params }: Props) {
   const isCurrent = lessonNum === currentLesson + 1 || (currentLesson === 0 && lessonNum === 1);
 
   return (
-    <div className="flex flex-1 flex-col gap-5 px-5 py-5">
+    <div className="page-stack px-5 py-5">
       <BackLink fallbackHref={`/cursos/${slug}`} label={course.title} />
 
       <header>

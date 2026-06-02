@@ -36,7 +36,7 @@ export default async function LaboralPage() {
   const highDemand = areaCourses.filter((c) => c.demand === "muy_alta");
 
   return (
-    <div className="flex flex-1 flex-col gap-5 px-5 py-5">
+    <div className="page-stack px-5 py-5">
       <BackLink fallbackHref="/home" />
       <AreaHeader area="laboral" />
 

@@ -21,6 +21,7 @@ import { IntentCard } from "@/components/IntentCard";
 import { ContinueWatchingShelf } from "@/components/cursos/ContinueWatchingShelf";
 import { MyLiveClassesCard } from "@/components/cursos/MyLiveClassesCard";
 import { WelcomeTour } from "@/components/WelcomeTour";
+import { HomeHero } from "@/components/home/HomeHero";
 
 export const metadata: Metadata = { title: "Inicio · RENACE" };
 
@@ -43,12 +44,8 @@ export default async function HomePage() {
     listInProgressCourses(client, userId, 6),
     listMyUpcomingLiveClasses(client, userId, 3)
   ]);
-  if (!profile) {
-    // El middleware ya debería habernos llevado a /onboarding, pero por si acaso:
-    return null;
-  }
-  // La intención se destaca solo las primeras 3 semanas y siempre que la
-  // primera entrada tenga el prefijo del onboarding ("Día 1.").
+  if (!profile) return null;
+
   const showIntent =
     firstJournal !== null &&
     profile.day_in_program <= 21 &&
@@ -68,27 +65,40 @@ export default async function HomePage() {
   });
 
   return (
-    <div className="flex flex-1 flex-col gap-4 pb-4">
+    <div className="page-stack">
       <Suspense fallback={null}>
         <WelcomeTour />
       </Suspense>
-      <AppHeader
-        alias={profile.alias.split(" ")[0] ?? profile.alias}
-        trustedContacts={contacts}
-        notifications={todayMood ? 0 : 1}
-      />
 
-      <section className="px-5">
-        <Renace360
-          progress={areas}
-          totalPercent={total}
-          dayInProgram={profile.day_in_program}
-          week={week}
-          alias={profile.alias}
+      <div className="home-hero relative -mx-5 overflow-hidden">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 h-[420px] bg-hero-gradient"
         />
-      </section>
+        <div className="relative px-5">
+          <AppHeader
+            alias={profile.alias.split(" ")[0] ?? profile.alias}
+            trustedContacts={contacts}
+            notifications={todayMood ? 0 : 1}
+            embedded
+          />
+          <HomeHero
+            dayInProgram={profile.day_in_program}
+            week={week}
+            totalPercent={total}
+            todayMood={todayMood}
+          />
+          <Renace360
+            progress={areas}
+            totalPercent={total}
+            dayInProgram={profile.day_in_program}
+            week={week}
+            alias={profile.alias}
+          />
+        </div>
+      </div>
 
-      <section className="px-5">
+      <section className="page-inset -mt-2">
         <RecoveryProgress
           progress={areas}
           totalPercent={total}
@@ -98,13 +108,13 @@ export default async function HomePage() {
       </section>
 
       {showIntent && firstJournal && (
-        <section className="px-5">
+        <section className="page-inset">
           <IntentCard entry={firstJournal} dayInProgram={profile.day_in_program} />
         </section>
       )}
 
       {inProgressCourses.length > 0 && (
-        <section className="px-5">
+        <section>
           <ContinueWatchingShelf
             courses={inProgressCourses}
             subtitle={
@@ -119,16 +129,16 @@ export default async function HomePage() {
       )}
 
       {myLiveClasses.length > 0 && (
-        <section className="px-5">
+        <section className="page-inset">
           <MyLiveClassesCard classes={myLiveClasses} />
         </section>
       )}
 
-      <section className="px-5">
+      <section className="page-inset">
         <MicroActionCard action={action} />
       </section>
 
-      <section className="px-5">
+      <section className="page-inset">
         <AriaTeaser ariaName={profile.aria_name} intro={ariaIntro} />
       </section>
     </div>

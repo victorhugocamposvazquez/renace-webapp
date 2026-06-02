@@ -1,23 +1,31 @@
 import Link from "next/link";
-import { IconBolt } from "@tabler/icons-react";
+import { IconBolt, IconArrowRight } from "@tabler/icons-react";
 import type { MicroAction } from "@renace/core";
 
 export function MicroActionCard({ action }: { action: MicroAction }) {
   return (
-    <article className="card border-brand-200">
-      <div className="flex items-center gap-2">
+    <article className="card-accent-left group relative overflow-hidden">
+      <div className="relative flex items-start gap-3">
         <span
           aria-hidden
-          className="grid h-9 w-9 place-items-center rounded-lg bg-brand-100 text-brand-600"
+          className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-brand-gradient text-ink-inverse shadow-brand-glow"
         >
-          <IconBolt size={18} aria-hidden />
+          <IconBolt size={20} aria-hidden />
         </span>
-        <p className="label-eyebrow text-brand-700">Acción de hoy</p>
+        <div className="min-w-0 flex-1">
+          <p className="label-eyebrow text-brand-700">Acción de hoy</p>
+          <h2 className="mt-1 text-lg font-bold tracking-tight text-ink-primary">
+            {action.title}
+          </h2>
+          <p className="mt-1 text-[14px] leading-relaxed text-ink-muted">{action.body}</p>
+        </div>
       </div>
-      <h2 className="mt-3 text-lg font-bold text-ink-primary">{action.title}</h2>
-      <p className="mt-1 text-base text-ink-muted">{action.body}</p>
-      <Link href={action.href} className="btn-primary mt-3 inline-flex items-center justify-center">
+      <Link
+        href={action.href}
+        className="btn-primary mt-4 inline-flex w-full items-center justify-center gap-2"
+      >
         {action.cta}
+        <IconArrowRight size={16} aria-hidden />
       </Link>
     </article>
   );
