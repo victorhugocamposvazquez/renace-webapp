@@ -8,6 +8,7 @@ import type { CourseWithEnrollment } from "@renace/supabase";
 import { formatDuration } from "@renace/core";
 import { CourseThumbnail } from "./CourseThumbnail";
 import { SectionHeader } from "@/components/SectionHeader";
+import { AreaBadge } from "./AreaBadge";
 
 /**
  * Estantería "Tu plan en marcha": cards horizontales grandes para retomar
@@ -60,8 +61,9 @@ export function ContinueWatchingShelf({
                     rounded="xl"
                   />
                   <div className="flex flex-1 flex-col">
+                    <AreaBadge area={c.area} size="sm" />
                     <span
-                      className="inline-flex w-fit items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide"
+                      className="mt-1.5 inline-flex w-fit items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide"
                       style={{
                         background: fresh
                           ? `${c.accent_color}1f`

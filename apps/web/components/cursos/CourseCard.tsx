@@ -3,6 +3,7 @@ import { IconClockHour3, IconPlayerPlayFilled, IconBookmark } from "@tabler/icon
 import type { CourseWithEnrollment } from "@renace/supabase";
 import { formatDuration } from "@renace/core";
 import { CourseThumbnail } from "./CourseThumbnail";
+import { AreaBadge } from "./AreaBadge";
 
 const DEMAND_LABEL = {
   alta: "Alta demanda",
@@ -58,6 +59,11 @@ export function CourseCard({
             En curso
           </span>
         )}
+        {!done && !inProgress && (
+          <span className="absolute left-2 top-2">
+            <AreaBadge area={course.area} />
+          </span>
+        )}
         {/* Progress bar dentro del poster */}
         {inProgress && (
           <div className="absolute inset-x-2 bottom-2 h-1.5 overflow-hidden rounded-full bg-black/30">
@@ -70,6 +76,9 @@ export function CourseCard({
         )}
       </div>
       <div className="flex flex-col gap-0.5">
+        <div className="mb-0.5">
+          <AreaBadge area={course.area} size="sm" />
+        </div>
         <h3 className="line-clamp-2 text-sm font-bold text-ink-primary">
           {course.title}
         </h3>

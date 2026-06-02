@@ -1,11 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import {
-  IconBookmark,
-  IconBroadcast,
-  IconCompass,
-  IconSparkles
-} from "@tabler/icons-react";
+import { IconBroadcast, IconCompass, IconSparkles } from "@tabler/icons-react";
 import { requireUser } from "@/lib/auth";
 import {
   listInProgressCourses,
@@ -14,145 +9,137 @@ import {
 } from "@renace/supabase";
 import type { AreaId } from "@renace/supabase";
 import { AREA_LABEL, AREA_ORDER } from "@renace/core";
+import { AREA_THEMES } from "@renace/tokens";
 import { BackLink } from "@/components/BackLink";
-import { ContinueWatchingShelf } from "@/components/cursos/ContinueWatchingShelf";
-import { CourseShelf } from "@/components/cursos/CourseShelf";
+import { CourseHubTabs, type CourseHubTab } from "@/components/cursos/CourseHubTabs";
+import { CourseListCard } from "@/components/cursos/CourseListCard";
+import { CourseAreaFilter } from "@/components/cursos/CourseAreaFilter";
 import { LiveClassesSection } from "@/components/cursos/LiveClassesSection";
 
 export const metadata: Metadata = { title: "Cursos · RENACE" };
 
-type Tab = "mine" | "live" | "catalog";
-type Props = { searchParams: Promise<{ tab?: string }> };
+type Props = {
+  searchParams: Promise<{ tab?: string; area?: string }>;
+};
 
-const TABS: { id: Tab; label: string; icon: typeof IconBookmark }[] = [
-  { id: "mine", label: "En marcha", icon: IconBookmark },
-  { id: "live", label: "En directo", icon: IconBroadcast },
-  { id: "catalog", label: "Catálogo", icon: IconCompass }
-];
+const VALID_AREAS = new Set<string>(AREA_ORDER);
+
+function parseTab(raw?: string): CourseHubTab {
+  if (raw === "live" || raw === "catalog") return raw;
+  return "mine";
+}
+
+function parseArea(raw?: string): AreaId | null {
+  if (!raw || !VALID_AREAS.has(raw)) return null;
+  return raw as AreaId;
+}
 
 export default async function CursosHubPage({ searchParams }: Props) {
   const sp = await searchParams;
-  const tab: Tab =
-    sp.tab === "live" || sp.tab === "catalog" ? sp.tab : "mine";
+  const tab = parseTab(sp.tab);
+  const areaFilter = parseArea(sp.area);
 
   const { client, userId } = await requireUser();
 
-  // Cargamos todo en paralelo: tabs son ligeros y permite saber si están vacíos
-  // para mostrar badges/empty states adecuados.
   const [inProgress, liveClasses, catalog] = await Promise.all([
     listInProgressCourses(client, userId, 20),
     listAllUpcomingLiveClasses(client, userId, 20),
     listAllCourses(client, userId)
   ]);
 
+  const filteredLive = areaFilter
+    ? liveClasses.filter((c) => c.area === areaFilter)
+    : liveClasses;
+  const filteredCatalog = areaFilter
+    ? catalog.filter((c) => c.area === areaFilter)
+    : catalog;
+
   return (
     <div className="page-stack px-5 py-5">
       <BackLink fallbackHref="/home" />
 
-      <header>
-        <p className="label-eyebrow">Tu formación</p>
-        <h1 className="mt-1 text-2xl font-bold text-ink-primary">Cursos</h1>
-        <p className="mt-1 text-sm text-ink-subtle">
-          Aprende a tu ritmo, únete a clases en directo y construye tu plan.
+      <header className="relative overflow-hidden rounded-[24px] border border-outline-soft/70 bg-elevated p-5 shadow-soft">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-brand-100/60 blur-2xl"
+        />
+        <p className="label-eyebrow text-brand-700">Tu formación</p>
+        <h1 className="display-title">Cursos</h1>
+        <p className="mt-1 display-subtitle">
+          Cada curso pertenece a un área de tu recuperación: laboral, emocional, física y más.
         </p>
       </header>
 
-      {/* Tabs (segmented control) */}
-      <nav
-        aria-label="Filtros de cursos"
-        className="-mx-5 overflow-x-auto px-5"
-      >
-        <ul role="list" className="flex gap-2">
-          {TABS.map((t) => {
-            const active = t.id === tab;
-            const count =
-              t.id === "mine"
-                ? inProgress.length
-                : t.id === "live"
-                  ? liveClasses.length
-                  : catalog.length;
-            const Icon = t.icon;
-            return (
-              <li key={t.id}>
-                <Link
-                  href={t.id === "mine" ? "/cursos" : `/cursos?tab=${t.id}`}
-                  scroll={false}
-                  aria-current={active ? "page" : undefined}
-                  className={
-                    "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-semibold transition " +
-                    (active
-                      ? "border-transparent bg-ink-primary text-ink-inverse"
-                      : "border-outline-soft bg-surface text-ink-secondary")
-                  }
-                >
-                  <Icon size={14} aria-hidden />
-                  <span>{t.label}</span>
-                  {count > 0 && (
-                    <span
-                      className={
-                        "ml-1 inline-flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-bold " +
-                        (active
-                          ? "bg-white/20 text-ink-inverse"
-                          : "bg-outline-soft text-ink-secondary")
-                      }
-                    >
-                      {count}
-                    </span>
-                  )}
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
+      <CourseHubTabs
+        active={tab}
+        counts={{
+          mine: inProgress.length,
+          live: liveClasses.length,
+          catalog: catalog.length
+        }}
+      />
 
-      {tab === "mine" && (
-        <TabMine inProgress={inProgress} liveClasses={liveClasses} />
+      {tab === "mine" && <TabMine courses={inProgress} liveClasses={liveClasses} />}
+      {tab === "live" && (
+        <>
+          <CourseAreaFilter activeArea={areaFilter} tab="live" />
+          <TabLive classes={filteredLive} />
+        </>
       )}
-      {tab === "live" && <TabLive classes={liveClasses} />}
-      {tab === "catalog" && <TabCatalog courses={catalog} />}
+      {tab === "catalog" && (
+        <>
+          <CourseAreaFilter activeArea={areaFilter} tab="catalog" />
+          <TabCatalog courses={filteredCatalog} areaFilter={areaFilter} />
+        </>
+      )}
     </div>
   );
 }
 
 /* ------------------------------------------------------------------ */
-/* TAB: en marcha                                                      */
+/* TAB: en marcha — agrupado por área                                  */
 /* ------------------------------------------------------------------ */
 
 function TabMine({
-  inProgress,
+  courses,
   liveClasses
 }: {
-  inProgress: import("@renace/supabase").CourseWithEnrollment[];
+  courses: import("@renace/supabase").CourseWithEnrollment[];
   liveClasses: import("@renace/supabase").CourseWithEnrollment[];
 }) {
   const liveWithReminder = liveClasses.filter((c) => c.enrollment?.reminder_set);
-  if (inProgress.length === 0 && liveWithReminder.length === 0) {
+
+  if (courses.length === 0 && liveWithReminder.length === 0) {
     return (
       <EmptyState
         icon={<IconSparkles size={20} aria-hidden />}
         title="Aún no tienes nada en marcha"
-        description="Echa un vistazo al catálogo o a las clases en directo. Cuando empieces algo, lo verás aquí."
+        description="Explora el catálogo por área — laboral, emocional o física — e inscríbete en tu primer curso."
         ctas={[
-          { href: "/cursos?tab=catalog", label: "Explorar catálogo" },
-          { href: "/cursos?tab=live", label: "Ver en directo" }
+          { href: "/cursos?tab=catalog", label: "Ver catálogo" },
+          { href: "/cursos?tab=live", label: "Clases en directo" }
         ]}
       />
     );
   }
+
+  const byArea = groupByArea(courses);
+
   return (
     <div className="flex flex-col gap-6">
-      {inProgress.length > 0 && (
-        <ContinueWatchingShelf
-          courses={inProgress}
-          subtitle="Tus cursos activos en cualquier área"
-        />
-      )}
+      {AREA_ORDER.map((area) => {
+        const list = byArea.get(area);
+        if (!list || list.length === 0) return null;
+        return (
+          <AreaCourseGroup key={area} area={area} courses={list} />
+        );
+      })}
+
       {liveWithReminder.length > 0 && (
         <LiveClassesSection
           classes={liveWithReminder}
-          title="Tus clases con recordatorio"
-          subtitle="Te avisaremos cuando empiecen."
+          title="Recordatorios activos"
+          subtitle="Clases en directo a las que te avisaremos."
         />
       )}
     </div>
@@ -173,7 +160,8 @@ function TabLive({
       <EmptyState
         icon={<IconBroadcast size={20} aria-hidden />}
         title="No hay clases programadas"
-        description="Cuando programemos nuevas sesiones en vivo, aparecerán aquí."
+        description="Prueba quitando el filtro de área o vuelve más tarde."
+        ctas={[{ href: "/cursos?tab=catalog", label: "Ver catálogo" }]}
       />
     );
   }
@@ -185,39 +173,56 @@ function TabLive({
 /* ------------------------------------------------------------------ */
 
 function TabCatalog({
-  courses
+  courses,
+  areaFilter
 }: {
   courses: import("@renace/supabase").CourseWithEnrollment[];
+  areaFilter: AreaId | null;
 }) {
   if (courses.length === 0) {
     return (
       <EmptyState
         icon={<IconCompass size={20} aria-hidden />}
-        title="Catálogo en construcción"
-        description="Estamos preparando contenidos. Vuelve en unos días."
+        title={areaFilter ? `Sin cursos en ${AREA_LABEL[areaFilter]}` : "Catálogo en construcción"}
+        description={
+          areaFilter
+            ? "Prueba otra área o vuelve pronto — estamos ampliando contenidos."
+            : "Estamos preparando nuevos contenidos."
+        }
+        ctas={
+          areaFilter
+            ? [{ href: "/cursos?tab=catalog", label: "Ver todas las áreas" }]
+            : undefined
+        }
       />
     );
   }
 
-  // Group by area
-  const byArea = new Map<AreaId, typeof courses>();
-  for (const c of courses) {
-    const list = byArea.get(c.area) ?? [];
-    list.push(c);
-    byArea.set(c.area, list);
+  if (areaFilter) {
+    return (
+      <ul role="list" className="flex flex-col gap-2.5">
+        {courses.map((c) => (
+          <li key={c.id}>
+            <CourseListCard course={c} />
+          </li>
+        ))}
+      </ul>
+    );
   }
 
+  const byArea = groupByArea(courses);
+
   return (
-    <div className="-mx-5 flex flex-col gap-6">
+    <div className="flex flex-col gap-6">
       {AREA_ORDER.map((area) => {
         const list = byArea.get(area);
         if (!list || list.length === 0) return null;
         return (
-          <CourseShelf
+          <AreaCourseGroup
             key={area}
-            title={AREA_LABEL[area]}
-            subtitle={`${list.length} curso${list.length === 1 ? "" : "s"}`}
+            area={area}
             courses={list}
+            seeAllHref={`/cursos?tab=catalog&area=${area}`}
           />
         );
       })}
@@ -226,8 +231,65 @@ function TabCatalog({
 }
 
 /* ------------------------------------------------------------------ */
-/* Empty state                                                         */
+/* Agrupación por área                                                 */
 /* ------------------------------------------------------------------ */
+
+function groupByArea<T extends { area: AreaId }>(items: T[]): Map<AreaId, T[]> {
+  const map = new Map<AreaId, T[]>();
+  for (const item of items) {
+    const list = map.get(item.area) ?? [];
+    list.push(item);
+    map.set(item.area, list);
+  }
+  return map;
+}
+
+function AreaCourseGroup({
+  area,
+  courses,
+  seeAllHref
+}: {
+  area: AreaId;
+  courses: import("@renace/supabase").CourseWithEnrollment[];
+  seeAllHref?: string;
+}) {
+  const theme = AREA_THEMES[area];
+  return (
+    <section>
+      <div className="area-section-header">
+        <span
+          aria-hidden
+          className="h-8 w-1 rounded-full"
+          style={{ backgroundColor: theme.core }}
+        />
+        <div className="flex flex-1 items-baseline justify-between gap-2">
+          <div>
+            <h2 className="text-[16px] font-bold text-ink-primary">{AREA_LABEL[area]}</h2>
+            <p className="text-[12px] text-ink-muted">
+              {courses.length} curso{courses.length === 1 ? "" : "s"} · {theme.subtitle}
+            </p>
+          </div>
+          {seeAllHref && courses.length > 3 && (
+            <Link
+              href={seeAllHref}
+              className="shrink-0 text-[12px] font-semibold"
+              style={{ color: theme.text }}
+            >
+              Ver todos ({courses.length})
+            </Link>
+          )}
+        </div>
+      </div>
+      <ul role="list" className="flex flex-col gap-2.5">
+        {(seeAllHref ? courses.slice(0, 3) : courses).map((c) => (
+          <li key={c.id}>
+            <CourseListCard course={c} />
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
 
 function EmptyState({
   icon,
@@ -241,8 +303,8 @@ function EmptyState({
   ctas?: { href: string; label: string }[];
 }) {
   return (
-    <div className="rounded-3xl border border-dashed border-outline-soft bg-surface px-5 py-10 text-center">
-      <div className="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-full bg-brand-50 text-brand-700">
+    <div className="rounded-[24px] border border-dashed border-outline-soft bg-canvas px-5 py-10 text-center">
+      <div className="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-2xl bg-brand-50 text-brand-700">
         {icon}
       </div>
       <p className="text-base font-bold text-ink-primary">{title}</p>
@@ -250,11 +312,7 @@ function EmptyState({
       {ctas.length > 0 && (
         <div className="mt-4 flex flex-wrap justify-center gap-2">
           {ctas.map((c) => (
-            <Link
-              key={c.href}
-              href={c.href}
-              className="inline-flex items-center gap-1.5 rounded-full bg-ink-primary px-3.5 py-2 text-sm font-bold text-ink-inverse active:scale-95"
-            >
+            <Link key={c.href} href={c.href} className="btn-secondary w-auto px-4 py-2 text-sm">
               {c.label}
             </Link>
           ))}

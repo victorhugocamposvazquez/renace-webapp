@@ -17,6 +17,7 @@ import { formatCountdown, formatDuration } from "@renace/core";
 import { toggleClassReminderAction } from "@/app/(app)/cursos/actions";
 import { getCourseImage } from "@/lib/courseImages";
 import { CourseThumbnail } from "./CourseThumbnail";
+import { AreaBadge } from "./AreaBadge";
 
 /**
  * Card grande para una clase en directo:
@@ -73,7 +74,8 @@ export function LiveClassCard({
           rounded="xl"
         />
         <div className="flex-1">
-          <div className="mb-0.5 flex items-center gap-1.5">
+          <div className="mb-1 flex flex-wrap items-center gap-1.5">
+            <AreaBadge area={course.area} size="sm" />
             {isLive ? (
               <span className="inline-flex items-center gap-1 rounded-full bg-state-danger px-1.5 py-0.5 text-[10px] font-bold uppercase text-ink-inverse">
                 <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
@@ -172,7 +174,8 @@ export function LiveClassCard({
         style={{ background: "radial-gradient(circle, #fff 0%, transparent 70%)" }}
       />
 
-      <div className="relative flex items-center justify-between gap-2">
+      <div className="relative flex flex-wrap items-center gap-2">
+        <AreaBadge area={course.area} onDark />
         {isLive ? (
           <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-2 py-1 text-[11px] font-bold uppercase tracking-wider text-state-danger">
             <span className="h-2 w-2 animate-pulse rounded-full bg-state-danger" />
@@ -184,7 +187,7 @@ export function LiveClassCard({
             Clase en directo
           </span>
         )}
-        <span className="text-[11px] font-medium opacity-90">
+        <span className="ml-auto text-[11px] font-medium opacity-90">
           {formatCountdown(startsAt)}
         </span>
       </div>

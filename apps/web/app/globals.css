@@ -360,4 +360,33 @@
   .mood-option-idle {
     @apply bg-canvas hover:bg-elevated;
   }
+
+  /* Hub de cursos — segmented control */
+  .hub-segmented {
+    @apply grid grid-cols-3 gap-1 rounded-2xl border border-outline-soft/80 bg-canvas p-1 shadow-soft;
+  }
+
+  .hub-segmented-item {
+    @apply relative flex flex-col items-center justify-center gap-0.5 rounded-xl px-1 py-2.5 text-ink-subtle transition-all duration-200 ease-out-expo active:scale-[0.98];
+  }
+
+  .hub-segmented-item-active {
+    @apply bg-elevated text-ink-primary shadow-soft;
+  }
+
+  .hub-segmented-label {
+    @apply text-[11px] font-bold leading-tight;
+  }
+
+  .hub-segmented-count {
+    @apply absolute right-1.5 top-1.5 grid h-4 min-w-4 place-items-center rounded-full bg-brand-600 px-1 text-[9px] font-bold text-ink-inverse;
+  }
+
+  .hub-segmented-item-active .hub-segmented-count {
+    @apply bg-brand-100 text-brand-800;
+  }
+
+  .area-section-header {
+    @apply mb-2 flex items-center gap-2;
+  }
 }
