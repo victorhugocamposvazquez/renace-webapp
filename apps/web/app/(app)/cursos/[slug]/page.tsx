@@ -182,10 +182,10 @@ export default async function CourseDetailPage({ params }: Props) {
       {isLive ? (
         isAirNow || isSoon ? (
           <LiveClassJoinButton
-            title={course.title}
-            instructorName={course.instructor_name}
+            courseId={course.id}
             accent={course.accent_color}
-            label={isAirNow ? "Unirme ahora" : "Entrar a sala demo"}
+            label={isAirNow ? "Recordarme la sesión" : "Apúntame al recordatorio"}
+            initialReminder={!!enrolled?.reminder_set}
           />
         ) : (
           <ReminderToggleForm

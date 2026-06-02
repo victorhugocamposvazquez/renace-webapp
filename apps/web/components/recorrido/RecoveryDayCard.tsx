@@ -6,7 +6,14 @@ import {
   IconSchool,
   IconScale,
   IconUsers,
-  IconCircleCheck
+  IconCircleCheck,
+  IconBolt,
+  IconWind,
+  IconHeartBroken,
+  IconAlertTriangle,
+  IconFlag,
+  IconCalendarEvent,
+  IconClipboardCheck
 } from "@tabler/icons-react";
 import type { RecoveryDayActivity, RecoveryDayDetail } from "@renace/core";
 import { formatProgramDayDate } from "@renace/core";
@@ -23,7 +30,14 @@ const ACTIVITY_ICON: Record<
   course_completed: IconCircleCheck,
   community: IconUsers,
   job: IconBriefcase,
-  consult: IconScale
+  consult: IconScale,
+  micro_action: IconBolt,
+  breathing: IconWind,
+  craving: IconHeartBroken,
+  trigger_activation: IconAlertTriangle,
+  milestone: IconFlag,
+  event: IconCalendarEvent,
+  weekly_checkin: IconClipboardCheck
 };
 
 const AREA_ICON: Record<AreaId, typeof IconHeartHandshake> = {

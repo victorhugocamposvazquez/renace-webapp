@@ -10,7 +10,9 @@ const PROGRESS_PATHS = [
   "/laboral",
   "/comunidad",
   "/recorrido",
-  "/cursos"
+  "/recorrido/dias",
+  "/cursos",
+  "/crisis"
 ];
 
 /** Sincroniza progreso del 360 y revalida las rutas principales. */

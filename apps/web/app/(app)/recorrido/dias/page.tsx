@@ -9,11 +9,18 @@ import {
   listEnrollmentActivity,
   listCommunityPosts,
   listJobApplicationActivity,
-  listConsultRequests
+  listConsultRequests,
+  listActivityLogs,
+  listRecentCravings,
+  listTriggerActivations,
+  listMilestones,
+  hasWeeklyCheckinThisWeek,
+  getWeekActivitySummary
 } from "@renace/supabase";
 import { buildRecoveryDayTimeline, weekFromDay } from "@renace/core";
 import { BackLink } from "@/components/BackLink";
 import { RecoveryDayCard } from "@/components/recorrido/RecoveryDayCard";
+import { WeeklyCheckin } from "@/components/recorrido/WeeklyCheckin";
 
 export const metadata: Metadata = { title: "Histórico diario · RENACE" };
 
@@ -26,7 +33,13 @@ export default async function RecoveryDaysPage() {
     enrollments,
     posts,
     applications,
-    consults
+    consults,
+    activities,
+    cravings,
+    triggerActivations,
+    milestones,
+    weekCheckinDone,
+    weekSummary
   ] = await Promise.all([
     getProfile(client, userId),
     listRecentMoods(client, userId, 90),
@@ -34,7 +47,13 @@ export default async function RecoveryDaysPage() {
     listEnrollmentActivity(client, userId),
     listCommunityPosts(client, userId, 30),
     listJobApplicationActivity(client, userId),
-    listConsultRequests(client, userId)
+    listConsultRequests(client, userId),
+    listActivityLogs(client, userId, 200),
+    listRecentCravings(client, userId, 60),
+    listTriggerActivations(client, userId, 60),
+    listMilestones(client, userId),
+    hasWeeklyCheckinThisWeek(client, userId),
+    getWeekActivitySummary(client, userId)
   ]);
 
   if (!profile) return null;
@@ -51,11 +70,32 @@ export default async function RecoveryDaysPage() {
       created_at: c.created_at,
       category: c.category,
       body: c.body
-    }))
+    })),
+    activities: activities.map((a) => ({
+      created_at: a.created_at,
+      kind: a.kind,
+      payload: a.payload
+    })),
+    cravings: cravings.map((c) => ({
+      created_at: c.created_at,
+      intensity: c.intensity,
+      note: c.note
+    })),
+    triggerActivations: triggerActivations.map((t) => ({
+      created_at: t.created_at,
+      label:
+        (t.trigger as { label?: string } | null)?.label ??
+        (Array.isArray(t.trigger) ? t.trigger[0]?.label : undefined) ??
+        "Disparador"
+    })),
+    milestonesDone: milestones
+      .filter((m) => m.status === "done")
+      .map((m) => ({ created_at: m.created_at, title: m.title }))
   });
 
   const activeDays = days.filter((d) => d.hadActivity).length;
   const week = weekFromDay(profile.day_in_program);
+  const isSunday = new Date().getDay() === 0;
 
   return (
     <div className="page-stack px-5 py-5">
@@ -69,8 +109,8 @@ export default async function RecoveryDaysPage() {
         <p className="label-eyebrow text-brand-700">Tu recuperación</p>
         <h1 className="display-title">Histórico día a día</h1>
         <p className="mt-1 display-subtitle">
-          Cada día del programa con lo que registraste: ánimo, diario, cursos, Red, laboral y
-          jurídica.
+          Cada día del programa con lo que registraste: ánimo, diario, cursos, Red, laboral,
+          jurídica, acciones y prevención.
         </p>
         <dl className="mt-4 flex flex-wrap gap-2">
           <StatChip label={`Día ${profile.day_in_program}`} sub="En el programa" />
@@ -78,6 +118,10 @@ export default async function RecoveryDaysPage() {
           <StatChip label={`${activeDays} días`} sub="Con actividad" />
         </dl>
       </header>
+
+      {(isSunday || !weekCheckinDone) && (
+        <WeeklyCheckin doneThisWeek={weekCheckinDone} summary={weekSummary} />
+      )}
 
       <div className="flex flex-col gap-4">
         {days.map((day) => (

@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { IconShieldCheck, IconTrash } from "@tabler/icons-react";
+import { IconShieldCheck, IconTrash, IconAlertTriangle } from "@tabler/icons-react";
 import type { Trigger } from "@renace/supabase";
 import { TRIGGER_SEVERITY_LABEL, type TriggerSeverity } from "@renace/core";
-import { addTriggerAction, deleteTriggerAction } from "@/app/(app)/emocional/actions";
+import { addTriggerAction, deleteTriggerAction, activateTriggerAction } from "@/app/(app)/emocional/actions";
 import { ConfirmModal } from "@/components/ConfirmModal";
 
 const SEVERITY_STYLES: Record<TriggerSeverity, string> = {
@@ -108,6 +108,21 @@ export function TriggersSection({ triggers }: { triggers: Trigger[] }) {
                 {TRIGGER_SEVERITY_LABEL[t.severity as TriggerSeverity]}
               </span>
               <span className="flex-1 text-sm text-ink-primary">{t.label}</span>
+              <button
+                type="button"
+                onClick={() => {
+                  startTransition(async () => {
+                    const fd = new FormData();
+                    fd.set("triggerId", t.id);
+                    await activateTriggerAction(fd);
+                  });
+                }}
+                disabled={isPending}
+                aria-label={`Registrar activación de ${t.label}`}
+                className="tap-target grid h-9 w-9 place-items-center rounded-full border border-area-emocional-border text-area-emocional transition active:scale-95"
+              >
+                <IconAlertTriangle size={16} aria-hidden />
+              </button>
               <button
                 type="button"
                 onClick={() => setPendingDelete(t)}

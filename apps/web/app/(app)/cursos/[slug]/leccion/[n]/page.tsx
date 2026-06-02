@@ -91,7 +91,7 @@ export default async function LessonPage({ params }: Props) {
 
         {lesson.type !== "text" && (
           <div
-            className="flex items-center gap-3 rounded-xl border border-dashed border-outline-soft bg-canvas px-4 py-6"
+            className="flex items-center gap-3 rounded-xl border border-outline-soft bg-canvas px-4 py-5"
             style={{ borderColor: `${course.accent_color}44` }}
           >
             <span
@@ -102,10 +102,11 @@ export default async function LessonPage({ params }: Props) {
             </span>
             <div>
               <p className="text-sm font-bold text-ink-primary">
-                {lesson.type === "video" ? "Vídeo demostrativo" : "Audio guiado"}
+                {lesson.type === "audio" ? "Audio guiado" : "Contenido multimedia"}
               </p>
               <p className="text-xs text-ink-subtle">
-                En la versión completa reproduciremos el contenido aquí. Lee la guía de arriba y marca la lección como vista.
+                Lee la guía de arriba con calma. Tómate {lesson.durationMin} minutos y marca la
+                lección como vista cuando termines.
               </p>
             </div>
           </div>

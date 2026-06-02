@@ -23,7 +23,8 @@ begin
   -- Perfil enriquecido (semana 2)
   insert into public.profiles (
     id, alias, area_focus, aria_name, aria_persist,
-    day_in_program, onboarding_completed, last_active_date, city
+    day_in_program, onboarding_completed, last_active_date, city,
+    onboarding_reasons
   ) values (
     demo_id,
     'María Demo',
@@ -33,7 +34,8 @@ begin
     14,
     true,
     current_date,
-    'Madrid'
+    'Madrid',
+    array['adiccion','no-recaer','estabilidad']::text[]
   )
   on conflict (id) do update set
     alias = excluded.alias,
@@ -42,7 +44,8 @@ begin
     day_in_program = excluded.day_in_program,
     onboarding_completed = true,
     last_active_date = excluded.last_active_date,
-    city = excluded.city;
+    city = excluded.city,
+    onboarding_reasons = excluded.onboarding_reasons;
 
   -- Áreas con progreso visible en el 360
   insert into public.area_progress (user_id, area, percent, status) values
@@ -148,9 +151,27 @@ begin
     (demo_id, 1, 'Primeros pasos', 'Completar onboarding y registrar tu ánimo.', 'done', 0),
     (demo_id, 1, 'Contacto de confianza', 'Añade al menos una persona a quien llamar.', 'done', 1),
     (demo_id, 2, 'Primer curso', 'Inscríbete y avanza en una lección.', 'done', 2),
-    (demo_id, 2, 'Diario emocional', 'Escribe tres líneas sobre cómo te sientes.', 'in_progress', 3),
-    (demo_id, 3, 'Grupo de apoyo', 'Asiste a un evento de comunidad.', 'pending', 4),
-    (demo_id, 4, 'Entrevista', 'Consigue tu primera entrevista laboral.', 'pending', 5);
+    (demo_id, 2, 'Diario emocional', 'Escribe al menos tres entradas en tu diario.', 'in_progress', 3),
+    (demo_id, 3, 'Grupo de apoyo', 'Apúntate o asiste a un evento de la Red.', 'pending', 4),
+    (demo_id, 12, 'Primera entrevista', 'Consigue tu primera entrevista laboral.', 'pending', 5);
+
+  -- Triggers + activaciones demo
+  delete from public.triggers where user_id = demo_id;
+  insert into public.triggers (user_id, label, severity) values
+    (demo_id, 'Soledad en casa', 2),
+    (demo_id, 'Discusión familiar', 3);
+
+  -- Activity logs piloto (micro-acciones y respiración)
+  delete from public.activity_logs where user_id = demo_id;
+  insert into public.activity_logs (user_id, kind, payload, created_at) values
+    (demo_id, 'micro_action', '{"actionId":"respira","title":"Respira 2 minutos"}'::jsonb, now() - interval '1 day'),
+    (demo_id, 'breathing', '{"protocol":"4-7-8","durationSeconds":120}'::jsonb, now() - interval '2 days'),
+    (demo_id, 'micro_action', '{"actionId":"diario","title":"Tres líneas en el diario"}'::jsonb, now() - interval '3 days');
+
+  delete from public.craving_logs where user_id = demo_id;
+  insert into public.craving_logs (user_id, intensity, note, created_at) values
+    (demo_id, 3, 'Ansiedad antes de una llamada', now() - interval '4 days'),
+    (demo_id, 4, 'Momento difícil por la tarde', now() - interval '8 days');
 
   raise notice 'Cuenta demo configurada para user_id=%', demo_id;
 end $$;

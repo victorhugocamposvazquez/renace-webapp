@@ -55,20 +55,10 @@ export default async function FisicaPage() {
       <MetricGrid
         metrics={[
           {
-            kind: "ring",
-            label: "Pasos",
-            value: "—",
-            sub: "Conecta tu wearable para empezar",
-            percent: 0,
-            color: "#0F6E56"
-          },
-          {
-            kind: "ring",
-            label: "Sueño",
-            value: "—",
-            sub: "Manualmente o desde reloj",
-            percent: 0,
-            color: "#0F6E56"
+            kind: "plain",
+            label: "Movimiento",
+            value: "Regístralo",
+            sub: "Marca la acción de paseo en Inicio"
           },
           {
             kind: "spark",
@@ -82,7 +72,13 @@ export default async function FisicaPage() {
             kind: "plain",
             label: "Racha",
             value: `${profile.day_in_program} días`,
-            sub: "tu tiempo en el proceso"
+            sub: "en tu camino"
+          },
+          {
+            kind: "plain",
+            label: "Respiración",
+            value: "2 min",
+            sub: "Con Aria si lo necesitas"
           }
         ]}
       />

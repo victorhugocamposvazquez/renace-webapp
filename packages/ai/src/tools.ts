@@ -6,7 +6,8 @@ import {
   listJournal,
   listUpcomingEvents,
   createConsultRequest,
-  syncUserProgress
+  syncUserProgress,
+  logActivity
 } from "@renace/supabase";
 import type { RenaceClient } from "@renace/supabase";
 import { ConsultCategorySchema } from "@renace/core";
@@ -35,16 +36,23 @@ export function createAriaTools(client: RenaceClient, userId: string) {
       description:
         "Inicia una respiración guiada 4-7-8 de 2 minutos. Devuelve los pasos para que la UI los muestre.",
       parameters: z.object({}),
-      execute: async () => ({
-        ok: true,
-        protocol: "4-7-8",
-        durationSeconds: 120,
-        steps: [
-          "Inhala suave por la nariz 4 segundos",
-          "Mantén el aire 7 segundos",
-          "Exhala lento por la boca 8 segundos"
-        ]
-      })
+      execute: async () => {
+        await logActivity(client, userId, {
+          kind: "breathing",
+          payload: { protocol: "4-7-8", durationSeconds: 120, source: "aria_tool" }
+        }).catch(() => undefined);
+        await syncUserProgress(client, userId).catch(() => undefined);
+        return {
+          ok: true,
+          protocol: "4-7-8",
+          durationSeconds: 120,
+          steps: [
+            "Inhala suave por la nariz 4 segundos",
+            "Mantén el aire 7 segundos",
+            "Exhala lento por la boca 8 segundos"
+          ]
+        };
+      }
     }),
 
     find_support_group: tool({

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { IconCheck, IconCompass, IconFileText } from "@tabler/icons-react";
+import Link from "next/link";
+import { IconFileText } from "@tabler/icons-react";
 import { requireUser } from "@/lib/auth";
 import {
   listJobOffers,
@@ -101,39 +102,28 @@ export default async function LaboralPage() {
       )}
 
       <h2 className="label-eyebrow">Tu CV</h2>
-      <div className="card p-1.5">
-        <ul role="list" className="divide-y divide-outline-soft">
-          <li className="flex items-center gap-3 px-3 py-3">
-            <span
-              aria-hidden
-              className="grid h-10 w-10 place-items-center rounded-lg bg-area-laboral-tint text-area-laboral"
+      <div className="card border-area-laboral-border p-4">
+        <div className="flex items-start gap-3">
+          <span
+            aria-hidden
+            className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-area-laboral-tint text-area-laboral"
+          >
+            <IconFileText size={20} aria-hidden />
+          </span>
+          <div>
+            <p className="text-base font-semibold text-ink-primary">Prepara tu CV paso a paso</p>
+            <p className="mt-1 text-sm text-ink-subtle">
+              Avanza en el curso laboral para construir un perfil real. Por ahora puedes revisar
+              ofertas y marcar las que te interesan.
+            </p>
+            <Link
+              href="/cursos?tab=catalog&area=laboral"
+              className="mt-3 inline-flex text-sm font-semibold text-area-laboral underline-offset-2 hover:underline"
             >
-              <IconCompass size={20} aria-hidden />
-            </span>
-            <div className="flex-1">
-              <div className="text-base font-semibold text-ink-primary">Orientación</div>
-              <div className="text-xs text-ink-subtle">Perfil analizado</div>
-            </div>
-            <span
-              aria-label="Hecho"
-              className="grid h-7 w-7 place-items-center rounded-full bg-brand-600 text-ink-inverse"
-            >
-              <IconCheck size={16} aria-hidden />
-            </span>
-          </li>
-          <li className="flex items-center gap-3 px-3 py-3">
-            <span
-              aria-hidden
-              className="grid h-10 w-10 place-items-center rounded-lg bg-area-laboral-tint text-area-laboral"
-            >
-              <IconFileText size={20} aria-hidden />
-            </span>
-            <div className="flex-1">
-              <div className="text-base font-semibold text-ink-primary">Tu CV</div>
-              <div className="text-xs text-ink-subtle">Actualizado hace 3 días</div>
-            </div>
-          </li>
-        </ul>
+              Ver cursos laborales
+            </Link>
+          </div>
+        </div>
       </div>
     </div>
   );

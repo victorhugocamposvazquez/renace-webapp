@@ -11,7 +11,14 @@ export type RecoveryActivityKind =
   | "course_enrolled"
   | "community"
   | "job"
-  | "consult";
+  | "consult"
+  | "micro_action"
+  | "breathing"
+  | "craving"
+  | "trigger_activation"
+  | "milestone"
+  | "event"
+  | "weekly_checkin";
 
 export type RecoveryDayActivity = {
   kind: RecoveryActivityKind;
@@ -80,6 +87,18 @@ type EnrollmentInput = {
 type PostInput = { created_at: string; body: string };
 type ApplicationInput = { created_at: string; title: string; company: string };
 type ConsultInput = { created_at: string; category: ConsultCategory; body: string };
+type ActivityInput = { created_at: string; kind: string; payload: Record<string, unknown> };
+type CravingInput = { created_at: string; intensity: number; note?: string | null };
+type TriggerActivationInput = { created_at: string; label: string };
+type MilestoneInput = { created_at: string; title: string };
+type EventInput = { created_at: string; title: string };
+
+const ACTIVITY_LABELS: Record<string, string> = {
+  micro_action: "Acción del día completada",
+  breathing: "Respiración guiada",
+  lesson_complete: "Lección completada",
+  weekly_checkin: "Check-in semanal"
+};
 
 /**
  * Histórico detallado día a día del programa de recuperación.
@@ -94,9 +113,27 @@ export function buildRecoveryDayTimeline(input: {
   posts: PostInput[];
   applications: ApplicationInput[];
   consults: ConsultInput[];
+  activities?: ActivityInput[];
+  cravings?: CravingInput[];
+  triggerActivations?: TriggerActivationInput[];
+  milestonesDone?: MilestoneInput[];
+  events?: EventInput[];
 }): RecoveryDayDetail[] {
-  const { dayInProgram, lastActiveDate, moods, journals, enrollments, posts, applications, consults } =
-    input;
+  const {
+    dayInProgram,
+    lastActiveDate,
+    moods,
+    journals,
+    enrollments,
+    posts,
+    applications,
+    consults,
+    activities = [],
+    cravings = [],
+    triggerActivations = [],
+    milestonesDone = [],
+    events = []
+  } = input;
 
   const anchor = lastActiveDate ?? new Date().toISOString().slice(0, 10);
   const byDate = new Map<string, RecoveryDayActivity[]>();
@@ -180,6 +217,57 @@ export function buildRecoveryDayTimeline(input: {
       title: `Consulta · ${CONSULT_CATEGORY_LABEL[c.category]}`,
       detail: c.body.length > 120 ? `${c.body.slice(0, 117)}…` : c.body,
       time: formatTime(c.created_at)
+    });
+  }
+
+  for (const a of activities) {
+    const title =
+      ACTIVITY_LABELS[a.kind] ??
+      (a.kind === "micro_action"
+        ? `Acción: ${(a.payload.title as string) ?? "completada"}`
+        : a.kind);
+    push(a.created_at, {
+      kind: a.kind === "micro_action" ? "micro_action" : a.kind === "breathing" ? "breathing" : "micro_action",
+      area: "emocional",
+      title,
+      detail: a.kind === "weekly_checkin" ? `Foco: ${a.payload.focusArea ?? ""}` : undefined,
+      time: formatTime(a.created_at)
+    });
+  }
+
+  for (const c of cravings) {
+    push(c.created_at, {
+      kind: "craving",
+      area: "emocional",
+      title: `Momento difícil · intensidad ${c.intensity}/5`,
+      detail: c.note ?? undefined,
+      time: formatTime(c.created_at)
+    });
+  }
+
+  for (const t of triggerActivations) {
+    push(t.created_at, {
+      kind: "trigger_activation",
+      area: "emocional",
+      title: `Disparador activado · ${t.label}`,
+      time: formatTime(t.created_at)
+    });
+  }
+
+  for (const m of milestonesDone) {
+    push(m.created_at, {
+      kind: "milestone",
+      title: `Hito completado · ${m.title}`,
+      time: formatTime(m.created_at)
+    });
+  }
+
+  for (const e of events) {
+    push(e.created_at, {
+      kind: "event",
+      area: "comunidad",
+      title: `Evento · ${e.title}`,
+      time: formatTime(e.created_at)
     });
   }
 

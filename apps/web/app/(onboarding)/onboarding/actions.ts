@@ -38,7 +38,8 @@ export async function completeOnboardingAction(
     alias: parsed.data.alias,
     areaFocus: parsed.data.areaFocus,
     ariaName: parsed.data.ariaName,
-    ariaPersist: parsed.data.ariaPersist
+    ariaPersist: parsed.data.ariaPersist,
+    onboardingReasons: parsed.data.reasons
   });
 
   await seedDefaultMilestones(client, userId, DEFAULT_MILESTONES);

@@ -66,6 +66,12 @@ export function SOSButton({ contacts }: { contacts: TrustedContact[] }) {
               </p>
               <div className="mt-4 flex flex-col gap-2">
                 <a
+                  href="/crisis"
+                  className="btn-secondary w-full text-center text-sm"
+                >
+                  Modo apoyo completo
+                </a>
+                <a
                   href="tel:024"
                   style={{
                     background: "linear-gradient(135deg, #F43F5E 0%, #E11D48 100%)",

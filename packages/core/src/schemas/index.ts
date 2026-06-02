@@ -2,6 +2,7 @@ export * from "./profile";
 export * from "./mood";
 export * from "./journal";
 export * from "./trigger";
+export * from "./activity";
 export * from "./legal";
 export * from "./consult";
 export * from "./community";

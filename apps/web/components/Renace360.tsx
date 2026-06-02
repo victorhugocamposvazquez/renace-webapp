@@ -169,9 +169,19 @@ function AreaButton({
             {progress}%
           </span>
         )}
+        {progress < 15 && (
+          <span
+            className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-elevated px-1.5 py-0.5 text-[8px] font-bold text-ink-muted shadow-soft"
+          >
+            Un paso hoy
+          </span>
+        )}
         <Icon size={22} aria-hidden color={theme.core} stroke={2.1} />
         <span
-          className="mt-0.5 max-w-[64px] truncate text-[9.5px] font-bold leading-none tracking-tight"
+          className={
+            "mt-0.5 max-w-[64px] truncate text-[9.5px] font-bold leading-none tracking-tight " +
+            (progress < 15 ? "animate-pulse" : "")
+          }
           style={{ color: theme.core }}
         >
           {theme.label}

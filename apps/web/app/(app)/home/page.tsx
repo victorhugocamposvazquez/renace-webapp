@@ -9,9 +9,18 @@ import {
   fillAllAreas,
   getFirstJournal,
   listInProgressCourses,
-  listMyUpcomingLiveClasses
+  listMyUpcomingLiveClasses,
+  getTodayMicroActionDone,
+  listActiveDates
 } from "@renace/supabase";
-import { pickMicroAction, totalProgress, weekFromDay } from "@renace/core";
+import {
+  pickMicroAction,
+  totalProgress,
+  weekFromDay,
+  computePresenceStreak,
+  streakLabel,
+  todayDateString
+} from "@renace/core";
 import { AppHeader } from "@/components/AppHeader";
 import { Renace360 } from "@/components/Renace360";
 import { AriaTeaser } from "@/components/AriaTeaser";
@@ -22,6 +31,7 @@ import { ContinueWatchingShelf } from "@/components/cursos/ContinueWatchingShelf
 import { MyLiveClassesCard } from "@/components/cursos/MyLiveClassesCard";
 import { WelcomeTour } from "@/components/WelcomeTour";
 import { HomeHero } from "@/components/home/HomeHero";
+import { TodayPlanCard, pickWeakestAreaLabel } from "@/components/home/TodayPlanCard";
 
 export const metadata: Metadata = { title: "Inicio · RENACE" };
 
@@ -46,11 +56,6 @@ export default async function HomePage() {
   ]);
   if (!profile) return null;
 
-  const showIntent =
-    firstJournal !== null &&
-    profile.day_in_program <= 21 &&
-    /^día\s*1/i.test(firstJournal.content);
-
   const areas = fillAllAreas(rawAreas, userId);
   const total = totalProgress(areas);
   const week = weekFromDay(profile.day_in_program);
@@ -59,10 +64,30 @@ export default async function HomePage() {
     lastMood: todayMood?.score ?? null
   });
 
+  const [microDone, activeDates] = await Promise.all([
+    getTodayMicroActionDone(client, userId, action.id),
+    listActiveDates(client, userId, 60)
+  ]);
+
+  const today = todayDateString();
+  const streak = computePresenceStreak(activeDates, today);
+  const reasons = profile.onboarding_reasons ?? [];
+  const streakText = streakLabel(streak, reasons);
+
+  const topCourse = inProgressCourses[0];
+  const courseHref = topCourse
+    ? `/cursos/${topCourse.slug}/leccion/${Math.max(1, (topCourse.enrollment?.current_lesson ?? 0) + 1)}`
+    : null;
+
   const ariaIntro = buildAriaIntro({
     aliasFirst: profile.alias.split(" ")[0] ?? profile.alias,
     todayMoodScore: todayMood?.score ?? null
   });
+
+  const showIntent =
+    firstJournal !== null &&
+    profile.day_in_program <= 21 &&
+    /^día\s*1/i.test(firstJournal.content);
 
   return (
     <div className="page-stack">
@@ -82,19 +107,46 @@ export default async function HomePage() {
             notifications={todayMood ? 0 : 1}
             embedded
           />
+
+          <p className="label-eyebrow text-brand-700">Mi día</p>
+
           <HomeHero
             dayInProgram={profile.day_in_program}
             week={week}
             totalPercent={total}
-            todayMood={todayMood}
+            todayMoodScore={todayMood?.score ?? null}
+            streak={streak}
+            streakText={streakText}
           />
-          <Renace360
-            progress={areas}
-            totalPercent={total}
-            dayInProgram={profile.day_in_program}
-            week={week}
-            alias={profile.alias}
-          />
+
+          <section className="page-inset -mx-5 mt-2 space-y-4 px-5">
+            <TodayPlanCard
+              moodDone={todayMood !== null}
+              microDone={microDone}
+              courseHref={courseHref}
+              weakAreaLabel={pickWeakestAreaLabel(areas)}
+            />
+            <MicroActionCard action={action} doneToday={microDone} />
+          </section>
+
+          {inProgressCourses.length > 0 && (
+            <section className="mt-4">
+              <ContinueWatchingShelf
+                courses={inProgressCourses}
+                subtitle="Continúa donde lo dejaste"
+              />
+            </section>
+          )}
+
+          <section className="mt-4">
+            <Renace360
+              progress={areas}
+              totalPercent={total}
+              dayInProgram={profile.day_in_program}
+              week={week}
+              alias={profile.alias}
+            />
+          </section>
         </div>
       </div>
 
@@ -113,30 +165,11 @@ export default async function HomePage() {
         </section>
       )}
 
-      {inProgressCourses.length > 0 && (
-        <section>
-          <ContinueWatchingShelf
-            courses={inProgressCourses}
-            subtitle={
-              inProgressCourses.every(
-                (c) => (c.enrollment?.progress_percent ?? 0) === 0
-              )
-                ? "Acabas de empezar. Da el primer paso cuando quieras."
-                : "Continúa donde lo dejaste"
-            }
-          />
-        </section>
-      )}
-
       {myLiveClasses.length > 0 && (
         <section className="page-inset">
           <MyLiveClassesCard classes={myLiveClasses} />
         </section>
       )}
-
-      <section className="page-inset">
-        <MicroActionCard action={action} />
-      </section>
 
       <section className="page-inset">
         <AriaTeaser ariaName={profile.aria_name} intro={ariaIntro} />

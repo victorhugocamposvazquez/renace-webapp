@@ -100,6 +100,9 @@ export async function syncUserProgress(
     AREAS.map((area) => upsertAreaProgress(client, userId, area, patches[area]))
   );
 
+  const { syncMilestonesFromActivity } = await import("./milestoneSync");
+  await syncMilestonesFromActivity(client, userId).catch(() => undefined);
+
   if (!options.bumpDay) return;
 
   const lastActive = profile.last_active_date ?? null;

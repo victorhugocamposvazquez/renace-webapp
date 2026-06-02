@@ -23,6 +23,7 @@ export type Database = {
           is_mentor: boolean;
           onboarding_completed: boolean;
           last_active_date: string | null;
+          onboarding_reasons: string[];
           created_at: string;
           updated_at: string;
         };
@@ -38,6 +39,7 @@ export type Database = {
           is_mentor?: boolean;
           onboarding_completed?: boolean;
           last_active_date?: string | null;
+          onboarding_reasons?: string[];
         };
         Update: Partial<Database["public"]["Tables"]["profiles"]["Insert"]>;
         Relationships: [];
@@ -74,7 +76,11 @@ export type Database = {
           created_at: string;
         };
         Insert: { user_id: string; label: string; severity?: 1 | 2 | 3 };
-        Update: Partial<Database["public"]["Tables"]["triggers"]["Insert"]>;
+        Update: Partial<
+          Database["public"]["Tables"]["triggers"]["Insert"] & {
+            last_seen_at: string;
+          }
+        >;
         Relationships: [];
       };
       area_progress: {
@@ -329,6 +335,54 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["trusted_contacts"]["Insert"]>;
         Relationships: [];
       };
+      activity_logs: {
+        Row: {
+          id: string;
+          user_id: string;
+          kind: string;
+          payload: Record<string, unknown>;
+          created_at: string;
+        };
+        Insert: { user_id: string; kind: string; payload?: Record<string, unknown> };
+        Update: Partial<Database["public"]["Tables"]["activity_logs"]["Insert"]>;
+        Relationships: [];
+      };
+      craving_logs: {
+        Row: {
+          id: string;
+          user_id: string;
+          intensity: number;
+          note: string | null;
+          trigger_id: string | null;
+          created_at: string;
+        };
+        Insert: {
+          user_id: string;
+          intensity: number;
+          note?: string | null;
+          trigger_id?: string | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["craving_logs"]["Insert"]>;
+        Relationships: [];
+      };
+      trigger_activations: {
+        Row: {
+          id: string;
+          user_id: string;
+          trigger_id: string;
+          intensity: number | null;
+          note: string | null;
+          created_at: string;
+        };
+        Insert: {
+          user_id: string;
+          trigger_id: string;
+          intensity?: number | null;
+          note?: string | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["trigger_activations"]["Insert"]>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;
@@ -368,3 +422,7 @@ export type EventAttendee = Tables["event_attendees"]["Row"];
 export type TimelineMilestone = Tables["timeline_milestones"]["Row"];
 export type AriaMessage = Tables["aria_messages"]["Row"];
 export type TrustedContact = Tables["trusted_contacts"]["Row"];
+export type ActivityLogRow = Tables["activity_logs"]["Row"];
+export type CravingLogRow = Tables["craving_logs"]["Row"];
+export type TriggerActivationRow = Tables["trigger_activations"]["Row"];
+export type ActivityKind = "micro_action" | "breathing" | "lesson_complete" | "weekly_checkin";

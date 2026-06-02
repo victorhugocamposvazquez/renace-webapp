@@ -16,6 +16,7 @@ import { AreaHeader } from "@/components/AreaHeader";
 import { MoodPicker } from "@/components/emocional/MoodPicker";
 import { JournalSection } from "@/components/emocional/JournalSection";
 import { TriggersSection } from "@/components/emocional/TriggersSection";
+import { CravingNowButton } from "@/components/emocional/CravingNowButton";
 import { MoodEvolution } from "@/components/emocional/MoodEvolution";
 import { LiveEventCard } from "@/components/LiveEventCard";
 import { CourseShelf } from "@/components/cursos/CourseShelf";
@@ -49,6 +50,8 @@ export default async function EmocionalPage() {
       <AreaHeader area="emocional" />
 
       <MoodPicker initialScore={(today?.score as MoodScore | null) ?? null} />
+
+      <CravingNowButton triggers={triggers} />
 
       {continueEmocional.length > 0 && (
         <ContinueWatchingShelf

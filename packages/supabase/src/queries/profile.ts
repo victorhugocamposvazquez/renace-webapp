@@ -13,7 +13,13 @@ export async function getProfile(client: RenaceClient, userId: string): Promise<
 export async function completeOnboarding(
   client: RenaceClient,
   userId: string,
-  input: { alias: string; areaFocus: AreaId[]; ariaName: string; ariaPersist: boolean }
+  input: {
+    alias: string;
+    areaFocus: AreaId[];
+    ariaName: string;
+    ariaPersist: boolean;
+    onboardingReasons?: string[];
+  }
 ): Promise<Profile> {
   const { data, error } = await client
     .from("profiles")
@@ -24,7 +30,8 @@ export async function completeOnboarding(
         area_focus: input.areaFocus,
         aria_name: input.ariaName,
         aria_persist: input.ariaPersist,
-        onboarding_completed: true
+        onboarding_completed: true,
+        onboarding_reasons: input.onboardingReasons ?? []
       },
       { onConflict: "id" }
     )

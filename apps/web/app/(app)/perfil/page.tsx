@@ -1,19 +1,15 @@
 import type { Metadata } from "next";
-import {
-  IconBell,
-  IconShieldLock,
-  IconDeviceWatch
-} from "@tabler/icons-react";
+import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import {
   getProfile,
   listAreaProgress,
   listTrustedContacts,
   fillAllAreas,
-  listRecentMoods
+  listRecentMoods,
+  listActiveDates
 } from "@renace/supabase";
-import { weekFromDay } from "@renace/core";
-import Link from "next/link";
+import { weekFromDay, computePresenceStreak, streakLabel, todayDateString } from "@renace/core";
 import { BackLink } from "@/components/BackLink";
 import { AreaRingsGrid } from "@/components/perfil/AreaRingsGrid";
 import { TrustedContactsManager } from "@/components/perfil/TrustedContactsManager";
@@ -24,15 +20,18 @@ export const metadata: Metadata = { title: "Perfil · RENACE" };
 
 export default async function PerfilPage() {
   const { client, userId } = await requireUser();
-  const [profile, rawAreas, contacts, moods] = await Promise.all([
+  const [profile, rawAreas, contacts, moods, activeDates] = await Promise.all([
     getProfile(client, userId),
     listAreaProgress(client, userId),
     listTrustedContacts(client, userId),
-    listRecentMoods(client, userId, 14)
+    listRecentMoods(client, userId, 14),
+    listActiveDates(client, userId, 60)
   ]);
   if (!profile) return null;
   const areas = fillAllAreas(rawAreas, userId);
   const week = weekFromDay(profile.day_in_program);
+  const streak = computePresenceStreak(activeDates, todayDateString());
+  const streakText = streakLabel(streak, profile.onboarding_reasons ?? []);
 
   return (
     <div className="page-stack px-5 py-5">
@@ -51,8 +50,9 @@ export default async function PerfilPage() {
         <p className="text-sm text-ink-muted">
           {profile.city ? `${profile.city} · ` : ""}Día {profile.day_in_program} · semana {week}
         </p>
-        <div className="mt-1 flex gap-2">
+        <div className="mt-1 flex flex-wrap justify-center gap-2">
           <span className="pill bg-brand-100 text-brand-700">Día {profile.day_in_program}</span>
+          <span className="pill bg-brand-50 text-brand-800">{streakText}</span>
           {profile.is_mentor && (
             <span className="pill bg-area-comunidad-tint text-area-comunidad-text">Mentor</span>
           )}
@@ -79,21 +79,6 @@ export default async function PerfilPage() {
       <h2 className="label-eyebrow mt-2">Ajustes</h2>
       <div className="card p-1.5">
         <ul role="list" className="divide-y divide-outline-soft">
-          <li id="notifications" className="flex items-center gap-3 px-3 py-3">
-            <IconBell size={22} aria-hidden className="text-ink-secondary" />
-            <div className="flex-1 text-base font-semibold text-ink-primary">Notificaciones</div>
-            <span className="pill bg-canvas text-ink-subtle">Pronto</span>
-          </li>
-          <li className="flex items-center gap-3 px-3 py-3">
-            <IconShieldLock size={22} aria-hidden className="text-ink-secondary" />
-            <div className="flex-1 text-base font-semibold text-ink-primary">Privacidad</div>
-            <span className="pill bg-canvas text-ink-subtle">Pronto</span>
-          </li>
-          <li id="smartwatch" className="flex items-center gap-3 px-3 py-3">
-            <IconDeviceWatch size={22} aria-hidden className="text-ink-secondary" />
-            <div className="flex-1 text-base font-semibold text-ink-primary">Smartwatch</div>
-            <span className="pill bg-canvas text-ink-subtle">Sin conectar</span>
-          </li>
           <li className="px-3 py-3">
             <SignOutButton />
           </li>

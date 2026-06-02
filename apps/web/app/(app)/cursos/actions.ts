@@ -4,7 +4,8 @@ import { requireUser } from "@/lib/auth";
 import {
   enrollInCourse,
   updateCourseProgress,
-  toggleClassReminder
+  toggleClassReminder,
+  logActivity
 } from "@renace/supabase";
 import { syncProgressAndRevalidate } from "@/lib/progress";
 
@@ -53,6 +54,10 @@ export async function updateProgressAction(
       progress_percent: progress,
       current_lesson: Number.isNaN(lesson) ? 0 : lesson
     });
+    await logActivity(client, userId, {
+      kind: "lesson_complete",
+      payload: { courseId, lesson, progress_percent: progress }
+    }).catch(() => undefined);
   } catch {
     return { error: "No pudimos guardar tu progreso." };
   }
