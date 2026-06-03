@@ -17,8 +17,11 @@ import {
   CONSULT_CATEGORY_LABEL,
   type ConsultCategory
 } from "@renace/core";
+import { AREA_THEMES } from "@renace/tokens";
 import { submitConsultRequestAction } from "@/app/(app)/juridica/actions";
 import { ConfirmModal } from "@/components/ConfirmModal";
+
+const juridica = AREA_THEMES.juridica;
 
 const CATEGORY_ICON: Record<ConsultCategory, React.ComponentType<{ size?: number; "aria-hidden"?: boolean; stroke?: number }>> = {
   debt: IconCreditCard,
@@ -137,8 +140,8 @@ export function ConsultForm() {
         onClick={openConfirm}
         disabled={isPending}
         style={{
-          background: "linear-gradient(135deg, #4C8FD6 0%, #3C7DC4 100%)",
-          boxShadow: "0 12px 32px -8px rgba(37, 99, 235, 0.35)"
+          background: `linear-gradient(135deg, ${juridica.core} 0%, ${juridica.coreDark} 100%)`,
+          boxShadow: "0 12px 32px -8px rgba(46, 99, 160, 0.35)"
         }}
         className="tap-target inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3.5 text-md font-semibold text-ink-inverse transition-transform duration-200 active:scale-[0.98] disabled:opacity-50"
       >

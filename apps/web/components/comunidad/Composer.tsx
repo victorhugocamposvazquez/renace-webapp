@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { AREA_THEMES } from "@renace/tokens";
 import { createPostAction } from "@/app/(app)/comunidad/actions";
 
 export function Composer() {
@@ -47,7 +48,7 @@ export function Composer() {
       <button
         type="button"
         className="btn-primary mt-3"
-        style={{ backgroundColor: "#8167C6" }}
+        style={{ backgroundColor: AREA_THEMES.comunidad.core }}
         onClick={submit}
         disabled={isPending}
       >

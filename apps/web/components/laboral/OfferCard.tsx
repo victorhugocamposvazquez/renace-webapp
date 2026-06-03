@@ -3,6 +3,7 @@
 import { useTransition } from "react";
 import { IconClock } from "@tabler/icons-react";
 import type { JobOffer } from "@renace/supabase";
+import { AREA_THEMES } from "@renace/tokens";
 import { markInterestedAction } from "@/app/(app)/laboral/actions";
 
 export function OfferCard({
@@ -13,7 +14,9 @@ export function OfferCard({
   applied: boolean;
 }) {
   const [isPending, startTransition] = useTransition();
-  const matchColor = offer.match_score >= 85 ? "#13924C" : offer.match_score >= 70 ? "#D99A2B" : "#5C6759";
+  const laboral = AREA_THEMES.laboral;
+  const matchColor =
+    offer.match_score >= 85 ? "#13924C" : offer.match_score >= 70 ? laboral.text : "#5C6759";
 
   function mark() {
     if (applied) return;
@@ -59,7 +62,7 @@ export function OfferCard({
             ? "btn-secondary"
             : "btn-primary"
         }
-        style={!applied ? { backgroundColor: "#B47119" } : undefined}
+        style={!applied ? { backgroundColor: laboral.coreDark } : undefined}
       >
         {applied ? "Apuntado ✓" : isPending ? "Guardando…" : "Me interesa"}
       </button>

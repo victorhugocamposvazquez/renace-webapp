@@ -7,7 +7,8 @@ import {
   listRecentMoods,
   listAreaCourses,
   listUpcomingLiveClasses,
-  listInProgressCourses
+  listInProgressCourses,
+  listAreaProgress
 } from "@renace/supabase";
 import { BackLink } from "@/components/BackLink";
 import { AreaHeader } from "@/components/AreaHeader";
@@ -20,14 +21,16 @@ export const metadata: Metadata = { title: "Física · RENACE" };
 
 export default async function FisicaPage() {
   const { client, userId } = await requireUser();
-  const [profile, recent, liveClasses, courses, inProgress] = await Promise.all([
+  const [profile, recent, liveClasses, courses, inProgress, areaProgress] = await Promise.all([
     getProfile(client, userId),
     listRecentMoods(client, userId, 7),
     listUpcomingLiveClasses(client, userId, "fisica"),
     listAreaCourses(client, userId, "fisica"),
-    listInProgressCourses(client, userId, 8)
+    listInProgressCourses(client, userId, 8),
+    listAreaProgress(client, userId)
   ]);
   if (!profile) return null;
+  const fisicaPercent = areaProgress.find((a) => a.area === "fisica")?.percent ?? 0;
 
   const moodAvg =
     recent.length === 0
@@ -40,7 +43,7 @@ export default async function FisicaPage() {
   return (
     <div className="flex flex-1 flex-col gap-5 px-5 py-5">
       <BackLink fallbackHref="/home" />
-      <AreaHeader area="fisica" />
+      <AreaHeader area="fisica" percent={fisicaPercent} />
 
       {/* Las clases en directo son el foco visual de Física */}
       <LiveClassesSection classes={liveClasses} />

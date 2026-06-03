@@ -39,7 +39,7 @@ export default async function LaboralPage() {
   return (
     <div className="page-stack px-5 py-5">
       <BackLink fallbackHref="/home" />
-      <AreaHeader area="laboral" />
+      <AreaHeader area="laboral" percent={laboralPercent} />
 
       <article className="card border-area-laboral-border">
         <div className="flex items-center justify-between">

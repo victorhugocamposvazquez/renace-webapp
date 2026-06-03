@@ -51,6 +51,8 @@ export async function weeklyCheckinAction(formData: FormData) {
     kind: "weekly_checkin",
     payload: { focusArea: area }
   });
+  await syncProgressAndRevalidate(client, userId);
   revalidatePath("/recorrido/dias");
+  revalidatePath("/home");
   return { ok: true as const };
 }

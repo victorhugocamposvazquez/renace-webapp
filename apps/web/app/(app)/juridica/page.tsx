@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { requireUser } from "@/lib/auth";
-import { getActiveLegalCase, listConsultRequests } from "@renace/supabase";
+import { getActiveLegalCase, listConsultRequests, listAreaProgress } from "@renace/supabase";
 import { formatShortDateTime } from "@renace/core";
+import { AREA_THEMES } from "@renace/tokens";
 import { BackLink } from "@/components/BackLink";
 import { AreaHeader } from "@/components/AreaHeader";
 import { ConsultForm } from "@/components/juridica/ConsultForm";
@@ -17,20 +18,24 @@ const CASE_STATUS_LABEL: Record<string, string> = {
 
 export default async function JuridicaPage() {
   const { client, userId } = await requireUser();
-  const [activeCase, consults] = await Promise.all([
+  const [activeCase, consults, areaProgress] = await Promise.all([
     getActiveLegalCase(client, userId),
-    listConsultRequests(client, userId)
+    listConsultRequests(client, userId),
+    listAreaProgress(client, userId)
   ]);
+  const juridicaPercent = areaProgress.find((a) => a.area === "juridica")?.percent ?? 0;
 
   return (
     <div className="flex flex-1 flex-col gap-4 px-5 py-5">
       <BackLink fallbackHref="/home" />
-      <AreaHeader area="juridica" />
+      <AreaHeader area="juridica" percent={juridicaPercent} />
 
       {activeCase ? (
         <article
           className="rounded-3xl p-5 text-ink-inverse shadow-card"
-          style={{ background: "linear-gradient(135deg, #4C8FD6 0%, #3C7DC4 100%)" }}
+          style={{
+            background: `linear-gradient(135deg, ${AREA_THEMES.juridica.core} 0%, ${AREA_THEMES.juridica.coreDark} 100%)`
+          }}
         >
           <div className="flex items-start justify-between">
             <div>

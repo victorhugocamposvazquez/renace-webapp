@@ -4,8 +4,11 @@ import { useState, useTransition } from "react";
 import { IconVideo, IconLogout2 } from "@tabler/icons-react";
 import type { LiveEventWithAttendance } from "@renace/supabase";
 import { formatShortDateTime } from "@renace/core";
+import { AREA_THEMES } from "@renace/tokens";
 import { toggleAttendanceAction } from "@/app/(app)/comunidad/actions";
 import { ConfirmModal } from "@/components/ConfirmModal";
+
+const comunidad = AREA_THEMES.comunidad;
 
 export function EventCard({ event }: { event: LiveEventWithAttendance }) {
   const [attending, setAttending] = useState(event.attending);
@@ -41,7 +44,7 @@ export function EventCard({ event }: { event: LiveEventWithAttendance }) {
   return (
     <article
       className="rounded-3xl p-5 text-ink-inverse shadow-card"
-      style={{ background: "linear-gradient(135deg, #8167C6 0%, #6A50AC 100%)" }}
+      style={{ background: `linear-gradient(135deg, ${comunidad.core} 0%, ${comunidad.coreDark} 100%)` }}
     >
       <div className="flex items-center gap-3">
         <span
@@ -62,7 +65,7 @@ export function EventCard({ event }: { event: LiveEventWithAttendance }) {
         onClick={handleClick}
         disabled={isPending}
         className="btn-white mt-3"
-        style={{ color: "#5A3DCC" }}
+        style={{ color: comunidad.text }}
       >
         {attending ? "Apuntado ✓" : "Apuntarme"}
       </button>

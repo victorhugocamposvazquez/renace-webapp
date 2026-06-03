@@ -8,7 +8,8 @@ import {
   listUpcomingEvents,
   listAreaCourses,
   listUpcomingLiveClasses,
-  listInProgressCourses
+  listInProgressCourses,
+  listAreaProgress
 } from "@renace/supabase";
 import { type MoodScore } from "@renace/core";
 import { BackLink } from "@/components/BackLink";
@@ -27,7 +28,7 @@ export const metadata: Metadata = { title: "Emocional · RENACE" };
 
 export default async function EmocionalPage() {
   const { client, userId } = await requireUser();
-  const [today, journal, triggers, moods, events, courses, liveClasses, inProgress] =
+  const [today, journal, triggers, moods, events, courses, liveClasses, inProgress, areaProgress] =
     await Promise.all([
       getTodayMood(client, userId),
       listJournal(client, userId, 5),
@@ -36,8 +37,10 @@ export default async function EmocionalPage() {
       listUpcomingEvents(client, userId, 1),
       listAreaCourses(client, userId, "emocional"),
       listUpcomingLiveClasses(client, userId, "emocional"),
-      listInProgressCourses(client, userId, 8)
+      listInProgressCourses(client, userId, 8),
+      listAreaProgress(client, userId)
     ]);
+  const emocionalPercent = areaProgress.find((a) => a.area === "emocional")?.percent ?? 0;
   const supportEvent =
     events.find((e) => e.kind === "support_group") ?? events[0] ?? null;
   const continueEmocional = inProgress.filter((c) => c.area === "emocional");
@@ -47,7 +50,7 @@ export default async function EmocionalPage() {
   return (
     <div className="page-stack px-5 py-5">
       <BackLink fallbackHref="/home" />
-      <AreaHeader area="emocional" />
+      <AreaHeader area="emocional" percent={emocionalPercent} />
 
       <MoodPicker initialScore={(today?.score as MoodScore | null) ?? null} />
 

@@ -89,6 +89,15 @@ export async function logCravingAction(formData: FormData) {
     note: parsed.data.note,
     triggerId: parsed.data.triggerId
   });
+  // Si el antojo se asocia a un detonante, lo registramos también como
+  // activación para que el historial de detonantes refleje el momento.
+  if (parsed.data.triggerId) {
+    await logTriggerActivation(client, userId, {
+      triggerId: parsed.data.triggerId,
+      intensity: parsed.data.intensity,
+      note: parsed.data.note
+    });
+  }
   await syncProgressAndRevalidate(client, userId);
   revalidatePath("/emocional");
   revalidatePath("/recorrido/dias");

@@ -18,6 +18,8 @@ export type AreaTheme = {
   label: string;
   subtitle: string;
   core: string;
+  /** Tono más oscuro del `core`, para gradientes (p. ej. heros de área). */
+  coreDark: string;
   tint: string;
   border: string;
   text: string;
@@ -30,6 +32,7 @@ export const AREA_THEMES: Record<AreaId, AreaTheme> = {
     label: "Emocional",
     subtitle: "Tu espacio interior",
     core: "#E14B79",
+    coreDark: "#C13A65",
     tint: "#FCE9F0",
     border: "#F6CBDD",
     text: "#9D2C53",
@@ -40,6 +43,7 @@ export const AREA_THEMES: Record<AreaId, AreaTheme> = {
     label: "Física",
     subtitle: "Cuerpo y mente van unidos",
     core: "#1B9E55",
+    coreDark: "#147E43",
     tint: "#E6F4EC",
     border: "#C6E8D2",
     text: "#0E6537",
@@ -50,6 +54,7 @@ export const AREA_THEMES: Record<AreaId, AreaTheme> = {
     label: "Jurídica",
     subtitle: "Tu caso, paso a paso",
     core: "#3C7DC4",
+    coreDark: "#2E63A0",
     tint: "#E7F0F9",
     border: "#C8DDF1",
     text: "#234E80",
@@ -60,6 +65,7 @@ export const AREA_THEMES: Record<AreaId, AreaTheme> = {
     label: "Laboral",
     subtitle: "Tu camino al empleo",
     core: "#D99A2B",
+    coreDark: "#B47C1C",
     tint: "#FBF1DC",
     border: "#F0DCB0",
     text: "#8A5E15",
@@ -70,6 +76,7 @@ export const AREA_THEMES: Record<AreaId, AreaTheme> = {
     label: "Red",
     subtitle: "No estás solo en esto",
     core: "#8167C6",
+    coreDark: "#6A50AC",
     tint: "#EFEAFA",
     border: "#DCD2F2",
     text: "#50399B",

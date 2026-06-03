@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { requireUser } from "@/lib/auth";
-import { listCommunityPosts, listUpcomingEvents } from "@renace/supabase";
+import { listCommunityPosts, listUpcomingEvents, listAreaProgress } from "@renace/supabase";
 import { BackLink } from "@/components/BackLink";
 import { AreaHeader } from "@/components/AreaHeader";
 import { Composer } from "@/components/comunidad/Composer";
@@ -11,17 +11,19 @@ export const metadata: Metadata = { title: "Red · RENACE" };
 
 export default async function ComunidadPage() {
   const { client, userId } = await requireUser();
-  const [posts, events] = await Promise.all([
+  const [posts, events, areaProgress] = await Promise.all([
     listCommunityPosts(client, userId, 20),
-    listUpcomingEvents(client, userId, 5)
+    listUpcomingEvents(client, userId, 5),
+    listAreaProgress(client, userId)
   ]);
   const headline = events.find((e) => e.kind === "support_group") ?? events[0] ?? null;
   const otherEvents = events.filter((e) => e.id !== headline?.id);
+  const comunidadPercent = areaProgress.find((a) => a.area === "comunidad")?.percent ?? 0;
 
   return (
     <div className="flex flex-1 flex-col gap-4 px-5 py-5">
       <BackLink />
-      <AreaHeader area="comunidad" />
+      <AreaHeader area="comunidad" percent={comunidadPercent} />
 
       {headline && <EventCard event={headline} />}
 
