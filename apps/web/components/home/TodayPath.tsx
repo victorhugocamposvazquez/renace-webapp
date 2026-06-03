@@ -264,7 +264,7 @@ export function TodayPath({
                 ) : isActive ? (
                   <>
                     <span
-                      className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider"
+                      className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider"
                       style={{ background: step.tagBg, color: step.tagFg }}
                     >
                       <span
@@ -310,7 +310,7 @@ export function TodayPath({
                   <>
                     <div className="flex items-center justify-between gap-2">
                       <span
-                        className="rounded-full px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider"
+                        className="rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider"
                         style={{ background: step.tagBg, color: step.tagFg }}
                       >
                         {step.tag}

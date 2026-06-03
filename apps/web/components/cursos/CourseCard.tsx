@@ -67,7 +67,7 @@ export function CourseCard({
         {/* Progress bar dentro del poster */}
         {inProgress && (
           <div
-            className="absolute inset-x-2 bottom-2 h-1.5 overflow-hidden rounded-full bg-black/30"
+            className="absolute inset-x-2 bottom-2 h-1.5 overflow-hidden rounded-full bg-black/10"
             role="progressbar"
             aria-valuenow={progress}
             aria-valuemin={0}
@@ -75,8 +75,8 @@ export function CourseCard({
             aria-label={`Progreso del curso: ${progress}%`}
           >
             <div
-              className="h-full bg-white"
-              style={{ width: `${progress}%` }}
+              className="h-full rounded-full"
+              style={{ width: `${progress}%`, background: course.accent_color }}
               aria-hidden
             />
           </div>

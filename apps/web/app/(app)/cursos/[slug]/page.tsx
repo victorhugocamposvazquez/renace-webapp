@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
 import {
   IconClockHour3,
@@ -15,12 +14,10 @@ import { requireUser } from "@/lib/auth";
 import { getCourseBySlug } from "@renace/supabase";
 import { formatCountdown, formatDuration, getCourseLessons, AREA_LABEL, AREA_HREF } from "@renace/core";
 import { BackLink } from "@/components/BackLink";
-import { CourseThumbnail } from "@/components/cursos/CourseThumbnail";
 import { ProgressControls } from "@/components/cursos/ProgressControls";
 import { ReminderToggleForm } from "@/components/cursos/ReminderToggleForm";
 import { EnrollButton } from "@/components/cursos/EnrollButton";
 import { LiveClassJoinButton } from "@/components/cursos/LiveClassJoinButton";
-import { getCourseImage } from "@/lib/courseImages";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -54,7 +51,6 @@ export default async function CourseDetailPage({ params }: Props) {
     !completed &&
     progress === 0 &&
     Date.now() - new Date(enrolled.last_seen_at).getTime() < 60_000;
-  const heroImage = getCourseImage(course.slug);
   const lessons = getCourseLessons(course.slug, course.lessons_count);
 
   return (
@@ -65,47 +61,22 @@ export default async function CourseDetailPage({ params }: Props) {
       <header className="relative -mx-5 -mt-5">
         <div
           className="relative overflow-hidden px-5 pb-6 pt-8 text-ink-inverse"
-          style={
-            heroImage
-              ? undefined
-              : {
-                  background: `linear-gradient(135deg, ${course.accent_color} 0%, ${darken(course.accent_color, 22)} 100%)`
-                }
-          }
+          style={{
+            background: `linear-gradient(135deg, ${course.accent_color} 0%, ${darken(course.accent_color, 22)} 100%)`
+          }}
         >
-          {heroImage && (
-            <>
-              <Image
-                src={heroImage}
-                alt=""
-                fill
-                sizes="100vw"
-                priority
-                className="object-cover"
-                aria-hidden
-              />
-              <div
-                aria-hidden
-                className="absolute inset-0"
-                style={{
-                  background: `linear-gradient(135deg, ${course.accent_color}cc 0%, ${darken(course.accent_color, 22)}f0 100%)`
-                }}
-              />
-            </>
-          )}
           <div
             aria-hidden
             className="pointer-events-none absolute -right-24 -top-12 h-64 w-64 rounded-full opacity-20"
             style={{ background: "radial-gradient(circle, #fff 0%, transparent 70%)" }}
           />
           <div className="relative flex items-center gap-4">
-            <CourseThumbnail
-              slug={course.slug}
-              accent={course.accent_color}
-              emoji={course.emoji}
-              size="sm"
-              rounded="2xl"
-            />
+            <span
+              aria-hidden
+              className="grid h-[88px] w-[88px] shrink-0 place-items-center rounded-2xl bg-white/20 text-3xl backdrop-blur-sm"
+            >
+              {course.emoji ?? "🎓"}
+            </span>
             <div className="flex flex-col gap-1">
               <span className="inline-flex w-fit items-center gap-1 rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
                 {isLive ? (

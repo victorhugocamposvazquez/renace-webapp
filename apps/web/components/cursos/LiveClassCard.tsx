@@ -3,7 +3,6 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import {
   IconBellRinging,
   IconBellOff,
@@ -15,7 +14,6 @@ import {
 import type { CourseWithEnrollment } from "@renace/supabase";
 import { formatCountdown, formatDuration } from "@renace/core";
 import { toggleClassReminderAction } from "@/app/(app)/cursos/actions";
-import { getCourseImage } from "@/lib/courseImages";
 import { CourseThumbnail } from "./CourseThumbnail";
 import { AreaBadge } from "./AreaBadge";
 
@@ -137,37 +135,13 @@ export function LiveClassCard({
   }
 
   // FULL
-  const bgImage = getCourseImage(course.slug);
   return (
     <article
       className="relative overflow-hidden rounded-3xl p-5 text-ink-inverse shadow-lift"
-      style={
-        bgImage
-          ? undefined
-          : {
-              background: `linear-gradient(135deg, ${course.accent_color} 0%, ${darken(course.accent_color, 22)} 100%)`
-            }
-      }
+      style={{
+        background: `linear-gradient(135deg, ${course.accent_color} 0%, ${darken(course.accent_color, 22)} 100%)`
+      }}
     >
-      {bgImage && (
-        <>
-          <Image
-            src={bgImage}
-            alt=""
-            fill
-            sizes="100vw"
-            className="object-cover"
-            aria-hidden
-          />
-          <div
-            aria-hidden
-            className="absolute inset-0"
-            style={{
-              background: `linear-gradient(135deg, ${course.accent_color}cc 0%, ${darken(course.accent_color, 22)}f0 100%)`
-            }}
-          />
-        </>
-      )}
       <div
         aria-hidden
         className="pointer-events-none absolute -right-16 -top-12 h-48 w-48 rounded-full opacity-20"

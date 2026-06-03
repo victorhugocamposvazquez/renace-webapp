@@ -40,19 +40,19 @@ export function CourseListCard({ course }: { course: CourseWithEnrollment }) {
       <div className="flex min-w-0 flex-1 flex-col">
         <span className="flex flex-wrap items-center gap-1.5">
           <span
-            className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-extrabold tracking-wide"
+            className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wide"
             style={{ backgroundColor: theme.tint, color: theme.text }}
           >
             {theme.label}
             {inProgress ? ` · ${progress}%` : ""}
           </span>
           {isLive && (
-            <span className="inline-flex items-center gap-0.5 rounded-full bg-state-danger/10 px-2 py-0.5 text-[10px] font-extrabold uppercase text-state-danger">
+            <span className="inline-flex items-center gap-0.5 rounded-full bg-state-danger/10 px-2 py-0.5 text-[10px] font-bold uppercase text-state-danger">
               <IconBroadcast size={10} aria-hidden /> Directo
             </span>
           )}
           {done && (
-            <span className="inline-flex items-center gap-0.5 rounded-full bg-brand-50 px-2 py-0.5 text-[10px] font-extrabold text-brand-700">
+            <span className="inline-flex items-center gap-0.5 rounded-full bg-brand-50 px-2 py-0.5 text-[10px] font-bold text-brand-700">
               <IconCheck size={10} aria-hidden /> Completado
             </span>
           )}
@@ -70,7 +70,7 @@ export function CourseListCard({ course }: { course: CourseWithEnrollment }) {
       </div>
 
       <span
-        className="shrink-0 rounded-xl px-3.5 py-2 text-[12px] font-extrabold text-ink-inverse"
+        className="shrink-0 rounded-xl px-3.5 py-2 text-[12px] font-bold text-ink-inverse"
         style={{ backgroundColor: theme.core }}
       >
         {cta}

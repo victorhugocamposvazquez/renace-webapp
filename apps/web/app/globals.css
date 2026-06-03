@@ -379,7 +379,7 @@
   }
 
   .hub-segmented-count {
-    @apply text-[10px] font-extrabold text-brand-600;
+    @apply text-[10px] font-bold text-brand-600;
   }
 
   .hub-segmented-item-active .hub-segmented-count {

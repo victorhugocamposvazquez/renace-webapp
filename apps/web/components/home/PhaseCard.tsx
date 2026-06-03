@@ -7,7 +7,7 @@ export function PhaseCard({ phase }: { phase: ProgramPhase }) {
         aria-hidden
         className="pointer-events-none absolute -right-5 -top-8 h-32 w-32 rounded-full bg-white/10"
       />
-      <p className="text-[11px] font-extrabold uppercase tracking-wider text-white/85">
+      <p className="text-[11px] font-bold uppercase tracking-wider text-white/85">
         Tu programa · Fase {phase.phase} de {phase.totalPhases}
       </p>
       <p className="mt-1 text-lg font-bold tracking-tight">{phase.name}</p>

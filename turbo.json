@@ -2,6 +2,18 @@
   "$schema": "https://turbo.build/schema.json",
   "ui": "tui",
   "globalDependencies": ["**/.env.*local", "**/.env"],
+  "globalEnv": [
+    "NEXT_PUBLIC_SUPABASE_URL",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "AI_GATEWAY_API_KEY",
+    "AI_GATEWAY_BASE_URL",
+    "OPENAI_API_KEY",
+    "AI_MODEL",
+    "NEXT_PUBLIC_DEMO_MODE",
+    "NEXT_PUBLIC_DEMO_EMAIL",
+    "NEXT_PUBLIC_DEMO_PASSWORD"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
