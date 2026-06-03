@@ -58,15 +58,11 @@ export default async function CursosHubPage({ searchParams }: Props) {
     <div className="page-stack px-5 py-5">
       <BackLink fallbackHref="/home" />
 
-      <header className="relative overflow-hidden rounded-[24px] border border-outline-soft/70 bg-elevated p-5 shadow-soft">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-brand-100/60 blur-2xl"
-        />
+      <header className="px-1 pt-1">
         <p className="label-eyebrow text-brand-700">Tu formación</p>
         <h1 className="display-title">Cursos</h1>
-        <p className="mt-1 display-subtitle">
-          Cada curso pertenece a un área de tu recuperación: laboral, emocional, física y más.
+        <p className="mt-2 display-subtitle">
+          Cada curso pertenece a un área de tu vida: laboral, emocional, física y más.
         </p>
       </header>
 
@@ -259,26 +255,19 @@ function AreaCourseGroup({
       <div className="area-section-header">
         <span
           aria-hidden
-          className="h-8 w-1 rounded-full"
+          className="h-[18px] w-1 rounded-full"
           style={{ backgroundColor: theme.core }}
         />
-        <div className="flex flex-1 items-baseline justify-between gap-2">
-          <div>
-            <h2 className="text-[16px] font-bold text-ink-primary">{AREA_LABEL[area]}</h2>
-            <p className="text-[12px] text-ink-muted">
-              {courses.length} curso{courses.length === 1 ? "" : "s"} · {theme.subtitle}
-            </p>
-          </div>
-          {seeAllHref && courses.length > 3 && (
-            <Link
-              href={seeAllHref}
-              className="shrink-0 text-[12px] font-semibold"
-              style={{ color: theme.text }}
-            >
-              Ver todos ({courses.length})
-            </Link>
-          )}
-        </div>
+        <h2 className="flex-1 text-[16px] font-bold text-ink-primary">{AREA_LABEL[area]}</h2>
+        {seeAllHref && courses.length > 3 && (
+          <Link
+            href={seeAllHref}
+            className="shrink-0 text-[12px] font-bold"
+            style={{ color: theme.text }}
+          >
+            Ver todos ({courses.length})
+          </Link>
+        )}
       </div>
       <ul role="list" className="flex flex-col gap-2.5">
         {(seeAllHref ? courses.slice(0, 3) : courses).map((c) => (
