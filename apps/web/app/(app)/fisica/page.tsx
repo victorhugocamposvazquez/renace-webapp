@@ -66,7 +66,7 @@ export default async function FisicaPage() {
             value: moodAvg !== null ? String(moodAvg) : "—",
             sub: "Últimos 7 días",
             bars: sparkBars,
-            color: "#0F6E56"
+            color: "#1B9E55"
           },
           {
             kind: "plain",

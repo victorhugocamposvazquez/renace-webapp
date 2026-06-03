@@ -62,7 +62,7 @@ export function RecoveryProgress({
               // Cuando hay algo de progreso, añadimos un toque accent al final
               background:
                 totalPercent > 0
-                  ? "linear-gradient(90deg, #0FA065 0%, #6F4FE8 100%)"
+                  ? "linear-gradient(90deg, #13924C 0%, #6F4FE8 100%)"
                   : "transparent"
             }}
           />

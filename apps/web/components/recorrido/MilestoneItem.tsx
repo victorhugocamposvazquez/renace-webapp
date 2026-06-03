@@ -5,14 +5,14 @@ import type { TimelineMilestone } from "@renace/supabase";
 import { updateMilestoneStatusAction } from "@/app/(app)/recorrido/actions";
 
 const STATUS_COLOR = {
-  done: "#0F6E56",
-  in_progress: "#B47119",
+  done: "#13924C",
+  in_progress: "#D99A2B",
   pending: "transparent"
 } as const;
 
 const STATUS_BORDER = {
-  done: "#0F6E56",
-  in_progress: "#B47119",
+  done: "#13924C",
+  in_progress: "#D99A2B",
   pending: "#C5D0BF"
 } as const;
 
@@ -79,9 +79,9 @@ export function MilestoneItem({
           style={{
             color:
               status === "done"
-                ? "#0F6E56"
+                ? "#13924C"
                 : status === "in_progress"
-                ? "#B47119"
+                ? "#D99A2B"
                 : "#5C6759"
           }}
         >

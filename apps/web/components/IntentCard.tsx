@@ -34,7 +34,7 @@ export function IntentCard({
         className="absolute inset-0 bg-brand-gradient"
         style={{
           background:
-            "linear-gradient(135deg, #0FA065 0%, #0A8554 55%, #6F4FE8 130%)"
+            "linear-gradient(135deg, #13924C 0%, #0E7A3F 55%, #6F4FE8 130%)"
         }}
       />
       <div

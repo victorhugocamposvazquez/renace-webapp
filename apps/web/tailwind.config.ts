@@ -94,10 +94,10 @@ const config: Config = {
         xs: "2px"
       },
       backgroundImage: {
-        "brand-gradient": "linear-gradient(135deg, #0FA065 0%, #0A8554 100%)",
+        "brand-gradient": "linear-gradient(135deg, #13924C 0%, #0E7A3F 100%)",
         "accent-gradient": "linear-gradient(135deg, #8A6CFB 0%, #5A3DCC 100%)",
         "hero-gradient":
-          "radial-gradient(120% 90% at 50% -10%, #ECFBF3 0%, #F4F1FF 38%, #FAFAF9 72%, #F4F4F2 100%)",
+          "radial-gradient(120% 90% at 50% -10%, #EDF2EC 0%, #E9F3EC 38%, #E6EDE9 72%, #EAEFEA 100%)",
         "shimmer-line":
           "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.6) 50%, transparent 100%)"
       },

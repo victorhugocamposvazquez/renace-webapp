@@ -8,8 +8,8 @@
 export const palette = {
   /* Fondos y neutros */
   background: {
-    canvas: "#F4F4F2",
-    surface: "#FAFAF9",
+    canvas: "#EAEFEA",
+    surface: "#EFF3EE",
     elevated: "#FFFFFF"
   },
   border: {
@@ -28,13 +28,13 @@ export const palette = {
 
   /* Verde RENACE — color de marca y Área Física */
   brand: {
-    50: "#ECFBF3",
-    100: "#D5F4E2",
+    50: "#F1F8F3",
+    100: "#E7F3EC",
     200: "#A6E7C2",
     300: "#5FD49C",
     400: "#26BB7C",
-    500: "#0FA065",
-    600: "#0A8554",
+    500: "#13924C",
+    600: "#0E7A3F",
     700: "#0B6A45",
     800: "#0C5238"
   },

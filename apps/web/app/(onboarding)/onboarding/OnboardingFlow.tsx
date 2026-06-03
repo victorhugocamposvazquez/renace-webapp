@@ -38,11 +38,11 @@ const AREA_ICON: Record<
 };
 
 const AREA_COLOR: Record<AreaId, { core: string; tint: string; border: string }> = {
-  emocional: { core: "#B83A66", tint: "#FCE4EC", border: "#F0CCD9" },
-  fisica: { core: "#0F6E56", tint: "#DFF1E8", border: "#C7E4D5" },
-  juridica: { core: "#1B6FC2", tint: "#DBE9F7", border: "#BDD4ED" },
-  laboral: { core: "#B47119", tint: "#F9E8C9", border: "#E8C97D" },
-  comunidad: { core: "#5A4FB8", tint: "#E5E3FA", border: "#C9C5EE" }
+  emocional: { core: "#E14B79", tint: "#FCE9F0", border: "#F6CBDD" },
+  fisica: { core: "#1B9E55", tint: "#E6F4EC", border: "#C6E8D2" },
+  juridica: { core: "#3C7DC4", tint: "#E7F0F9", border: "#C8DDF1" },
+  laboral: { core: "#D99A2B", tint: "#FBF1DC", border: "#F0DCB0" },
+  comunidad: { core: "#8167C6", tint: "#EFEAFA", border: "#DCD2F2" }
 };
 
 const TOTAL_STEPS = 5;
@@ -291,7 +291,7 @@ export function OnboardingFlow({ defaultAlias }: { defaultAlias: string }) {
                         selected
                           ? {
                               background:
-                                "linear-gradient(135deg, #0FA065 0%, #6F4FE8 100%)",
+                                "linear-gradient(135deg, #13924C 0%, #6F4FE8 100%)",
                               color: "#fff"
                             }
                           : { background: "#F4F4F2" }

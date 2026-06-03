@@ -137,7 +137,7 @@ export function ConsultForm() {
         onClick={openConfirm}
         disabled={isPending}
         style={{
-          background: "linear-gradient(135deg, #2563EB 0%, #1B6FC2 100%)",
+          background: "linear-gradient(135deg, #4C8FD6 0%, #3C7DC4 100%)",
           boxShadow: "0 12px 32px -8px rgba(37, 99, 235, 0.35)"
         }}
         className="tap-target inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3.5 text-md font-semibold text-ink-inverse transition-transform duration-200 active:scale-[0.98] disabled:opacity-50"

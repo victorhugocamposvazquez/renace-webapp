@@ -34,7 +34,7 @@ export function MicroActionCard({
   return (
     <>
       {celebrate && (
-        <CelebrationBurst message="Acción completada. Sigue así." accent="#0FA065" />
+        <CelebrationBurst message="Acción completada. Sigue así." accent="#13924C" />
       )}
       <article className="card-accent-left group relative overflow-hidden">
         <div className="relative flex items-start gap-3">

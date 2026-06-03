@@ -68,15 +68,15 @@ export function Renace360({
         <defs>
           <radialGradient id="renace-core-gradient" cx="35%" cy="35%" r="75%">
             <stop offset="0%" stopColor="#26BB7C" />
-            <stop offset="60%" stopColor="#0FA065" />
+            <stop offset="60%" stopColor="#13924C" />
             <stop offset="100%" stopColor="#0B6A45" />
           </radialGradient>
           <linearGradient id="renace-track-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#0FA065" />
+            <stop offset="0%" stopColor="#13924C" />
             <stop offset="100%" stopColor="#6F4FE8" />
           </linearGradient>
           <filter id="renace-core-shadow" x="-50%" y="-50%" width="200%" height="200%">
-            <feDropShadow dx="0" dy="6" stdDeviation="8" floodColor="#0A8554" floodOpacity="0.35" />
+            <feDropShadow dx="0" dy="6" stdDeviation="8" floodColor="#0E7A3F" floodOpacity="0.35" />
           </filter>
         </defs>
         <ProgressRing

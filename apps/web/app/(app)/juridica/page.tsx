@@ -30,7 +30,7 @@ export default async function JuridicaPage() {
       {activeCase ? (
         <article
           className="rounded-3xl p-5 text-ink-inverse shadow-card"
-          style={{ background: "linear-gradient(135deg, #2563EB 0%, #1B6FC2 100%)" }}
+          style={{ background: "linear-gradient(135deg, #4C8FD6 0%, #3C7DC4 100%)" }}
         >
           <div className="flex items-start justify-between">
             <div>

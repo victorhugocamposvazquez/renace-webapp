@@ -70,7 +70,7 @@ export default async function EmocionalPage() {
         emptyText="Pronto nuevos cursos por aquí."
       />
 
-      {supportEvent && <LiveEventCard event={supportEvent} accent="#B83A66" />}
+      {supportEvent && <LiveEventCard event={supportEvent} accent="#E14B79" />}
 
       <h2 className="label-eyebrow mt-2">Tus herramientas</h2>
       <JournalSection entries={journal} />

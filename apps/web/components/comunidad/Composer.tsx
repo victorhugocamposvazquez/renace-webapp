@@ -47,7 +47,7 @@ export function Composer() {
       <button
         type="button"
         className="btn-primary mt-3"
-        style={{ backgroundColor: "#5A4FB8" }}
+        style={{ backgroundColor: "#8167C6" }}
         onClick={submit}
         disabled={isPending}
       >

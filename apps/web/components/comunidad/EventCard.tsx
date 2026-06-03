@@ -41,7 +41,7 @@ export function EventCard({ event }: { event: LiveEventWithAttendance }) {
   return (
     <article
       className="rounded-3xl p-5 text-ink-inverse shadow-card"
-      style={{ background: "linear-gradient(135deg, #6F4FE8 0%, #5A4FB8 100%)" }}
+      style={{ background: "linear-gradient(135deg, #8167C6 0%, #6A50AC 100%)" }}
     >
       <div className="flex items-center gap-3">
         <span

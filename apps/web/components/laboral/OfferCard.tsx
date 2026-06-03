@@ -13,7 +13,7 @@ export function OfferCard({
   applied: boolean;
 }) {
   const [isPending, startTransition] = useTransition();
-  const matchColor = offer.match_score >= 85 ? "#0F6E56" : offer.match_score >= 70 ? "#B47119" : "#5C6759";
+  const matchColor = offer.match_score >= 85 ? "#13924C" : offer.match_score >= 70 ? "#D99A2B" : "#5C6759";
 
   function mark() {
     if (applied) return;
