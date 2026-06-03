@@ -49,7 +49,6 @@ export async function POST(request: NextRequest) {
   }
 
   const system = buildAriaSystemPrompt({
-    ariaName: profile.aria_name,
     alias: profile.alias,
     dayInProgram: profile.day_in_program,
     recentMoodScore: todayMood?.score ?? null,
@@ -78,7 +77,6 @@ export async function POST(request: NextRequest) {
 
   if (isMockMode) {
     return mockReply({
-      ariaName: profile.aria_name,
       alias: profile.alias,
       lastUser:
         typeof lastUserMessage?.content === "string" ? lastUserMessage.content : ""
@@ -106,20 +104,18 @@ export async function POST(request: NextRequest) {
  * y útil para presentar la UI sin gastar tokens.
  */
 function mockReply({
-  ariaName,
   alias,
   lastUser
 }: {
-  ariaName: string;
   alias: string;
   lastUser: string;
 }): Response {
   const aliasFirst = alias.split(" ")[0] ?? alias;
   const reply = lastUser.toLowerCase().includes("ansied")
-    ? `Te leo, ${aliasFirst}. Vamos a bajar el ritmo. ¿Probamos una respiración 4-7-8 de dos minutos? Yo te guío.`
+    ? `Te leemos, ${aliasFirst}. Vamos a bajar el ritmo. ¿Probamos una respiración 4-7-8 de dos minutos? Te guiamos.`
     : lastUser.toLowerCase().includes("recaí")
-    ? `${aliasFirst}, gracias por contármelo. Una recaída no borra el camino que llevas. ¿Quieres que veamos qué te llevó hasta ahí, sin juicios?`
-    : `Estoy aquí, ${aliasFirst}. Soy ${ariaName}, tu acompañante. ¿Cómo te encuentras ahora mismo, en una sola palabra?`;
+    ? `${aliasFirst}, gracias por contárnoslo. Una recaída no borra el camino que llevas. ¿Quieres que veamos qué te llevó hasta ahí, sin juicios?`
+    : `Aquí nos tienes, ${aliasFirst}. Somos tu equipo de RENACE. ¿Cómo te encuentras ahora mismo, en una sola palabra?`;
 
   const encoder = new TextEncoder();
   const stream = new ReadableStream({

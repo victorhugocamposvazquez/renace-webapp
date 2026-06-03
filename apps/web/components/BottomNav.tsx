@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   IconHome2,
-  IconSparkles,
+  IconLifebuoy,
   IconUsers,
   IconUser,
   IconSchool
@@ -52,9 +52,9 @@ const TABS: Tab[] = [
   },
   {
     href: "/aria",
-    label: "Aria",
-    shortLabel: "Aria",
-    icon: IconSparkles,
+    label: "Apoyo",
+    shortLabel: "Apoyo",
+    icon: IconLifebuoy,
     matches: (p) => p.startsWith("/aria"),
     accent: true
   },

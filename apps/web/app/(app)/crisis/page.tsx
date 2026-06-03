@@ -2,7 +2,7 @@ import Link from "next/link";
 import {
   IconPhone,
   IconWind,
-  IconSparkles,
+  IconMessageHeart,
   IconArrowLeft
 } from "@tabler/icons-react";
 import { requireUser } from "@/lib/auth";
@@ -65,11 +65,11 @@ export default async function CrisisPage() {
         )}
 
         <Link href="/aria" className="card-interactive flex items-center gap-4 p-4">
-          <span className="grid h-12 w-12 place-items-center rounded-2xl bg-accent-gradient text-ink-inverse">
-            <IconSparkles size={22} aria-hidden />
+          <span className="grid h-12 w-12 place-items-center rounded-2xl bg-brand-gradient text-ink-inverse">
+            <IconMessageHeart size={22} aria-hidden />
           </span>
           <div>
-            <p className="font-bold text-ink-primary">Hablar con Aria</p>
+            <p className="font-bold text-ink-primary">Hablar con tu equipo</p>
             <p className="text-sm text-ink-muted">Te escucha sin juzgar</p>
           </div>
         </Link>

@@ -6,7 +6,7 @@ import { useChat } from "ai/react";
 import {
   IconArrowLeft,
   IconSend2,
-  IconSparkles,
+  IconMessageHeart,
   IconTrash
 } from "@tabler/icons-react";
 import { ConfirmModal } from "@/components/ConfirmModal";
@@ -14,16 +14,18 @@ import { clearAriaHistoryAction } from "@/app/(app)/aria/actions";
 
 type Msg = { id: string; role: "user" | "assistant" | "system"; content: string };
 
+const TEAM_NAME = "Equipo RENACE";
+
 export function AriaChat({
-  ariaName,
   alias,
   initialMessages,
-  initialPrompt
+  initialPrompt,
+  embedded = false
 }: {
-  ariaName: string;
   alias: string;
   initialMessages: Msg[];
   initialPrompt: string | null;
+  embedded?: boolean;
 }) {
   const aliasFirst = alias.split(" ")[0] ?? alias;
 
@@ -73,24 +75,35 @@ export function AriaChat({
   }
 
   return (
-    <div className="flex h-[100dvh] flex-1 flex-col bg-canvas">
+    <div
+      className={
+        embedded
+          ? "flex h-[460px] flex-col overflow-hidden rounded-3xl border border-outline-soft bg-canvas shadow-card"
+          : "flex h-[100dvh] flex-1 flex-col bg-canvas"
+      }
+    >
       <header className="flex items-center gap-3 border-b border-outline-soft bg-elevated px-4 py-3">
-        <Link
-          href="/home"
-          aria-label="Volver"
-          className="tap-target grid place-items-center rounded-full text-ink-secondary"
-        >
-          <IconArrowLeft size={22} aria-hidden />
-        </Link>
+        {!embedded && (
+          <Link
+            href="/home"
+            aria-label="Volver"
+            className="tap-target grid place-items-center rounded-full text-ink-secondary"
+          >
+            <IconArrowLeft size={22} aria-hidden />
+          </Link>
+        )}
         <div
           aria-hidden
-          className="grid h-10 w-10 place-items-center rounded-full bg-brand-100 text-brand-600"
+          className="relative grid h-10 w-10 place-items-center rounded-full bg-brand-100 text-brand-600"
         >
-          <IconSparkles size={20} aria-hidden />
+          <IconMessageHeart size={20} aria-hidden />
+          <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-elevated bg-brand-600" />
         </div>
         <div className="flex-1">
-          <p className="text-md font-bold text-ink-primary">{ariaName}</p>
-          <p className="text-xs text-ink-subtle">Tu acompañante · no es atención sanitaria</p>
+          <p className="text-md font-bold text-ink-primary">{TEAM_NAME}</p>
+          <p className="text-xs text-ink-subtle">
+            Suele responder en minutos · no es atención sanitaria
+          </p>
         </div>
         {messages.length > 0 && (
           <button
@@ -108,7 +121,6 @@ export function AriaChat({
         {visibleMessages.length === 0 ? (
           <Welcome
             aliasFirst={aliasFirst}
-            ariaName={ariaName}
             onSend={(prompt) => void append({ role: "user", content: prompt })}
           />
         ) : (
@@ -127,7 +139,7 @@ export function AriaChat({
             ))}
             {isLoading && (
               <li className="mr-auto rounded-2xl bg-elevated px-3 py-2 text-base text-ink-muted">
-                <span className="inline-flex gap-1" aria-label="Aria está escribiendo">
+                <span className="inline-flex gap-1" aria-label="El equipo está escribiendo">
                   <span className="dot">•</span>
                   <span className="dot">•</span>
                   <span className="dot">•</span>
@@ -140,12 +152,15 @@ export function AriaChat({
 
       <form
         onSubmit={handleSubmit}
-        className="flex gap-2 border-t border-outline-soft bg-elevated px-4 pb-[max(env(safe-area-inset-bottom),12px)] pt-3"
+        className={
+          "flex gap-2 border-t border-outline-soft bg-elevated px-4 pt-3 " +
+          (embedded ? "pb-3" : "pb-[max(env(safe-area-inset-bottom),12px)]")
+        }
       >
         <input
           value={input}
           onChange={handleInputChange}
-          placeholder={`Escribe a ${ariaName}…`}
+          placeholder="Escribe a tu equipo…"
           className="tap-target flex-1 rounded-full border border-outline-medium bg-canvas px-4 text-base text-ink-primary outline-none focus:border-brand-600"
           aria-label="Tu mensaje"
         />
@@ -166,12 +181,12 @@ export function AriaChat({
         busy={isClearing}
         tone="danger"
         icon={<IconTrash size={22} stroke={2.2} aria-hidden />}
-        title={`¿Empezar una conversación nueva con ${ariaName}?`}
+        title="¿Empezar una conversación nueva?"
         description={
           <>
             <p>
-              Vamos a borrar el historial de mensajes con {ariaName}. Tus datos del
-              diario, ánimo y áreas <strong>no se ven afectados</strong>.
+              Vamos a borrar el historial de esta conversación. Tus datos del diario,
+              ánimo y áreas <strong>no se ven afectados</strong>.
             </p>
             <p className="mt-2 text-ink-subtle">
               Sirve para empezar de cero si quieres cambiar de tema o ya no necesitas
@@ -188,17 +203,15 @@ export function AriaChat({
 
 function Welcome({
   aliasFirst,
-  ariaName,
   onSend
 }: {
   aliasFirst: string;
-  ariaName: string;
   onSend: (prompt: string) => void;
 }) {
   return (
     <div
       role="region"
-      aria-label="Bienvenida de tu acompañante"
+      aria-label="Bienvenida de tu equipo de apoyo"
       aria-live="polite"
       className="flex h-full flex-col items-center justify-center gap-4 text-center"
     >
@@ -206,12 +219,12 @@ function Welcome({
         aria-hidden
         className="grid h-16 w-16 place-items-center rounded-2xl bg-brand-100 text-brand-600"
       >
-        <IconSparkles size={32} aria-hidden />
+        <IconMessageHeart size={32} aria-hidden />
       </div>
       <div>
         <h2 className="text-xl font-bold text-ink-primary">Hola {aliasFirst}</h2>
         <p className="mt-1 text-base text-ink-muted">
-          Soy {ariaName}. Aquí no hay juicios, solo un sitio para parar a respirar.
+          Estamos aquí, sin juicios. Cuéntanos cómo estás o elige por dónde empezar.
         </p>
       </div>
       <div className="flex flex-wrap justify-center gap-2 px-4">

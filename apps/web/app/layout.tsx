@@ -1,10 +1,10 @@
 import "./globals.css";
 import { Suspense } from "react";
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Manrope } from "next/font/google";
 import { TopLoader } from "@/components/TopLoader";
 
-const inter = Inter({
+const manrope = Manrope({
   subsets: ["latin"],
   display: "swap"
 });
@@ -42,7 +42,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es" className={inter.className}>
+    <html lang="es" className={manrope.className}>
       <body>
         <Suspense fallback={null}>
           <TopLoader />

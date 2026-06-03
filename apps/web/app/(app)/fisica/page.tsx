@@ -78,7 +78,7 @@ export default async function FisicaPage() {
             kind: "plain",
             label: "Respiración",
             value: "2 min",
-            sub: "Con Aria si lo necesitas"
+            sub: "Con tu equipo si lo necesitas"
           }
         ]}
       />

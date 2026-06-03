@@ -1,5 +1,6 @@
 export const fontFamily = {
   sans: [
+    "Manrope",
     "Inter",
     "-apple-system",
     "BlinkMacSystemFont",

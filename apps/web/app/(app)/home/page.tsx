@@ -19,9 +19,11 @@ import {
   pickMicroAction,
   totalProgress,
   weekFromDay,
+  programPhase,
   computePresenceStreak,
   streakLabel,
-  todayDateString
+  todayDateString,
+  formatShortDateTime
 } from "@renace/core";
 import { AppHeader } from "@/components/AppHeader";
 import { Renace360 } from "@/components/Renace360";
@@ -33,7 +35,8 @@ import { ContinueWatchingShelf } from "@/components/cursos/ContinueWatchingShelf
 import { MyLiveClassesCard } from "@/components/cursos/MyLiveClassesCard";
 import { WelcomeTour } from "@/components/WelcomeTour";
 import { HomeHero } from "@/components/home/HomeHero";
-import { TodayPlanCard, pickWeakestAreaLabel } from "@/components/home/TodayPlanCard";
+import { PhaseCard } from "@/components/home/PhaseCard";
+import { TodayPath } from "@/components/home/TodayPath";
 
 export const metadata: Metadata = { title: "Inicio · RENACE" };
 
@@ -61,6 +64,7 @@ export default async function HomePage() {
   const areas = fillAllAreas(rawAreas, userId);
   const total = totalProgress(areas);
   const week = weekFromDay(profile.day_in_program);
+  const phase = programPhase(profile.day_in_program);
   const action = pickMicroAction({
     dayInProgram: profile.day_in_program,
     lastMood: todayMood?.score ?? null
@@ -80,6 +84,25 @@ export default async function HomePage() {
   const courseHref = topCourse
     ? `/cursos/${topCourse.slug}/leccion/${Math.max(1, (topCourse.enrollment?.current_lesson ?? 0) + 1)}`
     : null;
+
+  const courseForPath =
+    topCourse && courseHref
+      ? {
+          title: topCourse.title,
+          meta: `Lección ${Math.max(1, (topCourse.enrollment?.current_lesson ?? 0) + 1)} de ${topCourse.lessons_count}`,
+          href: courseHref
+        }
+      : null;
+
+  const nextLive = myLiveClasses[0];
+  const liveForPath =
+    nextLive && nextLive.starts_at
+      ? {
+          title: nextLive.title,
+          when: formatShortDateTime(new Date(nextLive.starts_at)),
+          href: "/cursos?tab=live"
+        }
+      : null;
 
   const ariaIntro = buildAriaIntro({
     aliasFirst: profile.alias.split(" ")[0] ?? profile.alias,
@@ -110,7 +133,8 @@ export default async function HomePage() {
             embedded
           />
 
-          <section className="mt-2">
+          <p className="label-eyebrow mt-3 text-brand-700">Tu vida, en equilibrio</p>
+          <section className="mt-1">
             <Renace360
               progress={areas}
               totalPercent={total}
@@ -120,7 +144,11 @@ export default async function HomePage() {
             />
           </section>
 
-          <p className="label-eyebrow mt-4 text-brand-700">Mi día</p>
+          <section className="mt-5">
+            <PhaseCard phase={phase} />
+          </section>
+
+          <p className="label-eyebrow mt-5 text-brand-700">Mi día</p>
 
           <div id="mi-animo" className="scroll-mt-24">
             <HomeHero
@@ -133,12 +161,14 @@ export default async function HomePage() {
             />
           </div>
 
-          <section className="page-inset -mx-5 mt-2 space-y-4 px-5">
-            <TodayPlanCard
+          <section className="page-inset -mx-5 mt-4 space-y-4 px-5">
+            <TodayPath
+              alias={profile.alias.split(" ")[0] ?? profile.alias}
               moodDone={todayMood !== null}
               microDone={microDone}
-              courseHref={courseHref}
-              weakAreaLabel={pickWeakestAreaLabel(areas)}
+              microTitle={action.title}
+              liveClass={liveForPath}
+              course={courseForPath}
             />
             <div id="accion-hoy" className="scroll-mt-24">
               <MicroActionCard action={action} doneToday={microDone} />
@@ -201,7 +231,8 @@ export default async function HomePage() {
       )}
 
       <section className="page-inset">
-        <AriaTeaser ariaName={profile.aria_name} intro={ariaIntro} />
+        <p className="label-eyebrow mb-2 text-brand-700">Estamos contigo</p>
+        <AriaTeaser intro={ariaIntro} />
       </section>
     </div>
   );

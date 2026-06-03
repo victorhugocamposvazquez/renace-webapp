@@ -53,7 +53,7 @@ export function OnboardingFlow({ defaultAlias }: { defaultAlias: string }) {
   const [alias, setAlias] = useState(defaultAlias);
   const [reasons, setReasons] = useState<OnboardingReason[]>([]);
   const [areaFocus, setAreaFocus] = useState<AreaId[]>(["emocional", "fisica"]);
-  const [ariaName, setAriaName] = useState("Aria");
+  const [ariaName] = useState("Aria");
   const [ariaPersist, setAriaPersist] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
@@ -143,7 +143,7 @@ export function OnboardingFlow({ defaultAlias }: { defaultAlias: string }) {
             Tu camino empieza, {firstName || "tú"}.
           </h1>
           <p className="max-w-[28ch] text-base leading-snug text-ink-muted">
-            Hemos preparado tu plan personalizado. Aria ya te está esperando.
+            Hemos preparado tu plan personalizado. Tu equipo de apoyo ya te espera.
           </p>
         </div>
 
@@ -388,40 +388,31 @@ export function OnboardingFlow({ defaultAlias }: { defaultAlias: string }) {
         </section>
       )}
 
-      {/* STEP 5 · Aria + cierre */}
+      {/* STEP 5 · Apoyo + cierre */}
       {step === 5 && (
         <section className="flex flex-1 flex-col gap-4 animate-[fade-in_220ms_ease-out]">
           <h1 className="text-3xl font-bold tracking-tight text-ink-primary">
-            Tu acompañante
+            Tu espacio de apoyo
           </h1>
           <p className="text-base text-ink-muted">
-            Aria te acompañará cuando lo necesites. Puedes ponerle el nombre que
-            quieras. No es un profesional sanitario.
+            En «Apoyo» hay personas del equipo RENACE listas para escucharte y
+            guiarte cuando lo necesites. No estás solo en ningún paso. No sustituye a
+            atención sanitaria.
           </p>
-          <label className="flex flex-col gap-1.5">
-            <span className="text-sm font-semibold text-ink-secondary">Nombre</span>
-            <input
-              value={ariaName}
-              onChange={(e) => setAriaName(e.target.value)}
-              maxLength={30}
-              className="input"
-              aria-label="Nombre de tu acompañante"
-            />
-          </label>
           <label className="flex items-start gap-3 rounded-xl border border-outline-soft bg-elevated p-3">
             <input
               type="checkbox"
               checked={ariaPersist}
               onChange={(e) => setAriaPersist(e.target.checked)}
               className="mt-1 h-5 w-5 accent-brand-600"
-              aria-label="Guardar conversaciones con Aria"
+              aria-label="Guardar tus conversaciones de apoyo"
             />
             <span>
               <span className="block text-base font-semibold text-ink-primary">
-                Guardar conversaciones
+                Guardar tus conversaciones
               </span>
               <span className="text-sm text-ink-muted">
-                Para que Aria recuerde tu contexto. Puedes borrar todo en
+                Para que tu equipo recuerde tu contexto. Puedes borrar todo en
                 cualquier momento.
               </span>
             </span>

@@ -1,17 +1,11 @@
 import Link from "next/link";
-import { IconSparkles, IconArrowRight } from "@tabler/icons-react";
+import { IconMessageHeart, IconArrowRight } from "@tabler/icons-react";
 
-export function AriaTeaser({
-  ariaName,
-  intro
-}: {
-  ariaName: string;
-  intro: string;
-}) {
+export function AriaTeaser({ intro }: { intro?: string }) {
   return (
     <Link
       href="/aria"
-      className="group relative block overflow-hidden rounded-[24px] bg-accent-gradient p-5 text-ink-inverse shadow-accent-glow transition-all duration-200 ease-out-expo hover:brightness-105 active:scale-[0.99]"
+      className="group relative block overflow-hidden rounded-[24px] bg-brand-gradient p-5 text-ink-inverse shadow-brand-glow transition-all duration-200 ease-out-expo hover:brightness-105 active:scale-[0.99]"
     >
       <div
         aria-hidden
@@ -22,13 +16,13 @@ export function AriaTeaser({
           aria-hidden
           className="grid h-12 w-12 place-items-center rounded-2xl bg-white/20 backdrop-blur-sm"
         >
-          <IconSparkles size={22} aria-hidden stroke={2.2} />
+          <IconMessageHeart size={22} aria-hidden stroke={2.2} />
         </span>
         <div className="flex-1">
-          <div className="text-lg font-bold tracking-tight">{ariaName}</div>
           <div className="text-xs font-medium uppercase tracking-[0.14em] text-white/80">
-            Tu acompañante
+            Estamos contigo
           </div>
+          <div className="text-lg font-bold tracking-tight">Equipo RENACE · 24/7</div>
         </div>
         <IconArrowRight
           size={20}
@@ -37,7 +31,8 @@ export function AriaTeaser({
         />
       </div>
       <p className="relative mt-4 text-[15px] font-medium leading-relaxed text-white/95">
-        {intro}
+        {intro ??
+          "¿Quieres hablar? Hay alguien del equipo listo para escucharte. No estás solo en ningún paso."}
       </p>
     </Link>
   );

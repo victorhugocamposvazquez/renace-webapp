@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { IconSparkles, IconCompass, IconHeartHandshake, IconX } from "@tabler/icons-react";
+import { IconMessageHeart, IconCompass, IconHeartHandshake, IconX } from "@tabler/icons-react";
 import { Portal } from "./Portal";
 
 const SEEN_KEY = "renace_welcome_done";
@@ -19,9 +19,9 @@ const STEPS = [
     icon: IconCompass
   },
   {
-    title: "Habla con Aria",
-    body: "Aria es tu acompañante. Está siempre disponible para escucharte o ayudarte con un ejercicio. La tienes en la barra de abajo.",
-    icon: IconSparkles
+    title: "Pide apoyo cuando lo necesites",
+    body: "En \"Apoyo\" hay personas del equipo listas para escucharte o guiarte con un ejercicio. Lo tienes siempre en la barra de abajo.",
+    icon: IconMessageHeart
   }
 ];
 
