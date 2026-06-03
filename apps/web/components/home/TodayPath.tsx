@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
   IconCheck,
@@ -8,8 +8,11 @@ import {
   IconBroadcast,
   IconSchool,
   IconMoon,
-  IconPencil
+  IconPencil,
+  IconX
 } from "@tabler/icons-react";
+import { MOOD_LABELS, type MoodScore } from "@renace/core";
+import { logMoodAction } from "@/app/(app)/emocional/actions";
 
 type StepKind = "mood" | "habit" | "live" | "course" | "diary";
 
@@ -158,6 +161,8 @@ export function TodayPath({
   const [toast, setToast] = useState<{ msg: string; undoIndex: number | null } | null>(
     null
   );
+  const [moodOpen, setMoodOpen] = useState(false);
+  const [moodPending, startMood] = useTransition();
 
   function showToast(msg: string, undoIndex: number | null) {
     setToast({ msg, undoIndex });
@@ -192,6 +197,19 @@ export function TodayPath({
       return next;
     });
     setToast(null);
+  }
+
+  function saveMood(n: MoodScore) {
+    startMood(async () => {
+      const fd = new FormData();
+      fd.set("score", String(n));
+      const res = await logMoodAction(fd);
+      if (res.ok) {
+        setMoodOpen(false);
+        const idx = steps.findIndex((s) => s.kind === "mood");
+        if (idx >= 0) complete(idx);
+      }
+    });
   }
 
   return (
@@ -300,7 +318,9 @@ export function TodayPath({
                     <div className="mt-4 flex gap-2.5">
                       <button
                         type="button"
-                        onClick={() => complete(i, true)}
+                        onClick={() =>
+                          step.kind === "mood" ? setMoodOpen(true) : complete(i, true)
+                        }
                         className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-brand-600 text-sm font-bold text-ink-inverse shadow-brand-glow transition-transform active:scale-[0.97]"
                       >
                         {step.cta}
@@ -375,6 +395,48 @@ export function TodayPath({
                 Deshacer
               </button>
             )}
+          </div>
+        </div>
+      )}
+
+      {moodOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-ink-primary/40 p-4 pb-[max(env(safe-area-inset-bottom),16px)]"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="path-mood-title"
+        >
+          <div className="w-full max-w-[480px] rounded-[24px] bg-elevated p-5 shadow-lift animate-[sheet-in_280ms_ease-out]">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 id="path-mood-title" className="text-lg font-bold text-ink-primary">
+                ¿Cómo te sientes?
+              </h2>
+              <button
+                type="button"
+                onClick={() => setMoodOpen(false)}
+                aria-label="Cerrar"
+                className="tap-target grid place-items-center rounded-full text-ink-muted"
+              >
+                <IconX size={20} aria-hidden />
+              </button>
+            </div>
+            <div className="flex justify-between gap-2">
+              {([1, 2, 3, 4, 5] as MoodScore[]).map((n) => (
+                <button
+                  key={n}
+                  type="button"
+                  disabled={moodPending}
+                  onClick={() => saveMood(n)}
+                  aria-label={MOOD_LABELS[n]?.label}
+                  className="mood-option mood-option-idle flex-1"
+                >
+                  <span className="text-[28px]">{MOOD_LABELS[n]?.emoji}</span>
+                </button>
+              ))}
+            </div>
+            <p className="mt-3 text-center text-xs font-medium text-ink-muted">
+              Se guarda al tocar una cara. No te lleva a ningún sitio.
+            </p>
           </div>
         </div>
       )}
