@@ -1,29 +1,17 @@
 import Link from "next/link";
 import { IconChevronRight, IconTrendingUp } from "@tabler/icons-react";
-import { AREA_THEMES, type AreaId } from "@renace/tokens";
 import type { AreaProgress } from "@renace/supabase";
 
 /**
- * Línea de progreso global de "Tu recuperación".
+ * Resumen del progreso global de "Tu recuperación".
  *
- * Visualmente:
- * 1. Cabecera con el % global grande + label.
- * 2. Una barra principal con gradient brand→accent, rellenada al `totalPercent`.
- * 3. Debajo, una fila de 5 mini-barras (una por área) con el color de cada
- *    área, mostrando su % individual. Tocas una y vas a esa área.
+ * El detalle por área ya se muestra arriba en el pentágono (Renace360), así que
+ * aquí solo damos el número global + estado y los dos accesos del recorrido
+ * (histórico diario y hitos), sin repetir las 5 áreas.
  *
  * El total se calcula como la media de las 5 áreas (igual que totalProgress).
  */
-const AREA_ORDER: AreaId[] = [
-  "emocional",
-  "fisica",
-  "juridica",
-  "laboral",
-  "comunidad"
-];
-
 export function RecoveryProgress({
-  progress,
   totalPercent,
   dayInProgram,
   week
@@ -33,7 +21,6 @@ export function RecoveryProgress({
   dayInProgram: number;
   week: number;
 }) {
-  const byArea = new Map(progress.map((p) => [p.area, p]));
   const status = pickStatus(totalPercent);
 
   return (
@@ -53,13 +40,13 @@ export function RecoveryProgress({
             </span>
           </div>
           <p className="mt-1 text-xs text-ink-subtle">
-            Día {dayInProgram} · Semana {week} · suma de las 5 áreas
+            Día {dayInProgram} · Semana {week} · tus cinco áreas juntas
           </p>
         </div>
       </div>
 
       {/* Barra principal */}
-      <div className="px-5 pt-3">
+      <div className="px-5 pb-4 pt-3">
         <div
           className="h-2.5 overflow-hidden rounded-full bg-outline-soft"
           role="progressbar"
@@ -81,48 +68,6 @@ export function RecoveryProgress({
           />
         </div>
       </div>
-
-      {/* Mini barras por área (clickables) */}
-      <ul
-        role="list"
-        className="mt-4 grid grid-cols-5 gap-1.5 border-t border-outline-soft/60 bg-canvas/60 px-3 py-3"
-      >
-        {AREA_ORDER.map((area) => {
-          const theme = AREA_THEMES[area];
-          const pct = byArea.get(area)?.percent ?? 0;
-          return (
-            <li key={area}>
-              <Link
-                href={`/${area}`}
-                aria-label={`${theme.label}: ${pct}%`}
-                className="group flex flex-col items-stretch gap-1.5 rounded-lg p-1.5 transition-colors hover:bg-elevated active:scale-[0.98]"
-              >
-                <div className="flex h-12 items-end overflow-hidden rounded-md">
-                  <div
-                    className="w-full rounded-md transition-all duration-500 ease-out-expo"
-                    style={{
-                      height: `${Math.max(6, pct)}%`,
-                      background: `linear-gradient(180deg, ${theme.core} 0%, ${theme.core}cc 100%)`
-                    }}
-                    aria-hidden
-                  />
-                </div>
-                <div className="flex flex-col items-center gap-0.5">
-                  <span
-                    className="text-[10px] font-bold leading-none"
-                    style={{ color: theme.text }}
-                  >
-                    {theme.label.slice(0, 3)}
-                  </span>
-                  <span className="text-[10px] font-bold text-ink-muted">
-                    {pct}%
-                  </span>
-                </div>
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
 
       <div className="grid grid-cols-2 border-t border-outline-soft/60">
         <Link

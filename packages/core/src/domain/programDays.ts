@@ -249,7 +249,7 @@ export function buildRecoveryDayTimeline(input: {
     push(t.created_at, {
       kind: "trigger_activation",
       area: "emocional",
-      title: `Disparador activado · ${t.label}`,
+      title: `Momento difícil · ${t.label}`,
       time: formatTime(t.created_at)
     });
   }

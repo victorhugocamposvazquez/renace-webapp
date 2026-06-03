@@ -22,7 +22,7 @@ export function TriggersSection({ triggers }: { triggers: Trigger[] }) {
 
   function submit() {
     if (!label.trim()) {
-      setError("Pon un disparador");
+      setError("Escribe qué te cuesta");
       return;
     }
     startTransition(async () => {
@@ -54,9 +54,9 @@ export function TriggersSection({ triggers }: { triggers: Trigger[] }) {
         <span className="grid h-9 w-9 place-items-center rounded-lg bg-area-emocional-tint text-area-emocional" aria-hidden>
           <IconShieldCheck size={18} aria-hidden />
         </span>
-        <h2 id="triggers-title" className="text-base font-bold text-ink-primary">Prevención de recaídas</h2>
+        <h2 id="triggers-title" className="text-base font-bold text-ink-primary">Lo que te cuesta</h2>
       </div>
-      <p className="mt-1 text-sm text-ink-muted">Nombra lo que te dispara. Saberlo es la mitad del camino.</p>
+      <p className="mt-1 text-sm text-ink-muted">Nombra las situaciones difíciles. Saberlo es la mitad del camino.</p>
 
       <div className="mt-3 flex flex-col gap-2">
         <input
@@ -65,7 +65,7 @@ export function TriggersSection({ triggers }: { triggers: Trigger[] }) {
           maxLength={80}
           placeholder="Una situación, persona o lugar…"
           className="tap-target rounded-lg border border-outline-medium bg-canvas px-3 text-base text-ink-primary outline-none focus:border-area-emocional"
-          aria-label="Nuevo disparador"
+          aria-label="Nueva situación difícil"
         />
         <div className="flex gap-1.5">
           {([1, 2, 3] as TriggerSeverity[]).map((s) => (
@@ -143,7 +143,7 @@ export function TriggersSection({ triggers }: { triggers: Trigger[] }) {
         busy={isPending}
         tone="danger"
         icon={<IconTrash size={22} stroke={2.2} aria-hidden />}
-        title="¿Borrar este disparador?"
+        title="¿Borrar esto?"
         description={
           pendingDelete ? (
             <p>

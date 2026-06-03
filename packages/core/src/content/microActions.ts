@@ -32,7 +32,7 @@ export const DEFAULT_MICRO_ACTIONS: MicroAction[] = [
     id: "paseo",
     title: "Sal a caminar 15 minutos",
     body: "Aunque sea por la manzana. El cuerpo arrastra a la mente.",
-    cta: "Lo apunto",
+    cta: "Ir a Física",
     href: "/fisica",
     areaHint: "fisica"
   },

@@ -91,7 +91,7 @@ export function CravingNowButton({ triggers }: { triggers: Trigger[] }) {
                 </div>
                 {triggers.length > 0 && (
                   <label className="mt-4 flex flex-col gap-1 text-sm">
-                    <span className="font-semibold text-ink-secondary">Disparador (opcional)</span>
+                    <span className="font-semibold text-ink-secondary">¿Qué lo provocó? (opcional)</span>
                     <select
                       value={triggerId}
                       onChange={(e) => setTriggerId(e.target.value)}

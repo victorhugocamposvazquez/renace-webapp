@@ -69,7 +69,7 @@ export function SOSButton({ contacts }: { contacts: TrustedContact[] }) {
                   href="/crisis"
                   className="btn-secondary w-full text-center text-sm"
                 >
-                  Modo apoyo completo
+                  Calmarme ahora paso a paso
                 </a>
                 <a
                   href="tel:024"

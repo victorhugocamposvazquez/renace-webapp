@@ -5,20 +5,22 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { IconSparkles, IconCompass, IconHeartHandshake, IconX } from "@tabler/icons-react";
 import { Portal } from "./Portal";
 
+const SEEN_KEY = "renace_welcome_done";
+
 const STEPS = [
   {
-    title: "Tu círculo 360",
-    body: "Cada área refleja tu avance real. Toca una burbuja para profundizar en emocional, laboral, física y más.",
+    title: "Tus 5 áreas de vida",
+    body: "Arriba ves cinco círculos: lo emocional, físico, legal, laboral y tu red de apoyo. Toca cualquiera para entrar.",
     icon: IconHeartHandshake
   },
   {
-    title: "Tus cursos",
-    body: "Formación práctica con lecciones guiadas. Empieza por Respiración 4-7-8 o Alfabetización digital.",
+    title: "Tu día, paso a paso",
+    body: "En \"Mi día\" tienes tu plan: registra cómo estás y haz una pequeña acción. Con eso ya avanzas.",
     icon: IconCompass
   },
   {
     title: "Habla con Aria",
-    body: "Tu acompañante conoce tu ánimo y puede registrar cómo te sientes. Pruébala desde la pestaña Aria.",
+    body: "Aria es tu acompañante. Está siempre disponible para escucharte o ayudarte con un ejercicio. La tienes en la barra de abajo.",
     icon: IconSparkles
   }
 ];
@@ -30,7 +32,11 @@ export function WelcomeTour() {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    if (params.get("welcome") === "1") {
+    // Se muestra si venimos del onboarding (?welcome=1) o si el usuario aún no
+    // ha visto la guía nunca. Así nadie nuevo se queda sin la explicación.
+    const seen =
+      typeof window !== "undefined" && window.localStorage.getItem(SEEN_KEY) === "1";
+    if (params.get("welcome") === "1" || !seen) {
       setOpen(true);
       setStep(0);
     }
@@ -38,7 +44,14 @@ export function WelcomeTour() {
 
   function close() {
     setOpen(false);
-    router.replace("/home", { scroll: false });
+    try {
+      window.localStorage.setItem(SEEN_KEY, "1");
+    } catch {
+      // localStorage puede no estar disponible; no es crítico.
+    }
+    if (params.get("welcome") === "1") {
+      router.replace("/home", { scroll: false });
+    }
   }
 
   if (!open) return null;

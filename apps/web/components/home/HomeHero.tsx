@@ -43,42 +43,21 @@ export function HomeHero({
           </div>
           <span className="text-[11px] font-medium text-ink-muted">Semana {week} · Ver histórico</span>
         </Link>
-        <StatPill icon={IconTrendingUp} label={`${totalPercent}%`} sub="Recuperación" accent="brand" />
+        <Link
+          href="/recorrido"
+          className="flex min-w-[118px] shrink-0 flex-col gap-1 rounded-2xl border border-brand-200/80 bg-brand-50/80 px-3 py-2.5 shadow-soft backdrop-blur-sm text-brand-800 transition-all hover:border-brand-300 hover:bg-brand-50 active:scale-[0.98]"
+        >
+          <div className="flex items-center justify-between gap-1">
+            <div className="flex items-center gap-1.5">
+              <IconTrendingUp size={14} aria-hidden className="opacity-80" />
+              <span className="text-[13px] font-bold">{totalPercent}%</span>
+            </div>
+            <IconChevronRight size={14} aria-hidden className="opacity-70" />
+          </div>
+          <span className="text-[11px] font-medium opacity-75">Recuperación · Ver</span>
+        </Link>
         <MoodQuickSheet initialScore={todayMoodScore as MoodScore | null} />
       </div>
-    </div>
-  );
-}
-
-function StatPill({
-  icon: Icon,
-  label,
-  sub,
-  accent = "neutral"
-}: {
-  icon: React.ComponentType<{ size?: number; className?: string; "aria-hidden"?: boolean }>;
-  label: string;
-  sub: string;
-  accent?: "brand" | "neutral";
-}) {
-  if (accent === "neutral") {
-    return (
-      <div className="flex min-w-[108px] shrink-0 flex-col gap-1 rounded-2xl border border-outline-soft/80 bg-elevated/80 px-3 py-2.5 shadow-soft backdrop-blur-sm">
-        <div className="flex items-center gap-1.5">
-          <Icon size={14} aria-hidden className="text-ink-subtle opacity-80" />
-          <span className="text-[13px] font-bold text-ink-primary">{label}</span>
-        </div>
-        <span className="text-[11px] font-medium text-ink-muted">{sub}</span>
-      </div>
-    );
-  }
-  return (
-    <div className="flex min-w-[108px] shrink-0 flex-col gap-1 rounded-2xl border border-brand-200/80 bg-brand-50/80 px-3 py-2.5 shadow-soft backdrop-blur-sm text-brand-800">
-      <div className="flex items-center gap-1.5">
-        <Icon size={14} aria-hidden className="opacity-80" />
-        <span className="text-[13px] font-bold">{label}</span>
-      </div>
-      <span className="text-[11px] font-medium opacity-75">{sub}</span>
     </div>
   );
 }

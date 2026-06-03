@@ -16,7 +16,7 @@ type Mode = "magic" | "password";
 
 const MODES: { id: Mode; label: string; icon: typeof IconMail }[] = [
   { id: "password", label: "Contraseña", icon: IconLock },
-  { id: "magic", label: "Magic link", icon: IconSparkles }
+  { id: "magic", label: "Enlace por correo", icon: IconSparkles }
 ];
 
 export function LoginForm() {
@@ -163,7 +163,7 @@ export function LoginForm() {
             </span>
           ) : (
             <>
-              {mode === "magic" ? "Recibir enlace mágico" : "Entrar"}
+              {mode === "magic" ? "Recibir enlace por correo" : "Entrar"}
               <IconArrowRight size={18} stroke={2.4} aria-hidden />
             </>
           )}

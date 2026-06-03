@@ -7,26 +7,26 @@ export const AREA_META: Record<
   emocional: {
     label: "Emocional",
     subtitle: "Tu espacio interior",
-    eyebrow: "Área 1 · Núcleo"
+    eyebrow: "Tu bienestar"
   },
   fisica: {
     label: "Física",
     subtitle: "Cuerpo y mente van unidos",
-    eyebrow: "Área 2 · Cuerpo y mente"
+    eyebrow: "Tu cuerpo"
   },
   juridica: {
     label: "Jurídica",
     subtitle: "Tu caso, paso a paso",
-    eyebrow: "Área 3 · Asesoramiento"
+    eyebrow: "Tu situación legal"
   },
   laboral: {
     label: "Laboral",
     subtitle: "Tu camino al empleo",
-    eyebrow: "Área 4 · Reinserción"
+    eyebrow: "Tu empleo"
   },
   comunidad: {
     label: "Red",
     subtitle: "No estás solo en esto",
-    eyebrow: "Apoyo entre iguales"
+    eyebrow: "Tu red de apoyo"
   }
 };

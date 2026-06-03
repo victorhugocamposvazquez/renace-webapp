@@ -88,10 +88,14 @@ export function SignupForm() {
         <h2 className="text-xl font-semibold text-ink-primary">
           Cuenta creada · revisa tu correo
         </h2>
-        <p className="max-w-[28ch] text-sm leading-snug text-ink-muted">
+        <p className="max-w-[30ch] text-sm leading-snug text-ink-muted">
           Te hemos enviado un enlace a{" "}
           <strong className="text-ink-primary">{email}</strong> para confirmar
           que es tuyo. Ábrelo desde el mismo dispositivo para entrar.
+        </p>
+        <p className="max-w-[30ch] text-sm leading-snug text-ink-muted">
+          Después te haremos unas preguntas rápidas para preparar tu espacio. No
+          hay respuestas buenas ni malas.
         </p>
         <Link
           href={{ pathname: "/login", query: { email } }}

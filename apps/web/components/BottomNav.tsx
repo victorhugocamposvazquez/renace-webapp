@@ -32,7 +32,16 @@ const TABS: Tab[] = [
     label: "Inicio",
     shortLabel: "Inicio",
     icon: IconHome2,
-    matches: (p) => p === "/home"
+    // Inicio agrupa la home y las áreas/recorrido que cuelgan de ella, para que
+    // el usuario nunca vea la barra sin ninguna pestaña marcada.
+    matches: (p) =>
+      p === "/home" ||
+      p.startsWith("/emocional") ||
+      p.startsWith("/fisica") ||
+      p.startsWith("/juridica") ||
+      p.startsWith("/laboral") ||
+      p.startsWith("/recorrido") ||
+      p.startsWith("/crisis")
   },
   {
     href: "/cursos",

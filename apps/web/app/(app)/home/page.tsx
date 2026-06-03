@@ -1,5 +1,7 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
+import Link from "next/link";
+import { IconSchool, IconChevronRight } from "@tabler/icons-react";
 import { requireUser } from "@/lib/auth";
 import {
   getProfile,
@@ -120,14 +122,16 @@ export default async function HomePage() {
 
           <p className="label-eyebrow mt-4 text-brand-700">Mi día</p>
 
-          <HomeHero
-            dayInProgram={profile.day_in_program}
-            week={week}
-            totalPercent={total}
-            todayMoodScore={todayMood?.score ?? null}
-            streak={streak}
-            streakText={streakText}
-          />
+          <div id="mi-animo" className="scroll-mt-24">
+            <HomeHero
+              dayInProgram={profile.day_in_program}
+              week={week}
+              totalPercent={total}
+              todayMoodScore={todayMood?.score ?? null}
+              streak={streak}
+              streakText={streakText}
+            />
+          </div>
 
           <section className="page-inset -mx-5 mt-2 space-y-4 px-5">
             <TodayPlanCard
@@ -136,15 +140,40 @@ export default async function HomePage() {
               courseHref={courseHref}
               weakAreaLabel={pickWeakestAreaLabel(areas)}
             />
-            <MicroActionCard action={action} doneToday={microDone} />
+            <div id="accion-hoy" className="scroll-mt-24">
+              <MicroActionCard action={action} doneToday={microDone} />
+            </div>
           </section>
 
-          {inProgressCourses.length > 0 && (
+          {inProgressCourses.length > 0 ? (
             <section className="mt-4">
               <ContinueWatchingShelf
                 courses={inProgressCourses}
                 subtitle="Continúa donde lo dejaste"
               />
+            </section>
+          ) : (
+            <section className="mt-4">
+              <Link
+                href="/cursos"
+                className="flex items-center gap-3 rounded-2xl border border-dashed border-outline-medium bg-elevated/70 px-4 py-3.5 active:scale-[0.99]"
+              >
+                <span
+                  aria-hidden
+                  className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-700"
+                >
+                  <IconSchool size={20} aria-hidden />
+                </span>
+                <span className="flex-1">
+                  <span className="block text-sm font-bold text-ink-primary">
+                    Empieza tu primer curso
+                  </span>
+                  <span className="block text-xs text-ink-subtle">
+                    Lecciones cortas y guiadas. Elige una y empieza hoy.
+                  </span>
+                </span>
+                <IconChevronRight size={18} aria-hidden className="text-brand-600" />
+              </Link>
             </section>
           )}
         </div>

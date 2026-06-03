@@ -58,6 +58,7 @@ export function Renace360({
   const byArea = new Map(progress.map((p) => [p.area, p]));
   const ringCircumference = 2 * Math.PI * RING_RADIUS_SVG;
   return (
+    <div className="flex flex-col items-center">
     <div className="relative mx-auto aspect-square w-full max-w-[320px]">
       <svg
         viewBox="0 0 360 360"
@@ -111,8 +112,8 @@ export function Renace360({
       ))}
 
       <Link
-        href="/perfil"
-        aria-label={`Tu perfil, ${alias}. Día ${dayInProgram}, semana ${week}, ${totalPercent}% de avance.`}
+        href="/recorrido"
+        aria-label={`Ver tu recorrido. Día ${dayInProgram}, semana ${week}, ${totalPercent}% de avance.`}
         className="absolute left-1/2 top-1/2 z-10 flex h-[36%] w-[36%] -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full text-ink-inverse"
       >
         <span
@@ -128,9 +129,13 @@ export function Renace360({
           aria-hidden
           className="mt-1 text-[10px] font-semibold tracking-wider text-white/85"
         >
-          día {dayInProgram} · sem {week}
+          Día {dayInProgram} · Semana {week}
         </span>
       </Link>
+      </div>
+      <p className="mt-2 text-center text-xs text-ink-subtle">
+        Toca un área para entrar
+      </p>
     </div>
   );
 }

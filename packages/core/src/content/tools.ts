@@ -19,8 +19,8 @@ export const EMOCIONAL_TOOLS: AreaTool[] = [
   },
   {
     id: "triggers",
-    label: "Prevención de recaídas",
-    subtitle: "Tus disparadores",
+    label: "Lo que te cuesta",
+    subtitle: "Tus situaciones difíciles",
     href: "/emocional#triggers",
     badge: "Alerta"
   },

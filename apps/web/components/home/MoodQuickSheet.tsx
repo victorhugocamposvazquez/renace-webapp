@@ -45,10 +45,10 @@ export function MoodQuickSheet({
       >
         <div className="flex items-center gap-1.5">
           <IconMoodSmile size={14} aria-hidden className="opacity-80" />
-          <span className="text-[13px] font-bold">{moodLabel ?? "Sin ánimo"}</span>
+          <span className="text-[13px] font-bold">{moodLabel ?? "¿Cómo estás?"}</span>
         </div>
         <span className="text-[11px] font-medium opacity-75">
-          {moodLabel ? "Hoy · Toca para cambiar" : "Regístralo · 1 toque"}
+          {moodLabel ? "Hoy · Toca para cambiar" : "Toca para registrarlo"}
         </span>
       </button>
 

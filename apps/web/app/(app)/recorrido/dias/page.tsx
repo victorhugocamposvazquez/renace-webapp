@@ -86,7 +86,7 @@ export default async function RecoveryDaysPage() {
       label:
         (t.trigger as { label?: string } | null)?.label ??
         (Array.isArray(t.trigger) ? t.trigger[0]?.label : undefined) ??
-        "Disparador"
+        "Situación difícil"
     })),
     milestonesDone: milestones
       .filter((m) => m.status === "done")
