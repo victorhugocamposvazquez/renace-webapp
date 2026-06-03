@@ -413,12 +413,12 @@ export function TodayPath({
 
       {moodOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-end justify-center bg-ink-primary/40 p-4 pb-[max(env(safe-area-inset-bottom),16px)]"
+          className="fixed inset-0 z-50 flex items-end justify-center bg-ink-primary/40 p-4 pb-[calc(env(safe-area-inset-bottom)_+_88px)]"
           role="dialog"
           aria-modal="true"
           aria-labelledby="path-mood-title"
         >
-          <div className="w-full max-w-[480px] rounded-[24px] bg-elevated p-5 shadow-lift animate-[sheet-in_280ms_ease-out]">
+          <div className="max-h-[80dvh] w-full max-w-[480px] overflow-y-auto overscroll-contain rounded-[24px] bg-elevated p-5 shadow-lift animate-[sheet-in_280ms_ease-out]">
             <div className="mb-1 flex items-center justify-between">
               <h2 id="path-mood-title" className="text-lg font-bold text-ink-primary">
                 ¿Cómo te sientes?
