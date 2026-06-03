@@ -84,7 +84,7 @@ export default async function FisicaPage() {
       />
 
       <Link
-        href="/aria?intent=breathing"
+        href="/respira"
         className="block rounded-2xl bg-brand-600 p-4 text-ink-inverse active:opacity-90"
       >
         <div className="flex items-center gap-2">
@@ -92,7 +92,7 @@ export default async function FisicaPage() {
           <h2 className="text-md font-bold">¿Sientes ansiedad alta?</h2>
         </div>
         <p className="mt-2 text-base font-medium">
-          Hagamos una respiración guiada de 2 minutos con Aria.
+          Hagamos una respiración guiada de 2 minutos.
         </p>
         <span className="btn-white mt-3 inline-flex items-center justify-center text-area-fisica-text">
           Empezar ahora

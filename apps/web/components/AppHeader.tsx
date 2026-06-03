@@ -45,11 +45,11 @@ export function AppHeader({
         <div className="flex shrink-0 items-center gap-2">
           <SOSButton contacts={trustedContacts} />
           <Link
-            href="/perfil#notifications"
+            href="/recorrido/dias"
             aria-label={
               notifications > 0
-                ? `Notificaciones (${notifications} nuevas)`
-                : "Notificaciones"
+                ? "Tienes algo pendiente hoy. Ver tu día"
+                : "Ver tu día"
             }
             className="tap-target relative grid h-11 w-11 place-items-center rounded-2xl border border-outline-soft/80 bg-elevated/90 shadow-soft backdrop-blur-sm transition-transform duration-200 active:scale-95"
           >

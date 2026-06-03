@@ -36,7 +36,14 @@ export function ProgressControls({
               {currentLesson} / {totalLessons} lecciones
             </p>
           </div>
-          <div className="mt-2 h-2 overflow-hidden rounded-full bg-outline-soft">
+          <div
+            className="mt-2 h-2 overflow-hidden rounded-full bg-outline-soft"
+            role="progressbar"
+            aria-valuenow={progress}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label={`Progreso del curso: ${progress}%`}
+          >
             <div
               className="h-full rounded-full transition-all duration-500"
               style={{

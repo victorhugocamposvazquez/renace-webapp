@@ -4,7 +4,6 @@ import { useTransition, useState } from "react";
 import {
   IconHeart,
   IconHeartFilled,
-  IconMessage,
   IconTrash
 } from "@tabler/icons-react";
 import type { CommunityPostWithAuthor } from "@renace/supabase";
@@ -134,10 +133,6 @@ export function PostCard({
           )}
           <span>{likes}</span>
         </button>
-        <span className="inline-flex items-center gap-1.5">
-          <IconMessage size={18} aria-hidden />
-          <span>0</span>
-        </span>
       </footer>
 
       <ConfirmModal

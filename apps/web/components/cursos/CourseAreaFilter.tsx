@@ -68,7 +68,7 @@ function FilterChip({
       role="tab"
       aria-selected={active}
       className={
-        "inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-2 text-[13px] font-semibold transition-all " +
+        "inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-2 text-[13px] font-semibold transition-all " +
         (active
           ? "shadow-soft"
           : "border-outline-soft bg-elevated text-ink-secondary hover:border-outline-medium")

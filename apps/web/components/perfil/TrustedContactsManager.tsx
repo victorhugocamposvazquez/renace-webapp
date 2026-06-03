@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { IconHeartHandshake, IconTrash, IconPlus } from "@tabler/icons-react";
 import type { TrustedContact } from "@renace/supabase";
 import {
@@ -10,6 +11,7 @@ import {
 import { ConfirmModal } from "@/components/ConfirmModal";
 
 export function TrustedContactsManager({ contacts }: { contacts: TrustedContact[] }) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -36,6 +38,7 @@ export function TrustedContactsManager({ contacts }: { contacts: TrustedContact[
         setPhone("");
         setRelation("");
         setOpen(false);
+        router.refresh();
       }
     });
   }
@@ -47,6 +50,7 @@ export function TrustedContactsManager({ contacts }: { contacts: TrustedContact[
       fd.set("id", pendingDelete.id);
       await deleteTrustedContactAction(fd);
       setPendingDelete(null);
+      router.refresh();
     });
   }
 

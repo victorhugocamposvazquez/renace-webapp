@@ -34,6 +34,29 @@ export async function listUpcomingEvents(
   }));
 }
 
+/** Eventos a los que el usuario se apuntó, con la fecha en que lo hizo. */
+export async function listAttendedEventActivity(
+  client: RenaceClient,
+  userId: string
+): Promise<{ created_at: string; title: string }[]> {
+  const { data, error } = await client
+    .from("event_attendees")
+    .select("created_at, event:live_events(title)")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  type RawRow = {
+    created_at: string;
+    event: { title: string } | { title: string }[] | null;
+  };
+  return (data as unknown as RawRow[] | null ?? []).map((row) => ({
+    created_at: row.created_at,
+    title:
+      (Array.isArray(row.event) ? row.event[0]?.title : row.event?.title) ??
+      "Evento de la Red"
+  }));
+}
+
 export async function toggleAttendance(
   client: RenaceClient,
   userId: string,

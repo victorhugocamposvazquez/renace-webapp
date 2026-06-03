@@ -106,7 +106,11 @@ export function AriaChat({
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4">
         {visibleMessages.length === 0 ? (
-          <Welcome aliasFirst={aliasFirst} ariaName={ariaName} />
+          <Welcome
+            aliasFirst={aliasFirst}
+            ariaName={ariaName}
+            onSend={(prompt) => void append({ role: "user", content: prompt })}
+          />
         ) : (
           <ol role="log" aria-live="polite" className="flex flex-col gap-3">
             {visibleMessages.map((m) => (
@@ -182,9 +186,22 @@ export function AriaChat({
   );
 }
 
-function Welcome({ aliasFirst, ariaName }: { aliasFirst: string; ariaName: string }) {
+function Welcome({
+  aliasFirst,
+  ariaName,
+  onSend
+}: {
+  aliasFirst: string;
+  ariaName: string;
+  onSend: (prompt: string) => void;
+}) {
   return (
-    <div className="flex h-full flex-col items-center justify-center gap-4 text-center">
+    <div
+      role="region"
+      aria-label="Bienvenida de tu acompañante"
+      aria-live="polite"
+      className="flex h-full flex-col items-center justify-center gap-4 text-center"
+    >
       <div
         aria-hidden
         className="grid h-16 w-16 place-items-center rounded-2xl bg-brand-100 text-brand-600"
@@ -199,7 +216,7 @@ function Welcome({ aliasFirst, ariaName }: { aliasFirst: string; ariaName: strin
       </div>
       <div className="flex flex-wrap justify-center gap-2 px-4">
         {SUGGESTIONS.map((s) => (
-          <SuggestionPill key={s.id} label={s.label} prompt={s.prompt} />
+          <SuggestionPill key={s.id} label={s.label} prompt={s.prompt} onSend={onSend} />
         ))}
       </div>
     </div>
@@ -213,23 +230,20 @@ const SUGGESTIONS = [
   { id: "diario", label: "Anotar en el diario", prompt: "Quiero apuntar algo en mi diario, ¿me ayudas a ordenarlo?" }
 ];
 
-function SuggestionPill({ label, prompt }: { label: string; prompt: string }) {
+function SuggestionPill({
+  label,
+  prompt,
+  onSend
+}: {
+  label: string;
+  prompt: string;
+  onSend: (prompt: string) => void;
+}) {
   return (
     <button
       type="button"
-      onClick={() => {
-        const target = document.querySelector<HTMLInputElement>("input[aria-label='Tu mensaje']");
-        if (target) {
-          const setter = Object.getOwnPropertyDescriptor(
-            window.HTMLInputElement.prototype,
-            "value"
-          )?.set;
-          setter?.call(target, prompt);
-          target.dispatchEvent(new Event("input", { bubbles: true }));
-          target.focus();
-        }
-      }}
-      className="rounded-full border border-outline-medium bg-elevated px-3 py-2 text-sm font-semibold text-ink-secondary"
+      onClick={() => onSend(prompt)}
+      className="tap-target inline-flex min-h-[44px] items-center rounded-full border border-outline-medium bg-elevated px-4 text-sm font-semibold text-ink-secondary transition-transform active:scale-95"
     >
       {label}
     </button>

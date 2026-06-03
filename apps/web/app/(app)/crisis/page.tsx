@@ -29,13 +29,13 @@ export default async function CrisisPage() {
       </header>
 
       <div className="flex flex-1 flex-col gap-3">
-        <Link href="/aria?intent=breathing" className="card-interactive flex items-center gap-4 p-4">
+        <Link href="/respira" className="card-interactive flex items-center gap-4 p-4">
           <span className="grid h-12 w-12 place-items-center rounded-2xl bg-brand-gradient text-ink-inverse">
             <IconWind size={22} aria-hidden />
           </span>
           <div>
             <p className="font-bold text-ink-primary">Respirar 2 minutos</p>
-            <p className="text-sm text-ink-muted">Guía 4-7-8 con Aria</p>
+            <p className="text-sm text-ink-muted">Ejercicio guiado 4-7-8</p>
           </div>
         </Link>
 
@@ -79,7 +79,7 @@ export default async function CrisisPage() {
           className="rounded-2xl border border-state-danger/30 bg-state-danger/5 px-4 py-4 text-center"
         >
           <p className="text-sm font-bold text-state-danger">Emergencia · 024</p>
-          <p className="mt-1 text-xs text-ink-muted">Línea de atención a conductas adictivas (España)</p>
+          <p className="mt-1 text-xs text-ink-muted">Línea de atención a la conducta suicida · 24 h, gratuita (España)</p>
         </a>
       </div>
 

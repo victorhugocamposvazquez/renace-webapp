@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import {
-  IconClockHour3,
-  IconPlayerPlayFilled
-} from "@tabler/icons-react";
+import { IconClockHour3 } from "@tabler/icons-react";
 import { requireUser } from "@/lib/auth";
 import { getCourseBySlug } from "@renace/supabase";
 import {
@@ -67,11 +64,18 @@ export default async function LessonPage({ params }: Props) {
         <h1 className="mt-1 text-2xl font-bold text-ink-primary">{lesson.title}</h1>
         <p className="mt-2 inline-flex items-center gap-1.5 text-xs text-ink-subtle">
           <IconClockHour3 size={13} aria-hidden />
-          {lesson.durationMin} min · {lesson.type === "video" ? "Vídeo" : lesson.type === "audio" ? "Audio guiado" : "Lectura"}
+          {lesson.durationMin} min · Lectura guiada
         </p>
       </header>
 
-      <div className="h-1.5 overflow-hidden rounded-full bg-outline-soft">
+      <div
+        className="h-1.5 overflow-hidden rounded-full bg-outline-soft"
+        role="progressbar"
+        aria-valuenow={Math.round((lessonNum / lessons.length) * 100)}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label={`Lección ${lessonNum} de ${lessons.length}`}
+      >
         <div
           className="h-full rounded-full transition-all"
           style={{
@@ -88,29 +92,6 @@ export default async function LessonPage({ params }: Props) {
             {renderParagraph(para)}
           </p>
         ))}
-
-        {lesson.type !== "text" && (
-          <div
-            className="flex items-center gap-3 rounded-xl border border-outline-soft bg-canvas px-4 py-5"
-            style={{ borderColor: `${course.accent_color}44` }}
-          >
-            <span
-              className="grid h-12 w-12 place-items-center rounded-full text-ink-inverse"
-              style={{ background: course.accent_color }}
-            >
-              <IconPlayerPlayFilled size={18} aria-hidden />
-            </span>
-            <div>
-              <p className="text-sm font-bold text-ink-primary">
-                {lesson.type === "audio" ? "Audio guiado" : "Contenido multimedia"}
-              </p>
-              <p className="text-xs text-ink-subtle">
-                Lee la guía de arriba con calma. Tómate {lesson.durationMin} minutos y marca la
-                lección como vista cuando termines.
-              </p>
-            </div>
-          </div>
-        )}
       </article>
 
       {enrolled ? (

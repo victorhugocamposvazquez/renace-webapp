@@ -21,6 +21,27 @@ export async function getActiveLegalCase(
   return data;
 }
 
+/**
+ * Garantiza que el usuario tenga un caso abierto. Si ya existe uno
+ * (open/in_progress) lo devuelve; si no, crea uno ligero en estado
+ * `in_progress` ("en revisión") con el título indicado.
+ */
+export async function ensureOpenLegalCase(
+  client: RenaceClient,
+  userId: string,
+  title: string
+): Promise<LegalCase> {
+  const existing = await getActiveLegalCase(client, userId);
+  if (existing) return existing;
+  const { data, error } = await client
+    .from("legal_cases")
+    .insert({ user_id: userId, title, status: "in_progress" })
+    .select("*")
+    .single();
+  if (error) throw error;
+  return data;
+}
+
 export async function listConsultRequests(
   client: RenaceClient,
   userId: string

@@ -69,7 +69,7 @@ export function SOSButton({ contacts }: { contacts: TrustedContact[] }) {
                   href="/crisis"
                   className="btn-secondary w-full text-center text-sm"
                 >
-                  Calmarme ahora paso a paso
+                  Ir a modo apoyo
                 </a>
                 <a
                   href="tel:024"
@@ -79,7 +79,7 @@ export function SOSButton({ contacts }: { contacts: TrustedContact[] }) {
                   }}
                   className="tap-target inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3.5 text-md font-semibold text-ink-inverse transition-transform duration-200 active:scale-[0.98]"
                 >
-                  <IconPhone size={18} aria-hidden /> 024 · Crisis emocional
+                  <IconPhone size={18} aria-hidden /> 024 · Atención a la conducta suicida
                 </a>
                 {contacts.length === 0 ? (
                   <p className="rounded-lg border border-outline-soft bg-canvas p-3 text-sm text-ink-muted">

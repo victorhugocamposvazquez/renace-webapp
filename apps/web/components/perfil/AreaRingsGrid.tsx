@@ -4,6 +4,7 @@ import {
   IconActivity,
   IconScale,
   IconBriefcase,
+  IconUsers,
   IconChevronRight
 } from "@tabler/icons-react";
 import type { AreaProgress } from "@renace/supabase";
@@ -11,13 +12,15 @@ import type { AreaId } from "@renace/tokens";
 import { AREA_THEMES } from "@renace/tokens";
 import { Ring } from "@/components/Ring";
 
-const AREA_ICON: Partial<
-  Record<AreaId, React.ComponentType<{ size?: number; "aria-hidden"?: boolean }>>
+const AREA_ICON: Record<
+  AreaId,
+  React.ComponentType<{ size?: number; "aria-hidden"?: boolean }>
 > = {
   emocional: IconHeartHandshake,
   fisica: IconActivity,
   juridica: IconScale,
-  laboral: IconBriefcase
+  laboral: IconBriefcase,
+  comunidad: IconUsers
 };
 
 const AREA_HREF: Record<AreaId, string> = {
@@ -31,19 +34,19 @@ const AREA_HREF: Record<AreaId, string> = {
 const STATUS_LABEL: Record<AreaProgress["status"], string> = {
   on_track: "En camino",
   attention: "Atención",
-  blocked: "Bloqueado",
+  blocked: "Atención",
   done: "Hecho"
 };
 
 export function AreaRingsGrid({ progress }: { progress: AreaProgress[] }) {
-  const four = (["emocional", "fisica", "juridica", "laboral"] as AreaId[]).map(
-    (id) => ({ id, row: progress.find((p) => p.area === id) ?? null })
-  );
+  const areas = (
+    ["emocional", "fisica", "juridica", "laboral", "comunidad"] as AreaId[]
+  ).map((id) => ({ id, row: progress.find((p) => p.area === id) ?? null }));
   return (
     <div className="grid grid-cols-2 gap-2.5">
-      {four.map(({ id, row }) => {
+      {areas.map(({ id, row }) => {
         const theme = AREA_THEMES[id];
-        const Icon = AREA_ICON[id]!;
+        const Icon = AREA_ICON[id];
         const percent = row?.percent ?? 0;
         const status = row?.status ?? "on_track";
         return (

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import {
   IconCreditCard,
   IconHomeHeart,
@@ -29,6 +30,7 @@ const CATEGORY_ICON: Record<ConsultCategory, React.ComponentType<{ size?: number
 };
 
 export function ConsultForm() {
+  const router = useRouter();
   const [category, setCategory] = useState<ConsultCategory>("debt");
   const [body, setBody] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -58,6 +60,7 @@ export function ConsultForm() {
         setSent(true);
         setBody("");
         setConfirmOpen(false);
+        router.refresh();
       }
     });
   }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import Link from "next/link";
 import { IconHeartBroken, IconX } from "@tabler/icons-react";
 import type { Trigger } from "@renace/supabase";
@@ -13,6 +13,20 @@ export function CravingNowButton({ triggers }: { triggers: Trigger[] }) {
   const [note, setNote] = useState("");
   const [done, setDone] = useState(false);
   const [isPending, startTransition] = useTransition();
+
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setOpen(false);
+    }
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
 
   function submit() {
     startTransition(async () => {
@@ -45,15 +59,25 @@ export function CravingNowButton({ triggers }: { triggers: Trigger[] }) {
         <div
           className="fixed inset-0 z-50 flex items-end justify-center bg-ink-primary/40 p-4 pb-[max(env(safe-area-inset-bottom),16px)]"
           role="dialog"
+          aria-modal="true"
           aria-labelledby="craving-title"
+          onClick={() => setOpen(false)}
         >
-          <div className="w-full max-w-[480px] rounded-[24px] bg-elevated p-5 shadow-lift">
+          <div
+            className="w-full max-w-[480px] rounded-[24px] bg-elevated p-5 shadow-lift"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="mb-3 flex items-center justify-between">
               <h2 id="craving-title" className="text-lg font-bold text-ink-primary">
                 Momento difícil
               </h2>
-              <button type="button" onClick={() => setOpen(false)} aria-label="Cerrar">
-                <IconX size={20} />
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                aria-label="Cerrar"
+                className="tap-target -mr-2 grid place-items-center rounded-full text-ink-subtle"
+              >
+                <IconX size={20} aria-hidden />
               </button>
             </div>
             {done ? (
@@ -64,8 +88,8 @@ export function CravingNowButton({ triggers }: { triggers: Trigger[] }) {
                 <Link href="/crisis" className="btn-primary">
                   Ir a modo apoyo
                 </Link>
-                <Link href="/aria?intent=breathing" className="btn-secondary text-sm">
-                  Respirar con Aria
+                <Link href="/respira" className="btn-secondary text-sm">
+                  Respirar 2 minutos
                 </Link>
               </div>
             ) : (

@@ -35,7 +35,7 @@ export default async function ComunidadPage() {
         </ul>
       )}
 
-      <h2 className="label-eyebrow">Foro</h2>
+      <h2 className="label-eyebrow">Red</h2>
       <Composer />
 
       {posts.length === 0 ? (

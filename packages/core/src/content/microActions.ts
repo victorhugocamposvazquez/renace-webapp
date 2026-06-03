@@ -17,7 +17,7 @@ export const DEFAULT_MICRO_ACTIONS: MicroAction[] = [
     title: "Respira 2 minutos",
     body: "Bajamos el ritmo. Inhalar 4, mantener 7, exhalar 8.",
     cta: "Empezar respiración",
-    href: "/aria?intent=breathing",
+    href: "/respira",
     areaHint: "emocional"
   },
   {

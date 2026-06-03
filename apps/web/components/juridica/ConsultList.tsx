@@ -75,9 +75,9 @@ export function ConsultList({ consults }: { consults: ConsultRequest[] }) {
                     type="button"
                     onClick={() => setPendingId(c.id)}
                     aria-label="Borrar consulta"
-                    className="tap-target inline-flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-semibold text-ink-subtle transition-colors hover:text-state-danger"
+                    className="tap-target inline-flex min-h-[44px] items-center gap-1 rounded-full px-3 text-[12px] font-semibold text-ink-subtle transition-colors hover:text-state-danger"
                   >
-                    <IconTrash size={14} stroke={2} aria-hidden /> Borrar
+                    <IconTrash size={15} stroke={2} aria-hidden /> Borrar
                   </button>
                 )}
               </div>

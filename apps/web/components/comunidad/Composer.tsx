@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { createPostAction } from "@/app/(app)/comunidad/actions";
 
 export function Composer() {
+  const router = useRouter();
   const [body, setBody] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -19,7 +21,10 @@ export function Composer() {
       fd.set("body", body.trim());
       const result = await createPostAction(fd);
       if (!result.ok) setError(result.error);
-      else setBody("");
+      else {
+        setBody("");
+        router.refresh();
+      }
     });
   }
 

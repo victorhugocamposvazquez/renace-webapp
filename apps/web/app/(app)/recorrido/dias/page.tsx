@@ -14,6 +14,7 @@ import {
   listRecentCravings,
   listTriggerActivations,
   listMilestones,
+  listAttendedEventActivity,
   hasWeeklyCheckinThisWeek,
   getWeekActivitySummary
 } from "@renace/supabase";
@@ -38,6 +39,7 @@ export default async function RecoveryDaysPage() {
     cravings,
     triggerActivations,
     milestones,
+    attendedEvents,
     weekCheckinDone,
     weekSummary
   ] = await Promise.all([
@@ -52,6 +54,7 @@ export default async function RecoveryDaysPage() {
     listRecentCravings(client, userId, 60),
     listTriggerActivations(client, userId, 60),
     listMilestones(client, userId),
+    listAttendedEventActivity(client, userId),
     hasWeeklyCheckinThisWeek(client, userId),
     getWeekActivitySummary(client, userId)
   ]);
@@ -90,7 +93,8 @@ export default async function RecoveryDaysPage() {
     })),
     milestonesDone: milestones
       .filter((m) => m.status === "done")
-      .map((m) => ({ created_at: m.created_at, title: m.title }))
+      .map((m) => ({ created_at: m.created_at, title: m.title })),
+    events: attendedEvents
   });
 
   const activeDays = days.filter((d) => d.hadActivity).length;

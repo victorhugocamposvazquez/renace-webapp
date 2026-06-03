@@ -1,8 +1,12 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { ConsultRequestInputSchema } from "@renace/core";
-import { createConsultRequest, deleteConsultRequest } from "@renace/supabase";
+import { ConsultRequestInputSchema, CONSULT_CATEGORY_LABEL } from "@renace/core";
+import {
+  createConsultRequest,
+  deleteConsultRequest,
+  ensureOpenLegalCase
+} from "@renace/supabase";
 import { requireUser } from "@/lib/auth";
 import { syncProgressAndRevalidate } from "@/lib/progress";
 
@@ -16,7 +20,15 @@ export async function submitConsultRequestAction(formData: FormData) {
     return { ok: false as const, error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
   }
   await createConsultRequest(client, userId, parsed.data);
+  // Abrimos un expediente ligero para que la promesa "abriremos un expediente"
+  // se cumpla en cuanto el usuario envía su primera consulta.
+  await ensureOpenLegalCase(
+    client,
+    userId,
+    `Consulta: ${CONSULT_CATEGORY_LABEL[parsed.data.category]}`
+  ).catch(() => undefined);
   await syncProgressAndRevalidate(client, userId);
+  revalidatePath("/juridica");
   return { ok: true as const };
 }
 

@@ -66,7 +66,14 @@ export function CourseCard({
         )}
         {/* Progress bar dentro del poster */}
         {inProgress && (
-          <div className="absolute inset-x-2 bottom-2 h-1.5 overflow-hidden rounded-full bg-black/30">
+          <div
+            className="absolute inset-x-2 bottom-2 h-1.5 overflow-hidden rounded-full bg-black/30"
+            role="progressbar"
+            aria-valuenow={progress}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label={`Progreso del curso: ${progress}%`}
+          >
             <div
               className="h-full bg-white"
               style={{ width: `${progress}%` }}
@@ -89,7 +96,7 @@ export function CourseCard({
           <IconClockHour3 size={12} aria-hidden />
           <span>{formatDuration(course.total_minutes)}</span>
           <span aria-hidden>·</span>
-          <span>{course.lessons_count} lec.</span>
+          <span>{course.lessons_count} lecciones</span>
           {enrolled?.reminder_set && (
             <>
               <span aria-hidden>·</span>

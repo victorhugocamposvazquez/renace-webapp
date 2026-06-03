@@ -11,7 +11,7 @@ export const metadata: Metadata = { title: "Jurídica · RENACE" };
 
 const CASE_STATUS_LABEL: Record<string, string> = {
   open: "Abierto",
-  in_progress: "En curso",
+  in_progress: "En revisión",
   closed: "Cerrado"
 };
 
@@ -35,7 +35,7 @@ export default async function JuridicaPage() {
           <div className="flex items-start justify-between">
             <div>
               <p className="text-xs font-bold uppercase tracking-wider text-white/85">
-                Caso abierto
+                Tu expediente
               </p>
               <h2 className="mt-1 text-lg font-bold">{activeCase.title}</h2>
             </div>

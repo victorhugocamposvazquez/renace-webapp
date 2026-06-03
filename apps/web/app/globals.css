@@ -367,7 +367,7 @@
   }
 
   .hub-segmented-item {
-    @apply relative flex flex-col items-center justify-center gap-0.5 rounded-xl px-1 py-2.5 text-ink-subtle transition-all duration-200 ease-out-expo active:scale-[0.98];
+    @apply relative flex min-h-[44px] flex-col items-center justify-center gap-0.5 rounded-xl px-1 py-2.5 text-ink-subtle transition-all duration-200 ease-out-expo active:scale-[0.98];
   }
 
   .hub-segmented-item-active {
