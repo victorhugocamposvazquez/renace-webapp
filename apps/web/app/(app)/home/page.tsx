@@ -12,6 +12,8 @@ import {
   getFirstJournal,
   listInProgressCourses,
   listMyUpcomingLiveClasses,
+  listUpcomingLiveClasses,
+  listAreaCourses,
   getTodayMicroActionDone,
   listActiveDates
 } from "@renace/supabase";
@@ -49,7 +51,9 @@ export default async function HomePage() {
     todayMood,
     firstJournal,
     inProgressCourses,
-    myLiveClasses
+    myLiveClasses,
+    fisicaLive,
+    fisicaCourses
   ] = await Promise.all([
     getProfile(client, userId),
     listAreaProgress(client, userId),
@@ -57,7 +61,9 @@ export default async function HomePage() {
     getTodayMood(client, userId),
     getFirstJournal(client, userId),
     listInProgressCourses(client, userId, 6),
-    listMyUpcomingLiveClasses(client, userId, 3)
+    listMyUpcomingLiveClasses(client, userId, 3),
+    listUpcomingLiveClasses(client, userId, "fisica"),
+    listAreaCourses(client, userId, "fisica")
   ]);
   if (!profile) return null;
 
@@ -103,6 +109,34 @@ export default async function HomePage() {
           href: "/cursos?tab=live"
         }
       : null;
+
+  // Paso "hábito físico": proponemos algo realmente físico — una clase de
+  // Física en directo próxima o, si no hay, un vídeo de Física grabado.
+  const fisicaLiveNext = fisicaLive.find((c) => c.starts_at);
+  const fisicaVideo =
+    fisicaCourses.find(
+      (c) => c.kind !== "live_class" && c.enrollment && !c.enrollment.completed_at
+    ) ?? fisicaCourses.find((c) => c.kind !== "live_class");
+
+  const physicalForPath =
+    fisicaLiveNext && fisicaLiveNext.starts_at
+      ? {
+          kind: "live" as const,
+          title: fisicaLiveNext.title,
+          when: formatShortDateTime(new Date(fisicaLiveNext.starts_at)),
+          meta: "Clase en directo · Física",
+          href: "/cursos?tab=live&area=fisica"
+        }
+      : fisicaVideo
+        ? {
+            kind: "video" as const,
+            title: fisicaVideo.title,
+            meta: `Vídeo de Física · ${fisicaVideo.lessons_count} ${
+              fisicaVideo.lessons_count === 1 ? "lección" : "lecciones"
+            }`,
+            href: `/cursos/${fisicaVideo.slug}`
+          }
+        : null;
 
   const ariaIntro = buildAriaIntro({
     aliasFirst: profile.alias.split(" ")[0] ?? profile.alias,
@@ -165,8 +199,7 @@ export default async function HomePage() {
             <TodayPath
               alias={profile.alias.split(" ")[0] ?? profile.alias}
               moodDone={todayMood !== null}
-              microDone={microDone}
-              microTitle={action.title}
+              physical={physicalForPath}
               liveClass={liveForPath}
               course={courseForPath}
             />

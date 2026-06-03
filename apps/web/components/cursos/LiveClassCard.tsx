@@ -13,6 +13,7 @@ import {
 } from "@tabler/icons-react";
 import type { CourseWithEnrollment } from "@renace/supabase";
 import { formatCountdown, formatDuration } from "@renace/core";
+import { AREA_THEMES } from "@renace/tokens";
 import { toggleClassReminderAction } from "@/app/(app)/cursos/actions";
 import { CourseThumbnail } from "./CourseThumbnail";
 import { AreaBadge } from "./AreaBadge";
@@ -37,6 +38,10 @@ export function LiveClassCard({
   const [optimisticReminder, setOptimisticReminder] = useState<boolean>(
     course.enrollment?.reminder_set ?? false
   );
+
+  const theme = AREA_THEMES[course.area];
+  const accent = theme.core;
+  const accentDark = theme.coreDark;
 
   if (!course.starts_at) return null;
   const startsAt = new Date(course.starts_at);
@@ -66,7 +71,7 @@ export function LiveClassCard({
       <article className="card-lift flex items-center gap-3 p-3">
         <CourseThumbnail
           slug={course.slug}
-          accent={course.accent_color}
+          accent={accent}
           emoji={course.emoji}
           size="sm"
           rounded="xl"
@@ -82,7 +87,7 @@ export function LiveClassCard({
             ) : (
               <span
                 className="inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[10px] font-bold uppercase text-ink-inverse"
-                style={{ background: course.accent_color }}
+                style={{ background: accent }}
               >
                 <IconBroadcast size={10} aria-hidden />
                 En directo
@@ -100,7 +105,7 @@ export function LiveClassCard({
           <Link
             href={`/cursos/${course.slug}`}
             className="grid h-10 w-10 place-items-center rounded-full text-ink-inverse shadow-card active:scale-95"
-            style={{ background: course.accent_color }}
+            style={{ background: accent }}
             aria-label="Unirme a la clase en directo"
           >
             <IconVideo size={18} aria-hidden />
@@ -139,7 +144,7 @@ export function LiveClassCard({
     <article
       className="relative overflow-hidden rounded-3xl p-5 text-ink-inverse shadow-lift"
       style={{
-        background: `linear-gradient(135deg, ${course.accent_color} 0%, ${darken(course.accent_color, 22)} 100%)`
+        background: `linear-gradient(135deg, ${accent} 0%, ${accentDark} 100%)`
       }}
     >
       <div
@@ -190,7 +195,7 @@ export function LiveClassCard({
           <Link
             href={`/cursos/${course.slug}`}
             className="btn-white flex-1 text-center"
-            style={{ color: course.accent_color }}
+            style={{ color: accentDark }}
           >
             <IconVideo size={16} aria-hidden className="-mt-px" />
             <span>{isLive ? "Unirme ahora" : "Preparar mi entrada"}</span>
@@ -224,13 +229,4 @@ export function LiveClassCard({
       </div>
     </article>
   );
-}
-
-function darken(hex: string, percent: number): string {
-  const clean = hex.replace("#", "");
-  const num = parseInt(clean, 16);
-  const r = Math.max(0, ((num >> 16) & 0xff) - Math.round((255 * percent) / 100));
-  const g = Math.max(0, ((num >> 8) & 0xff) - Math.round((255 * percent) / 100));
-  const b = Math.max(0, (num & 0xff) - Math.round((255 * percent) / 100));
-  return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
 }

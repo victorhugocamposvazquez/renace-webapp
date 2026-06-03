@@ -33,8 +33,9 @@ type StepDef = {
 export type TodayPathProps = {
   alias: string;
   moodDone: boolean;
-  microDone: boolean;
-  microTitle: string;
+  physical:
+    | { kind: "live" | "video"; title: string; when?: string; meta: string; href: string }
+    | null;
   liveClass: { title: string; when: string; href: string } | null;
   course: { title: string; meta: string; href: string } | null;
 };
@@ -42,8 +43,7 @@ export type TodayPathProps = {
 export function TodayPath({
   alias,
   moodDone,
-  microDone,
-  microTitle,
+  physical,
   liveClass,
   course
 }: TodayPathProps) {
@@ -70,12 +70,21 @@ export function TodayPath({
         tag: "Hábito físico",
         tagBg: "#E6F4EC",
         tagFg: "#0E7A3F",
-        title: microTitle,
-        body: "El cuerpo arrastra a la mente. Este es tu siguiente paso, nada más.",
-        cta: "Empezar ahora",
-        href: "#accion-hoy",
-        toast: "¡Bien hecho! Un paso más en tu día",
-        serverDone: microDone
+        title: physical ? physical.title : "Muévete 15 minutos hoy",
+        when: physical?.when,
+        meta: physical ? physical.meta : undefined,
+        body: physical
+          ? undefined
+          : "Un paseo o una rutina suave. El cuerpo arrastra a la mente.",
+        cta:
+          physical?.kind === "live"
+            ? "Guardar mi plaza"
+            : physical?.kind === "video"
+              ? "Ver el vídeo"
+              : "Ir a Física",
+        href: physical ? physical.href : "/fisica",
+        toast: "¡Bien hecho! Un paso más para tu cuerpo",
+        serverDone: false
       }
     ];
 
@@ -139,7 +148,7 @@ export function TodayPath({
     });
 
     return list;
-  }, [alias, moodDone, microDone, microTitle, liveClass, course]);
+  }, [alias, moodDone, physical, liveClass, course]);
 
   const [doneState, setDoneState] = useState<boolean[]>(() =>
     steps.map((s) => s.serverDone)
