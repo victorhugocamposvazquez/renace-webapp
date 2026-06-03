@@ -162,6 +162,8 @@ export function TodayPath({
     null
   );
   const [moodOpen, setMoodOpen] = useState(false);
+  const [moodScore, setMoodScore] = useState<MoodScore | null>(null);
+  const [moodNote, setMoodNote] = useState("");
   const [moodPending, startMood] = useTransition();
 
   function showToast(msg: string, undoIndex: number | null) {
@@ -199,13 +201,23 @@ export function TodayPath({
     setToast(null);
   }
 
-  function saveMood(n: MoodScore) {
+  function openMoodSheet() {
+    setMoodScore(null);
+    setMoodNote("");
+    setMoodOpen(true);
+  }
+
+  function saveMood() {
+    if (moodScore == null) return;
+    const note = moodNote.trim();
     startMood(async () => {
       const fd = new FormData();
-      fd.set("score", String(n));
+      fd.set("score", String(moodScore));
+      if (note) fd.set("note", note);
       const res = await logMoodAction(fd);
       if (res.ok) {
         setMoodOpen(false);
+        setMoodNote("");
         const idx = steps.findIndex((s) => s.kind === "mood");
         if (idx >= 0) complete(idx);
       }
@@ -319,7 +331,7 @@ export function TodayPath({
                       <button
                         type="button"
                         onClick={() =>
-                          step.kind === "mood" ? setMoodOpen(true) : complete(i, true)
+                          step.kind === "mood" ? openMoodSheet() : complete(i, true)
                         }
                         className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-brand-600 text-sm font-bold text-ink-inverse shadow-brand-glow transition-transform active:scale-[0.97]"
                       >
@@ -407,7 +419,7 @@ export function TodayPath({
           aria-labelledby="path-mood-title"
         >
           <div className="w-full max-w-[480px] rounded-[24px] bg-elevated p-5 shadow-lift animate-[sheet-in_280ms_ease-out]">
-            <div className="mb-4 flex items-center justify-between">
+            <div className="mb-1 flex items-center justify-between">
               <h2 id="path-mood-title" className="text-lg font-bold text-ink-primary">
                 ¿Cómo te sientes?
               </h2>
@@ -420,23 +432,72 @@ export function TodayPath({
                 <IconX size={20} aria-hidden />
               </button>
             </div>
-            <div className="flex justify-between gap-2">
-              {([1, 2, 3, 4, 5] as MoodScore[]).map((n) => (
-                <button
-                  key={n}
-                  type="button"
-                  disabled={moodPending}
-                  onClick={() => saveMood(n)}
-                  aria-label={MOOD_LABELS[n]?.label}
-                  className="mood-option mood-option-idle flex-1"
-                >
-                  <span className="text-[28px]">{MOOD_LABELS[n]?.emoji}</span>
-                </button>
-              ))}
-            </div>
-            <p className="mt-3 text-center text-xs font-medium text-ink-muted">
-              Se guarda al tocar una cara. No te lleva a ningún sitio.
+            <p className="mb-4 text-sm text-ink-muted">
+              Elige el estado que más se acerca. Puedes añadir una nota si quieres.
             </p>
+
+            <div className="flex flex-col gap-2">
+              {([1, 2, 3, 4, 5] as MoodScore[]).map((n) => {
+                const selected = moodScore === n;
+                return (
+                  <button
+                    key={n}
+                    type="button"
+                    disabled={moodPending}
+                    onClick={() => setMoodScore(n)}
+                    aria-pressed={selected}
+                    className={
+                      "flex items-center gap-3 rounded-2xl border px-3.5 py-3 text-left transition-all active:scale-[0.99] " +
+                      (selected
+                        ? "border-area-emocional bg-area-emocional-tint"
+                        : "border-outline-soft bg-canvas hover:border-outline-medium")
+                    }
+                  >
+                    <span className="text-[26px]" aria-hidden>
+                      {MOOD_LABELS[n]?.emoji}
+                    </span>
+                    <span
+                      className={
+                        "text-[15px] font-bold " +
+                        (selected ? "text-area-emocional-text" : "text-ink-primary")
+                      }
+                    >
+                      {MOOD_LABELS[n]?.label}
+                    </span>
+                    {selected && (
+                      <IconCheck
+                        size={18}
+                        stroke={2.4}
+                        aria-hidden
+                        className="ml-auto text-area-emocional-text"
+                      />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            <label htmlFor="path-mood-note" className="sr-only">
+              Nota sobre cómo te sientes
+            </label>
+            <textarea
+              id="path-mood-note"
+              value={moodNote}
+              onChange={(e) => setMoodNote(e.target.value)}
+              maxLength={280}
+              rows={2}
+              placeholder="¿Quieres añadir algo? (opcional)"
+              className="mt-3 w-full resize-none rounded-2xl border border-outline-soft bg-canvas p-3 text-base text-ink-primary outline-none transition-colors focus:border-area-emocional"
+            />
+
+            <button
+              type="button"
+              onClick={saveMood}
+              disabled={moodScore == null || moodPending}
+              className="btn-primary mt-3 disabled:opacity-50"
+            >
+              {moodPending ? "Guardando…" : "Guardar mi ánimo"}
+            </button>
           </div>
         </div>
       )}
