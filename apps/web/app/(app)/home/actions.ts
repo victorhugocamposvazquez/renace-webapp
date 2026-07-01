@@ -2,24 +2,25 @@
 
 import { revalidatePath } from "next/cache";
 import { LogActivitySchema } from "@renace/core";
-import { logActivity, getTodayMicroActionDone } from "@renace/supabase";
+import { logActivity, hasActivityKindToday } from "@renace/supabase";
 import { requireUser } from "@/lib/auth";
 import { syncProgressAndRevalidate } from "@/lib/progress";
 
-export async function completeMicroActionAction(formData: FormData) {
+/**
+ * Marca la "acción del día" como hecha de forma explícita y persistente.
+ * Se registra como activity_log kind `day_action`, de modo que el estado del
+ * paso no dependa de heurísticas frágiles ni cambie si cambia el ánimo.
+ */
+export async function completeDayActionAction(formData: FormData) {
   const { client, userId } = await requireUser();
-  const actionId = formData.get("actionId");
-  const title = formData.get("title");
-  if (typeof actionId !== "string" || typeof title !== "string") {
-    return { ok: false as const, error: "Acción no válida" };
-  }
+  const actionKind = formData.get("actionKind");
 
-  const already = await getTodayMicroActionDone(client, userId, actionId);
+  const already = await hasActivityKindToday(client, userId, "day_action");
   if (already) return { ok: true as const, already: true };
 
   await logActivity(client, userId, {
-    kind: "micro_action",
-    payload: { actionId, title }
+    kind: "day_action",
+    payload: { actionKind: typeof actionKind === "string" ? actionKind : "generic" }
   });
   await syncProgressAndRevalidate(client, userId);
   revalidatePath("/home");

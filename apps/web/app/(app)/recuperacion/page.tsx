@@ -1,18 +1,22 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { IconChevronRight, IconUser } from "@tabler/icons-react";
+import { IconChevronRight, IconUser, IconFlame } from "@tabler/icons-react";
 import { requireUser } from "@/lib/auth";
 import {
   getProfile,
   listAreaProgress,
   fillAllAreas,
   listMilestones,
-  seedDefaultMilestones
+  seedDefaultMilestones,
+  listActiveDates
 } from "@renace/supabase";
 import {
   totalProgress,
   weekFromDay,
   programPhase,
+  computePresenceStreak,
+  streakLabel,
+  todayDateString,
   DEFAULT_MILESTONES,
   AREA_ORDER,
   AREA_HREF,
@@ -28,9 +32,10 @@ export const metadata: Metadata = { title: "Mi recuperación · RENACE" };
 
 export default async function RecuperacionPage() {
   const { client, userId } = await requireUser();
-  const [profile, rawAreas] = await Promise.all([
+  const [profile, rawAreas, activeDates] = await Promise.all([
     getProfile(client, userId),
-    listAreaProgress(client, userId)
+    listAreaProgress(client, userId),
+    listActiveDates(client, userId, 60)
   ]);
   if (!profile) return null;
 
@@ -42,6 +47,8 @@ export default async function RecuperacionPage() {
   const week = weekFromDay(profile.day_in_program);
   const phase = programPhase(profile.day_in_program);
   const byArea = new Map(areas.map((a) => [a.area, a]));
+  const streak = computePresenceStreak(activeDates, todayDateString());
+  const streakText = streakLabel(streak, profile.onboarding_reasons ?? []);
 
   return (
     <div className="page-stack px-5 py-5">
@@ -53,6 +60,10 @@ export default async function RecuperacionPage() {
         <p className="mt-1 text-sm text-ink-muted">
           Aquí ves cómo avanzas en las cinco áreas de tu vida y tus hitos.
         </p>
+        <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1.5 text-[13px] font-bold text-amber-700">
+          <IconFlame size={15} stroke={2.2} aria-hidden />
+          {streakText}
+        </span>
       </header>
 
       <section className="mt-2">
@@ -111,7 +122,7 @@ export default async function RecuperacionPage() {
         </ul>
       </section>
 
-      <section>
+      <section id="hitos" className="scroll-mt-20">
         <div className="mb-2 flex items-baseline justify-between gap-2">
           <h2 className="label-eyebrow text-brand-700">Tus hitos</h2>
           <Link

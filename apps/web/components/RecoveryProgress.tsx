@@ -78,7 +78,7 @@ export function RecoveryProgress({
           <IconChevronRight size={14} aria-hidden />
         </Link>
         <Link
-          href="/recorrido"
+          href="#hitos"
           className="flex items-center justify-between gap-2 px-4 py-3 text-xs font-bold text-brand-700 transition-colors hover:bg-brand-50/40"
         >
           <span>Hitos del recorrido</span>

@@ -134,7 +134,7 @@ export default async function RecoveryDaysPage() {
       </div>
 
       <Link
-        href="/recorrido"
+        href="/recuperacion#hitos"
         className="btn-secondary flex items-center justify-center gap-1 text-sm"
       >
         Ver hitos del recorrido

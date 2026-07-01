@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
   IconCheck,
@@ -15,7 +15,9 @@ import {
 import { MOOD_LABELS, type MoodScore, type DailyAction } from "@renace/core";
 import { AREA_THEMES } from "@renace/tokens";
 import { useModalLayer } from "@/hooks/useModalLayer";
+import { CelebrationBurst } from "@/components/CelebrationBurst";
 import { logMoodAction } from "@/app/(app)/emocional/actions";
+import { completeDayActionAction } from "@/app/(app)/home/actions";
 
 type StepKind = "checkin" | "action" | "closing";
 
@@ -116,10 +118,20 @@ export function TodayPath({ moodDone, action, actionDone, diaryDone }: TodayPath
   const doneCount = doneState.filter(Boolean).length;
   const allDone = activeIndex === -1;
 
+  // Celebración solo cuando el día se completa durante esta sesión, no al
+  // cargar la página con el día ya cerrado.
+  const wasAllDone = useRef(allDone);
+  const [celebrate, setCelebrate] = useState(false);
+  useEffect(() => {
+    if (allDone && !wasAllDone.current) setCelebrate(true);
+    wasAllDone.current = allDone;
+  }, [allDone]);
+
   const [moodOpen, setMoodOpen] = useState(false);
   const [moodScore, setMoodScore] = useState<MoodScore | null>(null);
   const [moodNote, setMoodNote] = useState("");
   const [moodPending, startMood] = useTransition();
+  const [actionPending, startAction] = useTransition();
   const [toast, setToast] = useState<string | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -163,6 +175,18 @@ export function TodayPath({ moodDone, action, actionDone, diaryDone }: TodayPath
       return;
     }
     router.push(step.href);
+  }
+
+  function markActionDone() {
+    startAction(async () => {
+      const fd = new FormData();
+      fd.set("actionKind", action.kind);
+      const res = await completeDayActionAction(fd);
+      if (res.ok) {
+        showToast("Hecho · un paso menos hoy");
+        router.refresh();
+      }
+    });
   }
 
   useModalLayer({
@@ -269,6 +293,17 @@ export function TodayPath({ moodDone, action, actionDone, diaryDone }: TodayPath
                     >
                       {step.cta}
                     </button>
+                    {step.kind === "action" && (
+                      <button
+                        type="button"
+                        onClick={markActionDone}
+                        disabled={actionPending}
+                        className="mt-2 flex h-10 w-full items-center justify-center gap-1.5 rounded-xl text-sm font-semibold text-ink-muted transition-colors hover:text-ink-secondary disabled:opacity-50"
+                      >
+                        <IconCheck size={16} stroke={2.4} aria-hidden />
+                        {actionPending ? "Guardando…" : "Ya lo he hecho"}
+                      </button>
+                    )}
                   </>
                 ) : (
                   <>
@@ -295,6 +330,12 @@ export function TodayPath({ moodDone, action, actionDone, diaryDone }: TodayPath
           );
         })}
       </ol>
+
+      {allDone && celebrate && (
+        <div className="mb-3">
+          <CelebrationBurst message="¡Día completado! Cada paso sostiene tu recuperación." accent="#13924C" />
+        </div>
+      )}
 
       {allDone && (
         <div

@@ -66,10 +66,10 @@ export default async function PerfilPage() {
       <MoodWeekChart moods={moods} />
 
       <Link
-        href="/recorrido"
+        href="/recuperacion"
         className="card flex items-center justify-between px-4 py-3 text-sm font-bold text-ink-primary active:scale-[0.99]"
       >
-        Ver tu recorrido completo
+        Ver mi recuperación
         <span className="text-ink-subtle" aria-hidden>→</span>
       </Link>
 

@@ -12,13 +12,15 @@
   },
   "scripts": {
     "lint": "eslint src --max-warnings 0",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
   },
   "dependencies": {
     "zod": "^3.24.1"
   },
   "devDependencies": {
     "@renace/tsconfig": "workspace:*",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "vitest": "^4.1.9"
   }
 }

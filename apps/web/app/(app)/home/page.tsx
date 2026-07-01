@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { IconLifebuoy, IconChevronRight, IconChartRadar } from "@tabler/icons-react";
+import { IconLifebuoy, IconChevronRight, IconChartRadar, IconFlame } from "@tabler/icons-react";
 import { requireUser } from "@/lib/auth";
 import {
   getProfile,
@@ -14,13 +14,16 @@ import {
   hasFisicaActivityToday,
   hasLiveReminderToday,
   hasCourseSeenToday,
-  hasActivityKindToday
+  hasActivityKindToday,
+  listActiveDates
 } from "@renace/supabase";
 import {
   weekFromDay,
   formatShortDateTime,
   pickDailyAction,
   dailyGreeting,
+  computePresenceStreak,
+  todayDateString,
   DAILY_PURPOSE,
   type DailyActionCandidate
 } from "@renace/core";
@@ -32,31 +35,47 @@ export const metadata: Metadata = { title: "Hoy · RENACE" };
 
 export default async function HomePage() {
   const { client, userId } = await requireUser();
-  const [profile, contacts, todayMood, inProgressCourses, fisicaLive, fisicaCourses] =
-    await Promise.all([
-      getProfile(client, userId),
-      listTrustedContacts(client, userId),
-      getTodayMood(client, userId),
-      listInProgressCourses(client, userId, 6),
-      listUpcomingLiveClasses(client, userId, "fisica"),
-      listAreaCourses(client, userId, "fisica")
-    ]);
+  const [
+    profile,
+    contacts,
+    todayMood,
+    inProgressCourses,
+    fisicaLive,
+    fisicaCourses,
+    activeDates
+  ] = await Promise.all([
+    getProfile(client, userId),
+    listTrustedContacts(client, userId),
+    getTodayMood(client, userId),
+    listInProgressCourses(client, userId, 6),
+    listUpcomingLiveClasses(client, userId, "fisica"),
+    listAreaCourses(client, userId, "fisica"),
+    listActiveDates(client, userId, 60)
+  ]);
   if (!profile) return null;
 
   const aliasFirst = profile.alias.split(" ")[0] ?? profile.alias;
   const week = weekFromDay(profile.day_in_program);
   const todayMoodScore = todayMood?.score ?? null;
+  const streak = computePresenceStreak(activeDates, todayDateString());
 
   const topCourse = inProgressCourses[0];
 
-  const [journalToday, physicalDone, liveReminder, breathingToday, courseSeenToday] =
-    await Promise.all([
-      hasJournalToday(client, userId),
-      hasFisicaActivityToday(client, userId),
-      hasLiveReminderToday(client, userId),
-      hasActivityKindToday(client, userId, "breathing"),
-      topCourse ? hasCourseSeenToday(client, userId, topCourse.id) : Promise.resolve(false)
-    ]);
+  const [
+    journalToday,
+    physicalDone,
+    liveReminder,
+    breathingToday,
+    courseSeenToday,
+    dayActionMarked
+  ] = await Promise.all([
+    hasJournalToday(client, userId),
+    hasFisicaActivityToday(client, userId),
+    hasLiveReminderToday(client, userId),
+    hasActivityKindToday(client, userId, "breathing"),
+    topCourse ? hasCourseSeenToday(client, userId, topCourse.id) : Promise.resolve(false),
+    hasActivityKindToday(client, userId, "day_action")
+  ]);
 
   // Candidato de curso en marcha para la acción del día.
   const courseCandidate =
@@ -100,14 +119,12 @@ export default async function HomePage() {
     candidate: { course: courseCandidate, physical: physicalCandidate }
   });
 
+  // El paso "acción" se considera hecho si el usuario lo marcó explícitamente
+  // (day_action) o si hay cualquier señal real de actividad hoy. No se ata a la
+  // acción sugerida en este momento, así el estado es estable aunque cambie el
+  // ánimo y con él la acción recomendada.
   const actionDone =
-    action.kind === "breathing"
-      ? breathingToday
-      : action.kind === "course"
-        ? courseSeenToday
-        : action.kind === "physical_live"
-          ? liveReminder
-          : physicalDone;
+    dayActionMarked || breathingToday || courseSeenToday || physicalDone || liveReminder;
 
   const allDone = todayMood !== null && actionDone && journalToday;
   const greeting = dailyGreeting({ aliasFirst, todayMoodScore, allDone });
@@ -132,9 +149,17 @@ export default async function HomePage() {
           />
 
           <section className="mt-4">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-50 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-brand-700">
-              Día {profile.day_in_program} · Semana {week}
-            </span>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-50 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-brand-700">
+                Día {profile.day_in_program} · Semana {week}
+              </span>
+              {streak >= 2 && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-bold text-amber-700">
+                  <IconFlame size={13} stroke={2.2} aria-hidden />
+                  {streak} días seguidos
+                </span>
+              )}
+            </div>
             <h2 className="mt-3 text-[22px] font-bold leading-tight tracking-tight text-ink-primary">
               {greeting}
             </h2>

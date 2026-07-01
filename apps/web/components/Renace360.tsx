@@ -112,8 +112,8 @@ export function Renace360({
       ))}
 
       <Link
-        href="/recorrido"
-        aria-label={`Ver tu recorrido. Día ${dayInProgram}, semana ${week}, ${totalPercent}% de avance.`}
+        href="/recorrido/dias"
+        aria-label={`Ver tu recorrido día a día. Día ${dayInProgram}, semana ${week}, ${totalPercent}% de avance.`}
         className="absolute left-1/2 top-1/2 z-10 flex h-[36%] w-[36%] -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full text-ink-inverse"
       >
         <span
