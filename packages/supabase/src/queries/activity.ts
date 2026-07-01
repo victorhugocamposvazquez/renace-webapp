@@ -209,7 +209,7 @@ export async function hasCourseSeenToday(
   const since = startOfTodayIso();
   let q = client
     .from("course_enrollments")
-    .select("id")
+    .select("course_id")
     .eq("user_id", userId)
     .gte("last_seen_at", since);
   if (courseId) q = q.eq("course_id", courseId);

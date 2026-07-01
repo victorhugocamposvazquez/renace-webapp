@@ -24,7 +24,7 @@ export async function syncMilestonesFromActivity(
     listMilestones(client, userId),
     listTrustedContacts(client, userId),
     listJournal(client, userId, 50),
-    client.from("course_enrollments").select("id").eq("user_id", userId).limit(1),
+    client.from("course_enrollments").select("course_id").eq("user_id", userId).limit(1),
     client.from("event_attendees").select("event_id").eq("user_id", userId).limit(1)
   ]);
 
