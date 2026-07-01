@@ -6,8 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   IconHome2,
   IconLifebuoy,
-  IconUsers,
-  IconUser,
+  IconChartRadar,
   IconSchool
 } from "@tabler/icons-react";
 import { cn } from "@/lib/cn";
@@ -29,24 +28,16 @@ type Tab = {
 const TABS: Tab[] = [
   {
     href: "/home",
-    label: "Inicio",
-    shortLabel: "Inicio",
+    label: "Hoy",
+    shortLabel: "Hoy",
     icon: IconHome2,
-    // Inicio agrupa la home y las áreas/recorrido que cuelgan de ella, para que
-    // el usuario nunca vea la barra sin ninguna pestaña marcada.
-    matches: (p) =>
-      p === "/home" ||
-      p.startsWith("/emocional") ||
-      p.startsWith("/fisica") ||
-      p.startsWith("/juridica") ||
-      p.startsWith("/laboral") ||
-      p.startsWith("/recorrido") ||
-      p.startsWith("/crisis")
+    // "Hoy" es la pantalla del día; también marca crisis, que cuelga de aquí.
+    matches: (p) => p === "/home" || p.startsWith("/crisis")
   },
   {
     href: "/cursos",
-    label: "Cursos",
-    shortLabel: "Cursos",
+    label: "Avanzar",
+    shortLabel: "Avanzar",
     icon: IconSchool,
     matches: (p) => p.startsWith("/cursos")
   },
@@ -59,18 +50,20 @@ const TABS: Tab[] = [
     accent: true
   },
   {
-    href: "/comunidad",
-    label: "Red",
-    shortLabel: "Red",
-    icon: IconUsers,
-    matches: (p) => p.startsWith("/comunidad")
-  },
-  {
-    href: "/perfil",
-    label: "Perfil",
-    shortLabel: "Perfil",
-    icon: IconUser,
-    matches: (p) => p.startsWith("/perfil")
+    // "Mi recuperación" agrupa progreso, áreas de vida, hitos y perfil.
+    href: "/recuperacion",
+    label: "Recuperación",
+    shortLabel: "Recuperación",
+    icon: IconChartRadar,
+    matches: (p) =>
+      p.startsWith("/recuperacion") ||
+      p.startsWith("/recorrido") ||
+      p.startsWith("/emocional") ||
+      p.startsWith("/fisica") ||
+      p.startsWith("/juridica") ||
+      p.startsWith("/laboral") ||
+      p.startsWith("/comunidad") ||
+      p.startsWith("/perfil")
   }
 ];
 

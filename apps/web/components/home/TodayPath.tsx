@@ -4,19 +4,20 @@ import { useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
   IconCheck,
-  IconWalk,
   IconBroadcast,
   IconSchool,
   IconMoon,
   IconPencil,
+  IconWind,
+  IconWalk,
   IconX
 } from "@tabler/icons-react";
-import { MOOD_LABELS, type MoodScore } from "@renace/core";
-import { AREA_THEMES, palette } from "@renace/tokens";
+import { MOOD_LABELS, type MoodScore, type DailyAction } from "@renace/core";
+import { AREA_THEMES } from "@renace/tokens";
 import { useModalLayer } from "@/hooks/useModalLayer";
 import { logMoodAction } from "@/app/(app)/emocional/actions";
 
-type StepKind = "mood" | "habit" | "live" | "course" | "diary";
+type StepKind = "checkin" | "action" | "closing";
 
 type StepDef = {
   kind: StepKind;
@@ -35,46 +36,46 @@ type StepDef = {
 
 export type TodayPathProps = {
   moodDone: boolean;
-  physicalDone: boolean;
-  physical:
-    | { kind: "live" | "video"; title: string; when?: string; meta: string; href: string }
-    | null;
-  liveDone: boolean;
-  liveClass: { title: string; when: string; href: string } | null;
-  courseDone: boolean;
-  course: { title: string; meta: string; href: string } | null;
+  action: DailyAction;
+  actionDone: boolean;
   diaryDone: boolean;
 };
 
 const TAG = {
-  mood: { bg: AREA_THEMES.emocional.tint, fg: AREA_THEMES.emocional.text },
-  habit: { bg: AREA_THEMES.fisica.tint, fg: AREA_THEMES.fisica.text },
-  live: { bg: `${palette.state.danger}18`, fg: palette.state.danger },
-  course: { bg: AREA_THEMES.emocional.tint, fg: AREA_THEMES.emocional.text },
-  diary: { bg: AREA_THEMES.comunidad.tint, fg: AREA_THEMES.comunidad.text }
+  checkin: { bg: AREA_THEMES.emocional.tint, fg: AREA_THEMES.emocional.text },
+  action: { bg: AREA_THEMES.fisica.tint, fg: AREA_THEMES.fisica.text },
+  closing: { bg: AREA_THEMES.comunidad.tint, fg: AREA_THEMES.comunidad.text }
 } as const;
 
-export function TodayPath({
-  moodDone,
-  physicalDone,
-  physical,
-  liveDone,
-  liveClass,
-  courseDone,
-  course,
-  diaryDone
-}: TodayPathProps) {
+const ACTION_ICON: Record<
+  DailyAction["kind"],
+  React.ComponentType<{ size?: number; "aria-hidden"?: boolean; stroke?: number }>
+> = {
+  breathing: IconWind,
+  course: IconSchool,
+  physical_live: IconBroadcast,
+  physical_video: IconWalk
+};
+
+const ACTION_TAG: Record<DailyAction["kind"], string> = {
+  breathing: "Calma · 2 min",
+  course: "Formación · 10 min",
+  physical_live: "En directo",
+  physical_video: "Cuerpo"
+};
+
+export function TodayPath({ moodDone, action, actionDone, diaryDone }: TodayPathProps) {
   const router = useRouter();
   const sheetRef = useRef<HTMLDivElement>(null);
 
   const steps = useMemo<StepDef[]>(() => {
-    const list: StepDef[] = [
+    return [
       {
-        kind: "mood",
+        kind: "checkin",
         icon: IconPencil,
-        tag: "Registro",
-        tagBg: TAG.mood.bg,
-        tagFg: TAG.mood.fg,
+        tag: "Cómo estás",
+        tagBg: TAG.checkin.bg,
+        tagFg: TAG.checkin.fg,
         title: "Registra cómo estás",
         body: "Un momento para escucharte. ¿Cómo amaneces hoy?",
         cta: "Registrar mi ánimo",
@@ -82,94 +83,33 @@ export function TodayPath({
         done: moodDone
       },
       {
-        kind: "habit",
-        icon: IconWalk,
-        tag: "Hábito físico",
-        tagBg: TAG.habit.bg,
-        tagFg: TAG.habit.fg,
-        title: physical ? physical.title : "Muévete 15 minutos hoy",
-        when: physical?.when,
-        meta: physical ? physical.meta : undefined,
-        body: physical
-          ? undefined
-          : "Un paseo o una rutina suave. El cuerpo arrastra a la mente.",
-        cta:
-          physical?.kind === "live"
-            ? "Guardar mi plaza"
-            : physical?.kind === "video"
-              ? "Ver el vídeo"
-              : "Ir a Física",
-        href: physical ? physical.href : "/fisica",
-        done: physicalDone
+        kind: "action",
+        icon: ACTION_ICON[action.kind],
+        tag: ACTION_TAG[action.kind],
+        tagBg: TAG.action.bg,
+        tagFg: TAG.action.fg,
+        title: action.title,
+        body: action.body,
+        meta: action.meta,
+        when: action.when,
+        cta: action.cta,
+        href: action.href,
+        done: actionDone
+      },
+      {
+        kind: "closing",
+        icon: IconMoon,
+        tag: "Cierra el día",
+        tagBg: TAG.closing.bg,
+        tagFg: TAG.closing.fg,
+        title: "Cierra el día con tu diario",
+        when: "Esta noche",
+        cta: "Escribir mi diario",
+        href: "/emocional#diario",
+        done: diaryDone
       }
     ];
-
-    if (liveClass) {
-      list.push({
-        kind: "live",
-        icon: IconBroadcast,
-        tag: "En directo",
-        tagBg: TAG.live.bg,
-        tagFg: TAG.live.fg,
-        title: liveClass.title,
-        when: liveClass.when,
-        meta: "Con el equipo · te guardamos la plaza",
-        cta: "Guardar mi plaza",
-        href: liveClass.href,
-        done: liveDone
-      });
-    } else {
-      list.push({
-        kind: "live",
-        icon: IconBroadcast,
-        tag: "Calma",
-        tagBg: TAG.live.bg,
-        tagFg: TAG.live.fg,
-        title: "Respiración guiada, 2 minutos",
-        meta: "Baja el ritmo con la guía 4-7-8",
-        cta: "Empezar",
-        href: "/respira",
-        done: liveDone
-      });
-    }
-
-    list.push({
-      kind: "course",
-      icon: IconSchool,
-      tag: "Formación · 10 min",
-      tagBg: TAG.course.bg,
-      tagFg: TAG.course.fg,
-      title: course ? course.title : "Avanza con un curso",
-      meta: course ? course.meta : "Lecciones cortas y guiadas",
-      cta: "Continuar",
-      href: course ? course.href : "/cursos",
-      done: courseDone
-    });
-
-    list.push({
-      kind: "diary",
-      icon: IconMoon,
-      tag: "Cierra el día",
-      tagBg: TAG.diary.bg,
-      tagFg: TAG.diary.fg,
-      title: "Cierra el día con tu diario",
-      when: "Esta noche",
-      cta: "Escribir mi diario",
-      href: "/emocional#diario",
-      done: diaryDone
-    });
-
-    return list;
-  }, [
-    moodDone,
-    physicalDone,
-    physical,
-    liveDone,
-    liveClass,
-    courseDone,
-    course,
-    diaryDone
-  ]);
+  }, [moodDone, action, actionDone, diaryDone]);
 
   const doneState = steps.map((s) => s.done);
   const activeIndex = doneState.indexOf(false);
@@ -218,14 +158,13 @@ export function TodayPath({
   }
 
   function goToStep(step: StepDef) {
-    if (step.kind === "mood") {
+    if (step.kind === "checkin") {
       openMoodSheet();
       return;
     }
     router.push(step.href);
   }
 
-  // Bloqueo de scroll, Escape y focus trap en el sheet de ánimo
   useModalLayer({
     open: moodOpen,
     onClose: closeMoodSheet,
@@ -234,9 +173,9 @@ export function TodayPath({
   });
 
   return (
-    <section aria-label="Tu camino de hoy">
+    <section aria-label="Tu día de hoy">
       <div className="mb-3 flex items-baseline justify-between gap-2 px-1">
-        <h2 className="text-base font-bold text-ink-primary">Tu camino de hoy</h2>
+        <h2 className="text-base font-bold text-ink-primary">Tu día de hoy</h2>
         <span className="text-xs font-bold text-brand-700" aria-live="polite">
           {doneCount} de {steps.length}
         </span>
@@ -370,7 +309,7 @@ export function TodayPath({
           </span>
           <p className="text-base font-bold text-ink-primary">Has completado tu día</p>
           <p className="text-xs font-medium text-ink-muted">
-            Cada paso suma. Mañana seguimos el camino — descansa, te lo has ganado.
+            Cada paso suma. Mañana seguimos — descansa, te lo has ganado.
           </p>
         </div>
       )}

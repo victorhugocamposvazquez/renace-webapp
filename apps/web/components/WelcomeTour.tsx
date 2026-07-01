@@ -9,14 +9,14 @@ const SEEN_KEY = "renace_welcome_done";
 
 const STEPS = [
   {
-    title: "Tus 5 áreas de vida",
-    body: "Arriba ves cinco círculos: lo emocional, físico, legal, laboral y tu red de apoyo. Toca cualquiera para entrar.",
-    icon: IconHeartHandshake
+    title: "Tu día, paso a paso",
+    body: "En \"Hoy\" tienes lo único que importa cada día: cómo estás, una acción pequeña y cerrar el día. Con eso ya avanzas.",
+    icon: IconCompass
   },
   {
-    title: "Tu día, paso a paso",
-    body: "En \"Mi día\" tienes tu plan: registra cómo estás y haz una pequeña acción. Con eso ya avanzas.",
-    icon: IconCompass
+    title: "Cómo va tu recuperación",
+    body: "En \"Recuperación\" ves tu avance en las cinco áreas de tu vida (emocional, física, legal, laboral y tu red) y tus hitos.",
+    icon: IconHeartHandshake
   },
   {
     title: "Pide apoyo cuando lo necesites",

@@ -1,21 +1,15 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { IconSchool, IconChevronRight } from "@tabler/icons-react";
+import { IconLifebuoy, IconChevronRight, IconChartRadar } from "@tabler/icons-react";
 import { requireUser } from "@/lib/auth";
 import {
   getProfile,
-  listAreaProgress,
   listTrustedContacts,
   getTodayMood,
-  fillAllAreas,
-  getFirstJournal,
   listInProgressCourses,
-  listMyUpcomingLiveClasses,
   listUpcomingLiveClasses,
   listAreaCourses,
-  getTodayMicroActionDone,
-  listActiveDates,
   hasJournalToday,
   hasFisicaActivityToday,
   hasLiveReminderToday,
@@ -23,70 +17,40 @@ import {
   hasActivityKindToday
 } from "@renace/supabase";
 import {
-  pickMicroAction,
-  totalProgress,
   weekFromDay,
-  programPhase,
-  computePresenceStreak,
-  streakLabel,
-  todayDateString,
-  formatShortDateTime
+  formatShortDateTime,
+  pickDailyAction,
+  dailyGreeting,
+  DAILY_PURPOSE,
+  type DailyActionCandidate
 } from "@renace/core";
 import { AppHeader } from "@/components/AppHeader";
-import { Renace360 } from "@/components/Renace360";
-import { AriaTeaser } from "@/components/AriaTeaser";
-import { MicroActionCard } from "@/components/MicroActionCard";
-import { RecoveryProgress } from "@/components/RecoveryProgress";
-import { IntentCard } from "@/components/IntentCard";
-import { ContinueWatchingShelf } from "@/components/cursos/ContinueWatchingShelf";
-import { MyLiveClassesCard } from "@/components/cursos/MyLiveClassesCard";
 import { WelcomeTour } from "@/components/WelcomeTour";
-import { HomeHero } from "@/components/home/HomeHero";
-import { PhaseCard } from "@/components/home/PhaseCard";
 import { TodayPath } from "@/components/home/TodayPath";
 
-export const metadata: Metadata = { title: "Inicio · RENACE" };
+export const metadata: Metadata = { title: "Hoy · RENACE" };
 
 export default async function HomePage() {
   const { client, userId } = await requireUser();
-  const [
-    profile,
-    rawAreas,
-    contacts,
-    todayMood,
-    firstJournal,
-    inProgressCourses,
-    myLiveClasses,
-    fisicaLive,
-    fisicaCourses
-  ] = await Promise.all([
-    getProfile(client, userId),
-    listAreaProgress(client, userId),
-    listTrustedContacts(client, userId),
-    getTodayMood(client, userId),
-    getFirstJournal(client, userId),
-    listInProgressCourses(client, userId, 6),
-    listMyUpcomingLiveClasses(client, userId, 3),
-    listUpcomingLiveClasses(client, userId, "fisica"),
-    listAreaCourses(client, userId, "fisica")
-  ]);
+  const [profile, contacts, todayMood, inProgressCourses, fisicaLive, fisicaCourses] =
+    await Promise.all([
+      getProfile(client, userId),
+      listTrustedContacts(client, userId),
+      getTodayMood(client, userId),
+      listInProgressCourses(client, userId, 6),
+      listUpcomingLiveClasses(client, userId, "fisica"),
+      listAreaCourses(client, userId, "fisica")
+    ]);
   if (!profile) return null;
 
-  const areas = fillAllAreas(rawAreas, userId);
-  const total = totalProgress(areas);
+  const aliasFirst = profile.alias.split(" ")[0] ?? profile.alias;
   const week = weekFromDay(profile.day_in_program);
-  const phase = programPhase(profile.day_in_program);
-  const action = pickMicroAction({
-    dayInProgram: profile.day_in_program,
-    lastMood: todayMood?.score ?? null
-  });
+  const todayMoodScore = todayMood?.score ?? null;
 
   const topCourse = inProgressCourses[0];
 
-  const [microDone, activeDates, journalToday, physicalDone, liveReminder, breathingToday, courseSeenToday] =
+  const [journalToday, physicalDone, liveReminder, breathingToday, courseSeenToday] =
     await Promise.all([
-      getTodayMicroActionDone(client, userId, action.id),
-      listActiveDates(client, userId, 60),
       hasJournalToday(client, userId),
       hasFisicaActivityToday(client, userId),
       hasLiveReminderToday(client, userId),
@@ -94,46 +58,27 @@ export default async function HomePage() {
       topCourse ? hasCourseSeenToday(client, userId, topCourse.id) : Promise.resolve(false)
     ]);
 
-  const today = todayDateString();
-  const streak = computePresenceStreak(activeDates, today);
-  const reasons = profile.onboarding_reasons ?? [];
-  const streakText = streakLabel(streak, reasons);
-
-  const courseHref = topCourse
-    ? `/cursos/${topCourse.slug}/leccion/${Math.max(1, (topCourse.enrollment?.current_lesson ?? 0) + 1)}`
-    : null;
-
-  const courseForPath =
-    topCourse && courseHref
+  // Candidato de curso en marcha para la acción del día.
+  const courseCandidate =
+    topCourse
       ? {
           title: topCourse.title,
           meta: `Lección ${Math.max(1, (topCourse.enrollment?.current_lesson ?? 0) + 1)} de ${topCourse.lessons_count}`,
-          href: courseHref
+          href: `/cursos/${topCourse.slug}/leccion/${Math.max(1, (topCourse.enrollment?.current_lesson ?? 0) + 1)}`
         }
       : null;
 
-  const nextLive = myLiveClasses[0];
-  const liveForPath =
-    nextLive && nextLive.starts_at
-      ? {
-          title: nextLive.title,
-          when: formatShortDateTime(new Date(nextLive.starts_at)),
-          href: "/cursos?tab=live"
-        }
-      : null;
-
-  // Paso "hábito físico": proponemos algo realmente físico — una clase de
-  // Física en directo próxima o, si no hay, un vídeo de Física grabado.
+  // Candidato físico: clase en directo próxima o vídeo grabado de Física.
   const fisicaLiveNext = fisicaLive.find((c) => c.starts_at);
   const fisicaVideo =
     fisicaCourses.find(
       (c) => c.kind !== "live_class" && c.enrollment && !c.enrollment.completed_at
     ) ?? fisicaCourses.find((c) => c.kind !== "live_class");
 
-  const physicalForPath =
+  const physicalCandidate: DailyActionCandidate["physical"] =
     fisicaLiveNext && fisicaLiveNext.starts_at
       ? {
-          kind: "live" as const,
+          kind: "live",
           title: fisicaLiveNext.title,
           when: formatShortDateTime(new Date(fisicaLiveNext.starts_at)),
           meta: "Clase en directo · Física",
@@ -141,7 +86,7 @@ export default async function HomePage() {
         }
       : fisicaVideo
         ? {
-            kind: "video" as const,
+            kind: "video",
             title: fisicaVideo.title,
             meta: `Vídeo de Física · ${fisicaVideo.lessons_count} ${
               fisicaVideo.lessons_count === 1 ? "lección" : "lecciones"
@@ -150,15 +95,22 @@ export default async function HomePage() {
           }
         : null;
 
-  const ariaIntro = buildAriaIntro({
-    aliasFirst: profile.alias.split(" ")[0] ?? profile.alias,
-    todayMoodScore: todayMood?.score ?? null
+  const action = pickDailyAction({
+    todayMoodScore,
+    candidate: { course: courseCandidate, physical: physicalCandidate }
   });
 
-  const showIntent =
-    firstJournal !== null &&
-    profile.day_in_program <= 21 &&
-    /^día\s*1/i.test(firstJournal.content);
+  const actionDone =
+    action.kind === "breathing"
+      ? breathingToday
+      : action.kind === "course"
+        ? courseSeenToday
+        : action.kind === "physical_live"
+          ? liveReminder
+          : physicalDone;
+
+  const allDone = todayMood !== null && actionDone && journalToday;
+  const greeting = dailyGreeting({ aliasFirst, todayMoodScore, allDone });
 
   return (
     <div className="page-stack">
@@ -169,138 +121,84 @@ export default async function HomePage() {
       <div className="home-hero relative overflow-hidden">
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-0 h-[420px] bg-hero-gradient"
+          className="pointer-events-none absolute inset-x-0 top-0 h-[320px] bg-hero-gradient"
         />
         <div className="relative px-5 pt-[max(env(safe-area-inset-top),0px)]">
           <AppHeader
-            alias={profile.alias.split(" ")[0] ?? profile.alias}
+            alias={aliasFirst}
             trustedContacts={contacts}
             notifications={todayMood ? 0 : 1}
             embedded
           />
 
-          <p className="label-eyebrow mt-3 text-brand-700">Tu vida, en equilibrio</p>
-          <section className="mt-1">
-            <Renace360
-              progress={areas}
-              totalPercent={total}
-              dayInProgram={profile.day_in_program}
-              week={week}
-              alias={profile.alias}
-            />
+          <section className="mt-4">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-50 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-brand-700">
+              Día {profile.day_in_program} · Semana {week}
+            </span>
+            <h2 className="mt-3 text-[22px] font-bold leading-tight tracking-tight text-ink-primary">
+              {greeting}
+            </h2>
+            <p className="mt-1 text-sm leading-relaxed text-ink-muted">{DAILY_PURPOSE}</p>
           </section>
 
-          <section className="mt-5">
-            <PhaseCard phase={phase} />
-          </section>
-
-          <p className="label-eyebrow mt-5 text-brand-700">Mi día</p>
-
-          <div id="mi-animo" className="scroll-mt-24">
-            <HomeHero
-              dayInProgram={profile.day_in_program}
-              week={week}
-              totalPercent={total}
-              todayMoodScore={todayMood?.score ?? null}
-              streak={streak}
-              streakText={streakText}
-            />
-          </div>
-
-          <section className="page-inset -mx-5 mt-4 space-y-4 px-5">
-            <TodayPath
-              moodDone={todayMood !== null}
-              physicalDone={physicalDone}
-              physical={physicalForPath}
-              liveDone={liveForPath ? liveReminder : breathingToday}
-              liveClass={liveForPath}
-              courseDone={courseSeenToday}
-              course={courseForPath}
-              diaryDone={journalToday}
-            />
-            <div id="accion-hoy" className="scroll-mt-24">
-              <MicroActionCard action={action} doneToday={microDone} />
+          <section className="page-inset -mx-5 mt-5 px-5">
+            <div id="mi-animo" className="scroll-mt-24">
+              <TodayPath
+                moodDone={todayMood !== null}
+                action={action}
+                actionDone={actionDone}
+                diaryDone={journalToday}
+              />
             </div>
           </section>
-
-          {inProgressCourses.length > 0 ? (
-            <section className="mt-4">
-              <ContinueWatchingShelf
-                courses={inProgressCourses}
-                subtitle="Continúa donde lo dejaste"
-              />
-            </section>
-          ) : (
-            <section className="mt-4">
-              <Link
-                href="/cursos"
-                className="flex items-center gap-3 rounded-2xl border border-dashed border-outline-medium bg-elevated/70 px-4 py-3.5 active:scale-[0.99]"
-              >
-                <span
-                  aria-hidden
-                  className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-700"
-                >
-                  <IconSchool size={20} aria-hidden />
-                </span>
-                <span className="flex-1">
-                  <span className="block text-sm font-bold text-ink-primary">
-                    Empieza tu primer curso
-                  </span>
-                  <span className="block text-xs text-ink-subtle">
-                    Lecciones cortas y guiadas. Elige una y empieza hoy.
-                  </span>
-                </span>
-                <IconChevronRight size={18} aria-hidden className="text-brand-600" />
-              </Link>
-            </section>
-          )}
         </div>
       </div>
 
-      <section className="page-inset -mt-2">
-        <RecoveryProgress
-          progress={areas}
-          totalPercent={total}
-          dayInProgram={profile.day_in_program}
-          week={week}
-        />
+      <section className="page-inset">
+        <Link
+          href="/crisis"
+          className="flex items-center gap-3 rounded-2xl border border-state-danger/25 bg-state-danger/5 px-4 py-3.5 transition-transform active:scale-[0.99]"
+        >
+          <span
+            aria-hidden
+            className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-state-danger/10 text-state-danger"
+          >
+            <IconLifebuoy size={20} aria-hidden stroke={1.8} />
+          </span>
+          <span className="flex-1">
+            <span className="block text-sm font-bold text-ink-primary">
+              ¿Lo estás pasando mal ahora?
+            </span>
+            <span className="block text-xs text-ink-muted">
+              Respira, llama a alguien o pide ayuda al momento.
+            </span>
+          </span>
+          <IconChevronRight size={18} aria-hidden className="text-state-danger" />
+        </Link>
       </section>
 
-      {showIntent && firstJournal && (
-        <section className="page-inset">
-          <IntentCard entry={firstJournal} dayInProgram={profile.day_in_program} />
-        </section>
-      )}
-
-      {myLiveClasses.length > 0 && (
-        <section className="page-inset">
-          <MyLiveClassesCard classes={myLiveClasses} />
-        </section>
-      )}
-
       <section className="page-inset">
-        <p className="label-eyebrow mb-2 text-brand-700">Estamos contigo</p>
-        <AriaTeaser intro={ariaIntro} />
+        <Link
+          href="/recuperacion"
+          className="flex items-center gap-3 rounded-2xl border border-outline-soft bg-elevated px-4 py-3.5 shadow-soft transition-transform active:scale-[0.99]"
+        >
+          <span
+            aria-hidden
+            className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-700"
+          >
+            <IconChartRadar size={20} aria-hidden stroke={1.8} />
+          </span>
+          <span className="flex-1">
+            <span className="block text-sm font-bold text-ink-primary">
+              Mira cómo avanza tu recuperación
+            </span>
+            <span className="block text-xs text-ink-muted">
+              Tu progreso, tus áreas de vida y tus hitos.
+            </span>
+          </span>
+          <IconChevronRight size={18} aria-hidden className="text-brand-600" />
+        </Link>
       </section>
     </div>
   );
-}
-
-function buildAriaIntro({
-  aliasFirst,
-  todayMoodScore
-}: {
-  aliasFirst: string;
-  todayMoodScore: number | null;
-}): string {
-  if (todayMoodScore === null) {
-    return `${aliasFirst}, ¿cómo amaneces hoy? El equipo está aquí si quieres contarlo.`;
-  }
-  if (todayMoodScore <= 2) {
-    return `${aliasFirst}, parece un día difícil. ¿Hablamos con el equipo o probamos una respiración guiada?`;
-  }
-  if (todayMoodScore === 3) {
-    return `Día neutro, ${aliasFirst}. ¿Repasamos juntos cómo va tu plan?`;
-  }
-  return `Buen ánimo hoy, ${aliasFirst}. ¿Avanzamos en algo del plan cuando te venga bien?`;
 }

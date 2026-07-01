@@ -16,7 +16,7 @@ import { AreaCourseGroup } from "@/components/cursos/CourseListSection";
 import { CourseAreaFilter } from "@/components/cursos/CourseAreaFilter";
 import { LiveClassesSection } from "@/components/cursos/LiveClassesSection";
 
-export const metadata: Metadata = { title: "Cursos · RENACE" };
+export const metadata: Metadata = { title: "Avanzar · RENACE" };
 
 type Props = {
   searchParams: Promise<{ tab?: string; area?: string }>;
@@ -59,10 +59,11 @@ export default async function CursosHubPage({ searchParams }: Props) {
       <BackLink fallbackHref="/home" />
 
       <header className="px-1 pt-1">
-        <p className="label-eyebrow text-brand-700">Tu formación</p>
-        <h1 className="display-title">Cursos</h1>
+        <p className="label-eyebrow text-brand-700">Cómo avanzas</p>
+        <h1 className="display-title">Avanzar</h1>
         <p className="mt-2 display-subtitle">
-          Cada curso pertenece a un área de tu vida: laboral, emocional, física y más.
+          Cursos cortos y clases en directo para dar pasos cada día. Cada uno pertenece a un
+          área de tu vida.
         </p>
       </header>
 

@@ -49,7 +49,7 @@ export default async function EmocionalPage() {
 
   return (
     <div className="page-stack px-5 py-5">
-      <BackLink fallbackHref="/home" />
+      <BackLink fallbackHref="/recuperacion" />
       <AreaHeader area="emocional" percent={emocionalPercent} />
 
       <MoodPicker initialScore={(today?.score as MoodScore | null) ?? null} />

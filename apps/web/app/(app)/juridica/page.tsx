@@ -27,7 +27,7 @@ export default async function JuridicaPage() {
 
   return (
     <div className="flex flex-1 flex-col gap-4 px-5 py-5">
-      <BackLink fallbackHref="/home" />
+      <BackLink fallbackHref="/recuperacion" />
       <AreaHeader area="juridica" percent={juridicaPercent} />
 
       {activeCase ? (

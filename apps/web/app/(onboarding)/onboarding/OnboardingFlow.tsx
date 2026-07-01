@@ -21,6 +21,7 @@ import {
   AREA_META,
   ONBOARDING_REASONS,
   REASON_META,
+  DAILY_PURPOSE,
   type AreaId,
   type OnboardingReason
 } from "@renace/core";
@@ -143,7 +144,7 @@ export function OnboardingFlow({ defaultAlias }: { defaultAlias: string }) {
             Tu camino empieza, {firstName || "tú"}.
           </h1>
           <p className="max-w-[28ch] text-base leading-snug text-ink-muted">
-            Hemos preparado tu plan personalizado. Tu equipo de apoyo ya te espera.
+            Cada día te propondremos un paso pequeño. Empecemos por el de hoy.
           </p>
         </div>
 
@@ -152,7 +153,7 @@ export function OnboardingFlow({ defaultAlias }: { defaultAlias: string }) {
           className="btn-primary mt-2 w-full max-w-[320px]"
           onClick={() => router.push("/home?welcome=1")}
         >
-          Entrar a mi RENACE
+          Ver mi día de hoy
           <IconArrowRight size={18} aria-hidden />
         </button>
       </div>
@@ -181,6 +182,11 @@ export function OnboardingFlow({ defaultAlias }: { defaultAlias: string }) {
       {/* STEP 1 · Nombre */}
       {step === 1 && (
         <section className="flex flex-1 flex-col gap-4 animate-[fade-in_220ms_ease-out]">
+          <div className="rounded-2xl bg-brand-50 px-4 py-3">
+            <p className="text-sm font-semibold text-brand-800">
+              {DAILY_PURPOSE}
+            </p>
+          </div>
           <h1 className="text-3xl font-bold tracking-tight text-ink-primary">
             ¿Cómo quieres que te llamemos?
           </h1>

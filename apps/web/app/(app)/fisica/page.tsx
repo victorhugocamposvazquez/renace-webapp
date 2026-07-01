@@ -43,7 +43,7 @@ export default async function FisicaPage() {
 
   return (
     <div className="flex flex-1 flex-col gap-5 px-5 py-5">
-      <BackLink fallbackHref="/home" />
+      <BackLink fallbackHref="/recuperacion" />
       <AreaHeader area="fisica" percent={fisicaPercent} />
 
       {liveClasses.length > 0 && <LiveClassesSection classes={liveClasses} />}

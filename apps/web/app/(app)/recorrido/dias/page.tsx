@@ -103,7 +103,7 @@ export default async function RecoveryDaysPage() {
 
   return (
     <div className="page-stack px-5 py-5">
-      <BackLink fallbackHref="/home" />
+      <BackLink fallbackHref="/recuperacion" />
 
       <header className="relative overflow-hidden rounded-[24px] border border-outline-soft/70 bg-elevated p-5 shadow-soft">
         <div
