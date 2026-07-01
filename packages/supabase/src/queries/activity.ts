@@ -168,6 +168,10 @@ function startOfTodayIso(): string {
   return d.toISOString();
 }
 
+function warnActivity(scope: string, error: { message?: string }) {
+  console.warn(`[activity] ${scope}:`, error.message ?? error);
+}
+
 /** ¿Hay actividad del tipo indicado registrada hoy? */
 export async function hasActivityKindToday(
   client: RenaceClient,
@@ -181,7 +185,10 @@ export async function hasActivityKindToday(
     .eq("kind", kind)
     .gte("created_at", startOfTodayIso())
     .limit(1);
-  if (error) throw error;
+  if (error) {
+    warnActivity("hasActivityKindToday", error);
+    return false;
+  }
   return (data?.length ?? 0) > 0;
 }
 
@@ -196,7 +203,10 @@ export async function hasJournalToday(
     .eq("user_id", userId)
     .gte("created_at", startOfTodayIso())
     .limit(1);
-  if (error) throw error;
+  if (error) {
+    warnActivity("hasJournalToday", error);
+    return false;
+  }
   return (data?.length ?? 0) > 0;
 }
 
@@ -214,7 +224,10 @@ export async function hasCourseSeenToday(
     .gte("last_seen_at", since);
   if (courseId) q = q.eq("course_id", courseId);
   const { data, error } = await q.limit(1);
-  if (error) throw error;
+  if (error) {
+    warnActivity("hasCourseSeenToday", error);
+    return false;
+  }
   return (data?.length ?? 0) > 0;
 }
 
@@ -244,9 +257,15 @@ export async function hasFisicaActivityToday(
       .eq("user_id", userId)
       .gte("last_seen_at", since)
   ]);
-  if (breathing.error) throw breathing.error;
-  if (microActions.error) throw microActions.error;
-  if (fisicaSeen.error) throw fisicaSeen.error;
+  if (breathing.error) {
+    warnActivity("hasFisicaActivityToday/breathing", breathing.error);
+  }
+  if (microActions.error) {
+    warnActivity("hasFisicaActivityToday/microActions", microActions.error);
+  }
+  if (fisicaSeen.error) {
+    warnActivity("hasFisicaActivityToday/fisicaSeen", fisicaSeen.error);
+  }
 
   type FisicaSeenRow = {
     course: { area?: string } | { area?: string }[] | null;
@@ -257,6 +276,7 @@ export async function hasFisicaActivityToday(
     (r) => (r.payload as { actionId?: string })?.actionId === "paseo"
   );
   if (paseoDone) return true;
+  if (fisicaSeen.error) return false;
   return ((fisicaSeen.data as FisicaSeenRow[] | null) ?? []).some((r) => {
     const courseRaw = Array.isArray(r.course) ? r.course[0] : r.course;
     return courseRaw?.area === "fisica";
@@ -273,7 +293,10 @@ export async function hasLiveReminderToday(
     .select("course:courses!course_enrollments_course_id_fkey(kind)")
     .eq("user_id", userId)
     .eq("reminder_set", true);
-  if (error) throw error;
+  if (error) {
+    warnActivity("hasLiveReminderToday", error);
+    return false;
+  }
 
   type ReminderRow = {
     course: { kind?: string } | { kind?: string }[] | null;
