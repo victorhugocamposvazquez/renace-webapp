@@ -45,7 +45,7 @@ Repite el ciclo **4 veces**. Si te mareas, vuelve a tu respiración normal y ret
 - **Antes de una conversación difícil** (5 minutos antes).
 - **Al acostarte**, con las luces tenues.
 
-Puedes pedirle a Aria que te guíe diciendo "probemos respiración 4-7-8". Ella te acompaña en tiempo real.
+Puedes pedir apoyo en la sección Apoyo diciendo "probemos respiración 4-7-8". El equipo te guía en tiempo real.
 
 **Meta de hoy:** una sola ronda completa. Mañana, dos.`
     }
@@ -144,7 +144,7 @@ En RENACE, la sección Laboral te muestra ofertas con match. Marca "Me interesa"
 - No publicar fotos de documentos en redes.
 - Desconfiar de "ofertas" que piden dinero adelantado.
 
-Si algo te suena demasiado bueno, pregunta en Comunidad o a Aria antes de hacer clic.`
+Si algo te suena demasiado bueno, pregunta en Comunidad o al equipo de apoyo antes de hacer clic.`
     }
   ],
 

@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { IconMoodSmile, IconX } from "@tabler/icons-react";
 import { MOOD_LABELS, type MoodScore } from "@renace/core";
 import { logMoodAction } from "@/app/(app)/emocional/actions";
+import { ModalLayer } from "@/components/ModalLayer";
 
 export function MoodQuickSheet({
   initialScore = null
@@ -52,48 +53,48 @@ export function MoodQuickSheet({
         </span>
       </button>
 
-      {open && (
-        <div
-          className="fixed inset-0 z-50 flex items-end justify-center bg-ink-primary/40 p-4 pb-[max(env(safe-area-inset-bottom),16px)]"
-          role="dialog"
-          aria-labelledby="mood-sheet-title"
-        >
-          <div className="w-full max-w-[480px] rounded-[24px] bg-elevated p-5 shadow-lift animate-[sheet-in_280ms_ease-out]">
-            <div className="mb-4 flex items-center justify-between">
-              <h2 id="mood-sheet-title" className="text-lg font-bold text-ink-primary">
-                ¿Cómo te sientes?
-              </h2>
-              <button
-                type="button"
-                onClick={() => setOpen(false)}
-                aria-label="Cerrar"
-                className="tap-target grid place-items-center rounded-full text-ink-muted"
-              >
-                <IconX size={20} aria-hidden />
-              </button>
-            </div>
-            <div className="flex justify-between gap-2">
-              {([1, 2, 3, 4, 5] as MoodScore[]).map((n) => (
-                <button
-                  key={n}
-                  type="button"
-                  disabled={isPending}
-                  onClick={() => save(n)}
-                  aria-label={MOOD_LABELS[n]?.label}
-                  className="mood-option mood-option-idle flex-1"
-                >
-                  <span className="text-[28px]">{MOOD_LABELS[n]?.emoji}</span>
-                </button>
-              ))}
-            </div>
-            {saved && (
-              <p className="mt-3 text-center text-sm font-semibold text-brand-700">
-                Guardado. Gracias por compartirlo.
-              </p>
-            )}
-          </div>
+      <ModalLayer
+        open={open}
+        onClose={() => setOpen(false)}
+        ariaLabel="Registrar ánimo"
+        labelledBy="mood-sheet-title"
+        dismissible={!isPending}
+        overlayClassName="z-50 bg-ink-primary/40 pb-[max(env(safe-area-inset-bottom),16px)]"
+        panelClassName="rounded-[24px] bg-elevated p-5 shadow-lift animate-[sheet-in_280ms_ease-out]"
+      >
+        <div className="mb-4 flex items-center justify-between">
+          <h2 id="mood-sheet-title" className="text-lg font-bold text-ink-primary">
+            ¿Cómo te sientes?
+          </h2>
+          <button
+            type="button"
+            onClick={() => setOpen(false)}
+            aria-label="Cerrar"
+            className="tap-target grid place-items-center rounded-full text-ink-muted"
+          >
+            <IconX size={20} aria-hidden />
+          </button>
         </div>
-      )}
+        <div className="flex justify-between gap-2">
+          {([1, 2, 3, 4, 5] as MoodScore[]).map((n) => (
+            <button
+              key={n}
+              type="button"
+              disabled={isPending}
+              onClick={() => save(n)}
+              aria-label={MOOD_LABELS[n]?.label}
+              className="mood-option mood-option-idle flex-1"
+            >
+              <span className="text-[28px]">{MOOD_LABELS[n]?.emoji}</span>
+            </button>
+          ))}
+        </div>
+        {saved && (
+          <p className="mt-3 text-center text-sm font-semibold text-brand-700">
+            Guardado. Gracias por compartirlo.
+          </p>
+        )}
+      </ModalLayer>
     </>
   );
 }

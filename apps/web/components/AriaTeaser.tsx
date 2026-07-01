@@ -22,7 +22,7 @@ export function AriaTeaser({ intro }: { intro?: string }) {
           <div className="text-xs font-medium uppercase tracking-[0.14em] text-white/80">
             Estamos contigo
           </div>
-          <div className="text-lg font-bold tracking-tight">Equipo RENACE · 24/7</div>
+          <div className="text-lg font-bold tracking-tight">Equipo RENACE</div>
         </div>
         <IconArrowRight
           size={20}

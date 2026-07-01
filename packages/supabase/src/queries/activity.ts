@@ -161,3 +161,126 @@ export async function getWeekActivitySummary(
     actionsDone
   };
 }
+
+function startOfTodayIso(): string {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d.toISOString();
+}
+
+/** ¿Hay actividad del tipo indicado registrada hoy? */
+export async function hasActivityKindToday(
+  client: RenaceClient,
+  userId: string,
+  kind: string
+): Promise<boolean> {
+  const { data, error } = await client
+    .from("activity_logs")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("kind", kind)
+    .gte("created_at", startOfTodayIso())
+    .limit(1);
+  if (error) throw error;
+  return (data?.length ?? 0) > 0;
+}
+
+/** ¿Hay entrada de diario hoy? */
+export async function hasJournalToday(
+  client: RenaceClient,
+  userId: string
+): Promise<boolean> {
+  const { data, error } = await client
+    .from("journal_entries")
+    .select("id")
+    .eq("user_id", userId)
+    .gte("created_at", startOfTodayIso())
+    .limit(1);
+  if (error) throw error;
+  return (data?.length ?? 0) > 0;
+}
+
+/** ¿El usuario visitó/progresó un curso hoy (last_seen_at)? */
+export async function hasCourseSeenToday(
+  client: RenaceClient,
+  userId: string,
+  courseId?: string
+): Promise<boolean> {
+  const since = startOfTodayIso();
+  let q = client
+    .from("course_enrollments")
+    .select("id")
+    .eq("user_id", userId)
+    .gte("last_seen_at", since);
+  if (courseId) q = q.eq("course_id", courseId);
+  const { data, error } = await q.limit(1);
+  if (error) throw error;
+  return (data?.length ?? 0) > 0;
+}
+
+/** ¿Hay actividad física hoy (respiración, paseo o curso de área física)? */
+export async function hasFisicaActivityToday(
+  client: RenaceClient,
+  userId: string
+): Promise<boolean> {
+  const since = startOfTodayIso();
+  const [breathing, microActions, fisicaSeen] = await Promise.all([
+    client
+      .from("activity_logs")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("kind", "breathing")
+      .gte("created_at", since)
+      .limit(1),
+    client
+      .from("activity_logs")
+      .select("payload")
+      .eq("user_id", userId)
+      .eq("kind", "micro_action")
+      .gte("created_at", since),
+    client
+      .from("course_enrollments")
+      .select("course:courses!course_enrollments_course_id_fkey(area)")
+      .eq("user_id", userId)
+      .gte("last_seen_at", since)
+  ]);
+  if (breathing.error) throw breathing.error;
+  if (microActions.error) throw microActions.error;
+  if (fisicaSeen.error) throw fisicaSeen.error;
+
+  type FisicaSeenRow = {
+    course: { area?: string } | { area?: string }[] | null;
+  };
+
+  if ((breathing.data?.length ?? 0) > 0) return true;
+  const paseoDone = (microActions.data ?? []).some(
+    (r) => (r.payload as { actionId?: string })?.actionId === "paseo"
+  );
+  if (paseoDone) return true;
+  return ((fisicaSeen.data as FisicaSeenRow[] | null) ?? []).some((r) => {
+    const courseRaw = Array.isArray(r.course) ? r.course[0] : r.course;
+    return courseRaw?.area === "fisica";
+  });
+}
+
+/** ¿Tiene recordatorio activo en alguna clase en directo? */
+export async function hasLiveReminderToday(
+  client: RenaceClient,
+  userId: string
+): Promise<boolean> {
+  const { data, error } = await client
+    .from("course_enrollments")
+    .select("course:courses!course_enrollments_course_id_fkey(kind)")
+    .eq("user_id", userId)
+    .eq("reminder_set", true);
+  if (error) throw error;
+
+  type ReminderRow = {
+    course: { kind?: string } | { kind?: string }[] | null;
+  };
+
+  return ((data as ReminderRow[] | null) ?? []).some((r) => {
+    const courseRaw = Array.isArray(r.course) ? r.course[0] : r.course;
+    return courseRaw?.kind === "live_class";
+  });
+}

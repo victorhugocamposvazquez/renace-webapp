@@ -12,6 +12,8 @@ import {
   IconX
 } from "@tabler/icons-react";
 import { MOOD_LABELS, type MoodScore } from "@renace/core";
+import { AREA_THEMES, palette } from "@renace/tokens";
+import { useModalLayer } from "@/hooks/useModalLayer";
 import { logMoodAction } from "@/app/(app)/emocional/actions";
 
 type StepKind = "mood" | "habit" | "live" | "course" | "diary";
@@ -28,29 +30,42 @@ type StepDef = {
   when?: string;
   cta: string;
   href: string;
-  toast: string;
-  /** true si el dato viene del servidor (ánimo / micro-acción ya registrados hoy). */
-  serverDone: boolean;
+  done: boolean;
 };
 
 export type TodayPathProps = {
-  alias: string;
   moodDone: boolean;
+  physicalDone: boolean;
   physical:
     | { kind: "live" | "video"; title: string; when?: string; meta: string; href: string }
     | null;
+  liveDone: boolean;
   liveClass: { title: string; when: string; href: string } | null;
+  courseDone: boolean;
   course: { title: string; meta: string; href: string } | null;
+  diaryDone: boolean;
 };
 
+const TAG = {
+  mood: { bg: AREA_THEMES.emocional.tint, fg: AREA_THEMES.emocional.text },
+  habit: { bg: AREA_THEMES.fisica.tint, fg: AREA_THEMES.fisica.text },
+  live: { bg: `${palette.state.danger}18`, fg: palette.state.danger },
+  course: { bg: AREA_THEMES.emocional.tint, fg: AREA_THEMES.emocional.text },
+  diary: { bg: AREA_THEMES.comunidad.tint, fg: AREA_THEMES.comunidad.text }
+} as const;
+
 export function TodayPath({
-  alias,
   moodDone,
+  physicalDone,
   physical,
+  liveDone,
   liveClass,
-  course
+  courseDone,
+  course,
+  diaryDone
 }: TodayPathProps) {
   const router = useRouter();
+  const sheetRef = useRef<HTMLDivElement>(null);
 
   const steps = useMemo<StepDef[]>(() => {
     const list: StepDef[] = [
@@ -58,21 +73,20 @@ export function TodayPath({
         kind: "mood",
         icon: IconPencil,
         tag: "Registro",
-        tagBg: "#EFEAFA",
-        tagFg: "#8167C6",
+        tagBg: TAG.mood.bg,
+        tagFg: TAG.mood.fg,
         title: "Registra cómo estás",
         body: "Un momento para escucharte. ¿Cómo amaneces hoy?",
         cta: "Registrar mi ánimo",
         href: "#mi-animo",
-        toast: "Registrado · gracias por escucharte",
-        serverDone: moodDone
+        done: moodDone
       },
       {
         kind: "habit",
         icon: IconWalk,
         tag: "Hábito físico",
-        tagBg: "#E6F4EC",
-        tagFg: "#0E7A3F",
+        tagBg: TAG.habit.bg,
+        tagFg: TAG.habit.fg,
         title: physical ? physical.title : "Muévete 15 minutos hoy",
         when: physical?.when,
         meta: physical ? physical.meta : undefined,
@@ -86,8 +100,7 @@ export function TodayPath({
               ? "Ver el vídeo"
               : "Ir a Física",
         href: physical ? physical.href : "/fisica",
-        toast: "¡Bien hecho! Un paso más para tu cuerpo",
-        serverDone: false
+        done: physicalDone
       }
     ];
 
@@ -96,29 +109,27 @@ export function TodayPath({
         kind: "live",
         icon: IconBroadcast,
         tag: "En directo",
-        tagBg: "#FDEAEC",
-        tagFg: "#E8485F",
+        tagBg: TAG.live.bg,
+        tagFg: TAG.live.fg,
         title: liveClass.title,
         when: liveClass.when,
         meta: "Con el equipo · te guardamos la plaza",
         cta: "Guardar mi plaza",
         href: liveClass.href,
-        toast: "Plaza guardada · te avisaremos antes de empezar",
-        serverDone: false
+        done: liveDone
       });
     } else {
       list.push({
         kind: "live",
         icon: IconBroadcast,
         tag: "Calma",
-        tagBg: "#FDEAEC",
-        tagFg: "#E8485F",
+        tagBg: TAG.live.bg,
+        tagFg: TAG.live.fg,
         title: "Respiración guiada, 2 minutos",
         meta: "Baja el ritmo con la guía 4-7-8",
         cta: "Empezar",
         href: "/respira",
-        toast: "Date este momento · respira con calma",
-        serverDone: false
+        done: liveDone
       });
     }
 
@@ -126,85 +137,67 @@ export function TodayPath({
       kind: "course",
       icon: IconSchool,
       tag: "Formación · 10 min",
-      tagBg: "#FCE9F0",
-      tagFg: "#E14B79",
+      tagBg: TAG.course.bg,
+      tagFg: TAG.course.fg,
       title: course ? course.title : "Avanza con un curso",
       meta: course ? course.meta : "Lecciones cortas y guiadas",
       cta: "Continuar",
       href: course ? course.href : "/cursos",
-      toast: "Sigues sumando · 10 minutos cuentan",
-      serverDone: false
+      done: courseDone
     });
 
     list.push({
       kind: "diary",
       icon: IconMoon,
       tag: "Cierra el día",
-      tagBg: "#EFEAFA",
-      tagFg: "#8167C6",
+      tagBg: TAG.diary.bg,
+      tagFg: TAG.diary.fg,
       title: "Cierra el día con tu diario",
       when: "Esta noche",
       cta: "Escribir mi diario",
       href: "/emocional#diario",
-      toast: `Buenas noches, ${alias}. Mañana seguimos`,
-      serverDone: false
+      done: diaryDone
     });
 
     return list;
-  }, [alias, moodDone, physical, liveClass, course]);
+  }, [
+    moodDone,
+    physicalDone,
+    physical,
+    liveDone,
+    liveClass,
+    courseDone,
+    course,
+    diaryDone
+  ]);
 
-  const [doneState, setDoneState] = useState<boolean[]>(() =>
-    steps.map((s) => s.serverDone)
-  );
+  const doneState = steps.map((s) => s.done);
+  const activeIndex = doneState.indexOf(false);
+  const doneCount = doneState.filter(Boolean).length;
+  const allDone = activeIndex === -1;
 
-  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [toast, setToast] = useState<{ msg: string; undoIndex: number | null } | null>(
-    null
-  );
   const [moodOpen, setMoodOpen] = useState(false);
   const [moodScore, setMoodScore] = useState<MoodScore | null>(null);
   const [moodNote, setMoodNote] = useState("");
   const [moodPending, startMood] = useTransition();
+  const [toast, setToast] = useState<string | null>(null);
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  function showToast(msg: string, undoIndex: number | null) {
-    setToast({ msg, undoIndex });
+  function showToast(msg: string) {
+    setToast(msg);
     if (toastTimer.current) clearTimeout(toastTimer.current);
-    toastTimer.current = setTimeout(
-      () => setToast(null),
-      undoIndex != null ? 4000 : 2400
-    );
-  }
-
-  const activeIndex = doneState.indexOf(false);
-  const doneCount = doneState.filter(Boolean).length;
-  const lastDone = activeIndex === -1 ? steps.length - 1 : activeIndex - 1;
-  const allDone = activeIndex === -1;
-
-  function complete(i: number, navigate?: boolean) {
-    setDoneState((prev) => {
-      if (prev[i]) return prev;
-      const next = [...prev];
-      next[i] = true;
-      return next;
-    });
-    showToast(steps[i]!.toast, i);
-    if (navigate) router.push(steps[i]!.href);
-  }
-
-  function undo(i: number) {
-    setDoneState((prev) => {
-      if (!prev[i]) return prev;
-      const next = [...prev];
-      next[i] = false;
-      return next;
-    });
-    setToast(null);
+    toastTimer.current = setTimeout(() => setToast(null), 2400);
   }
 
   function openMoodSheet() {
     setMoodScore(null);
     setMoodNote("");
     setMoodOpen(true);
+  }
+
+  function closeMoodSheet() {
+    if (moodPending) return;
+    setMoodOpen(false);
   }
 
   function saveMood() {
@@ -218,11 +211,27 @@ export function TodayPath({
       if (res.ok) {
         setMoodOpen(false);
         setMoodNote("");
-        const idx = steps.findIndex((s) => s.kind === "mood");
-        if (idx >= 0) complete(idx);
+        showToast("Registrado · gracias por escucharte");
+        router.refresh();
       }
     });
   }
+
+  function goToStep(step: StepDef) {
+    if (step.kind === "mood") {
+      openMoodSheet();
+      return;
+    }
+    router.push(step.href);
+  }
+
+  // Bloqueo de scroll, Escape y focus trap en el sheet de ánimo
+  useModalLayer({
+    open: moodOpen,
+    onClose: closeMoodSheet,
+    dismissible: !moodPending,
+    panelRef: sheetRef
+  });
 
   return (
     <section aria-label="Tu camino de hoy">
@@ -253,7 +262,7 @@ export function TodayPath({
                       ? "border-brand-600 bg-brand-600 text-ink-inverse"
                       : isActive
                         ? "border-brand-600 bg-elevated text-brand-700 ring-4 ring-brand-100"
-                        : "border-outline-medium bg-elevated text-ink-subtle opacity-70")
+                        : "border-outline-medium bg-elevated text-ink-muted")
                   }
                 >
                   {isDone ? (
@@ -285,20 +294,7 @@ export function TodayPath({
                     <span className="text-sm font-bold text-ink-muted line-through">
                       {step.title}
                     </span>
-                    <span className="flex items-center gap-2">
-                      {i === lastDone && (
-                        <button
-                          type="button"
-                          onClick={() => undo(i)}
-                          className="rounded-full px-2 py-1 text-xs font-bold text-brand-700"
-                        >
-                          Deshacer
-                        </button>
-                      )}
-                      <span className="text-xs font-bold text-ink-subtle">
-                        {step.serverDone ? "Hoy" : "Hecho"}
-                      </span>
-                    </span>
+                    <span className="text-xs font-bold text-ink-subtle">Hoy</span>
                   </div>
                 ) : isActive ? (
                   <>
@@ -327,25 +323,13 @@ export function TodayPath({
                         {step.when ? ` · ${step.when}` : ""}
                       </p>
                     )}
-                    <div className="mt-4 flex gap-2.5">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          step.kind === "mood" ? openMoodSheet() : complete(i, true)
-                        }
-                        className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-brand-600 text-sm font-bold text-ink-inverse shadow-brand-glow transition-transform active:scale-[0.97]"
-                      >
-                        {step.cta}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => complete(i)}
-                        aria-label="Marcar como hecho"
-                        className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-700 transition-transform active:scale-[0.97]"
-                      >
-                        <IconCheck size={20} stroke={2.4} aria-hidden />
-                      </button>
-                    </div>
+                    <button
+                      type="button"
+                      onClick={() => goToStep(step)}
+                      className="mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-brand-600 text-sm font-bold text-ink-inverse shadow-brand-glow transition-transform active:scale-[0.97]"
+                    >
+                      {step.cta}
+                    </button>
                   </>
                 ) : (
                   <>
@@ -396,17 +380,8 @@ export function TodayPath({
           role="status"
           className="pointer-events-none fixed inset-x-0 bottom-28 z-40 flex justify-center px-6"
         >
-          <div className="pointer-events-auto flex items-center gap-3 rounded-full bg-ink-primary px-4 py-2.5 text-sm font-semibold text-ink-inverse shadow-lift">
-            <span>{toast.msg}</span>
-            {toast.undoIndex != null && (
-              <button
-                type="button"
-                onClick={() => undo(toast.undoIndex!)}
-                className="font-bold text-brand-200 underline-offset-2 hover:underline"
-              >
-                Deshacer
-              </button>
-            )}
+          <div className="rounded-full bg-ink-primary px-4 py-2.5 text-sm font-semibold text-ink-inverse shadow-lift">
+            {toast}
           </div>
         </div>
       )}
@@ -417,15 +392,21 @@ export function TodayPath({
           role="dialog"
           aria-modal="true"
           aria-labelledby="path-mood-title"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) closeMoodSheet();
+          }}
         >
-          <div className="max-h-[80dvh] w-full max-w-[480px] overflow-y-auto overscroll-contain rounded-[24px] bg-elevated p-5 shadow-lift animate-[sheet-in_280ms_ease-out]">
+          <div
+            ref={sheetRef}
+            className="max-h-[80dvh] w-full max-w-[480px] overflow-y-auto overscroll-contain rounded-[24px] bg-elevated p-5 shadow-lift animate-[sheet-in_280ms_ease-out]"
+          >
             <div className="mb-1 flex items-center justify-between">
               <h2 id="path-mood-title" className="text-lg font-bold text-ink-primary">
                 ¿Cómo te sientes?
               </h2>
               <button
                 type="button"
-                onClick={() => setMoodOpen(false)}
+                onClick={closeMoodSheet}
                 aria-label="Cerrar"
                 className="tap-target grid place-items-center rounded-full text-ink-muted"
               >

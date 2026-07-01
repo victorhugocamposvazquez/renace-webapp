@@ -9,10 +9,10 @@ import {
 } from "@renace/supabase";
 import type { AreaId } from "@renace/supabase";
 import { AREA_LABEL, AREA_ORDER } from "@renace/core";
-import { AREA_THEMES } from "@renace/tokens";
 import { BackLink } from "@/components/BackLink";
 import { CourseHubTabs, type CourseHubTab } from "@/components/cursos/CourseHubTabs";
 import { CourseListCard } from "@/components/cursos/CourseListCard";
+import { AreaCourseGroup } from "@/components/cursos/CourseListSection";
 import { CourseAreaFilter } from "@/components/cursos/CourseAreaFilter";
 import { LiveClassesSection } from "@/components/cursos/LiveClassesSection";
 
@@ -238,46 +238,6 @@ function groupByArea<T extends { area: AreaId }>(items: T[]): Map<AreaId, T[]> {
     map.set(item.area, list);
   }
   return map;
-}
-
-function AreaCourseGroup({
-  area,
-  courses,
-  seeAllHref
-}: {
-  area: AreaId;
-  courses: import("@renace/supabase").CourseWithEnrollment[];
-  seeAllHref?: string;
-}) {
-  const theme = AREA_THEMES[area];
-  return (
-    <section>
-      <div className="area-section-header">
-        <span
-          aria-hidden
-          className="h-[18px] w-1 rounded-full"
-          style={{ backgroundColor: theme.core }}
-        />
-        <h2 className="flex-1 text-[16px] font-bold text-ink-primary">{AREA_LABEL[area]}</h2>
-        {seeAllHref && courses.length > 3 && (
-          <Link
-            href={seeAllHref}
-            className="shrink-0 text-[12px] font-bold"
-            style={{ color: theme.text }}
-          >
-            Ver todos ({courses.length})
-          </Link>
-        )}
-      </div>
-      <ul role="list" className="flex flex-col gap-2.5">
-        {(seeAllHref ? courses.slice(0, 3) : courses).map((c) => (
-          <li key={c.id}>
-            <CourseListCard course={c} />
-          </li>
-        ))}
-      </ul>
-    </section>
-  );
 }
 
 function EmptyState({

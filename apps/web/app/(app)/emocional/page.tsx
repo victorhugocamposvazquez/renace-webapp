@@ -12,6 +12,7 @@ import {
   listAreaProgress
 } from "@renace/supabase";
 import { type MoodScore } from "@renace/core";
+import { AREA_THEMES } from "@renace/tokens";
 import { BackLink } from "@/components/BackLink";
 import { AreaHeader } from "@/components/AreaHeader";
 import { MoodPicker } from "@/components/emocional/MoodPicker";
@@ -20,8 +21,8 @@ import { TriggersSection } from "@/components/emocional/TriggersSection";
 import { CravingNowButton } from "@/components/emocional/CravingNowButton";
 import { MoodEvolution } from "@/components/emocional/MoodEvolution";
 import { LiveEventCard } from "@/components/LiveEventCard";
-import { CourseShelf } from "@/components/cursos/CourseShelf";
-import { ContinueWatchingShelf } from "@/components/cursos/ContinueWatchingShelf";
+import { CourseListSection } from "@/components/cursos/CourseListSection";
+import { ContinueWatchingList } from "@/components/cursos/ContinueWatchingList";
 import { LiveClassesSection } from "@/components/cursos/LiveClassesSection";
 
 export const metadata: Metadata = { title: "Emocional · RENACE" };
@@ -44,7 +45,6 @@ export default async function EmocionalPage() {
   const supportEvent =
     events.find((e) => e.kind === "support_group") ?? events[0] ?? null;
   const continueEmocional = inProgress.filter((c) => c.area === "emocional");
-
   const recommended = courses.filter((c) => !c.enrollment).slice(0, 8);
 
   return (
@@ -53,27 +53,31 @@ export default async function EmocionalPage() {
       <AreaHeader area="emocional" percent={emocionalPercent} />
 
       <MoodPicker initialScore={(today?.score as MoodScore | null) ?? null} />
-
       <CravingNowButton triggers={triggers} />
 
       {continueEmocional.length > 0 && (
-        <ContinueWatchingShelf
+        <ContinueWatchingList
           courses={continueEmocional}
           subtitle="Tus cursos emocionales activos"
+          seeAllHref="/cursos?tab=catalog&area=emocional"
         />
       )}
 
       {liveClasses.length > 0 && <LiveClassesSection classes={liveClasses} />}
 
-      <CourseShelf
-        title="Cuidarte por dentro"
+      <CourseListSection
+        title="Cursos de esta área"
         subtitle="Sesiones cortas guiadas"
         courses={recommended}
-        seeAllHref="/cursos?tab=catalog"
+        seeAllHref="/cursos?tab=catalog&area=emocional"
+        limit={5}
+        accentColor={AREA_THEMES.emocional.core}
         emptyText="Pronto nuevos cursos por aquí."
       />
 
-      {supportEvent && <LiveEventCard event={supportEvent} accent="#E14B79" />}
+      {supportEvent && (
+        <LiveEventCard event={supportEvent} accent={AREA_THEMES.emocional.core} />
+      )}
 
       <h2 className="label-eyebrow mt-2">Tus herramientas</h2>
       <JournalSection entries={journal} />

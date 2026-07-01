@@ -383,7 +383,7 @@
   }
 
   .hub-segmented-item-active .hub-segmented-count {
-    @apply text-brand-200;
+    @apply text-white/80;
   }
 
   .area-section-header {

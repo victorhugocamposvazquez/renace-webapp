@@ -10,12 +10,13 @@ import {
   listInProgressCourses,
   listAreaProgress
 } from "@renace/supabase";
+import { AREA_THEMES } from "@renace/tokens";
 import { BackLink } from "@/components/BackLink";
 import { AreaHeader } from "@/components/AreaHeader";
 import { MetricGrid } from "@/components/fisica/MetricGrid";
 import { LiveClassesSection } from "@/components/cursos/LiveClassesSection";
-import { CourseShelf } from "@/components/cursos/CourseShelf";
-import { ContinueWatchingShelf } from "@/components/cursos/ContinueWatchingShelf";
+import { CourseListSection } from "@/components/cursos/CourseListSection";
+import { ContinueWatchingList } from "@/components/cursos/ContinueWatchingList";
 
 export const metadata: Metadata = { title: "Física · RENACE" };
 
@@ -45,13 +46,13 @@ export default async function FisicaPage() {
       <BackLink fallbackHref="/home" />
       <AreaHeader area="fisica" percent={fisicaPercent} />
 
-      {/* Las clases en directo son el foco visual de Física */}
-      <LiveClassesSection classes={liveClasses} />
+      {liveClasses.length > 0 && <LiveClassesSection classes={liveClasses} />}
 
       {continueFisica.length > 0 && (
-        <ContinueWatchingShelf
+        <ContinueWatchingList
           courses={continueFisica}
           subtitle="Tus rutinas en marcha"
+          seeAllHref="/cursos?tab=catalog&area=fisica"
         />
       )}
 
@@ -69,7 +70,7 @@ export default async function FisicaPage() {
             value: moodAvg !== null ? String(moodAvg) : "—",
             sub: "Últimos 7 días",
             bars: sparkBars,
-            color: "#1B9E55"
+            color: AREA_THEMES.fisica.core
           },
           {
             kind: "plain",
@@ -102,11 +103,13 @@ export default async function FisicaPage() {
         </span>
       </Link>
 
-      <CourseShelf
+      <CourseListSection
         title="Mueve tu cuerpo, sin agobios"
         subtitle="Rutinas progresivas a tu ritmo"
         courses={recommended}
-        seeAllHref="/cursos?tab=catalog"
+        seeAllHref="/cursos?tab=catalog&area=fisica"
+        limit={5}
+        accentColor={AREA_THEMES.fisica.core}
         emptyText="Pronto nuevas rutinas por aquí."
       />
     </div>

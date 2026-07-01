@@ -13,6 +13,8 @@ import {
 import { requireUser } from "@/lib/auth";
 import { getCourseBySlug } from "@renace/supabase";
 import { formatCountdown, formatDuration, getCourseLessons, AREA_LABEL, AREA_HREF } from "@renace/core";
+import { AREA_THEMES } from "@renace/tokens";
+import { areaHeroGradient, areaTint, areaTintMedium, HERO_RADIAL_GLOW } from "@/lib/areaHeroStyles";
 import { BackLink } from "@/components/BackLink";
 import { ProgressControls } from "@/components/cursos/ProgressControls";
 import { ReminderToggleForm } from "@/components/cursos/ReminderToggleForm";
@@ -23,7 +25,11 @@ type Props = { params: Promise<{ slug: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  return { title: `${slug} · RENACE` };
+  const { client, userId } = await requireUser();
+  const course = await getCourseBySlug(client, userId, slug);
+  return {
+    title: course ? `${course.title} · RENACE` : `${slug} · RENACE`
+  };
 }
 
 const AREA_HREF_MAP = AREA_HREF;
@@ -35,6 +41,8 @@ export default async function CourseDetailPage({ params }: Props) {
   const course = await getCourseBySlug(client, userId, slug);
   if (!course) notFound();
 
+  const theme = AREA_THEMES[course.area];
+  const accent = theme.core;
   const enrolled = course.enrollment;
   const progress = enrolled?.progress_percent ?? 0;
   const completed = !!enrolled?.completed_at;
@@ -43,8 +51,6 @@ export default async function CourseDetailPage({ params }: Props) {
   const diffMs = startsAt ? startsAt.getTime() - Date.now() : 0;
   const isAirNow = startsAt ? diffMs <= 0 && diffMs > -90 * 60 * 1000 : false;
   const isSoon = startsAt ? diffMs > 0 && diffMs <= 30 * 60 * 1000 : false;
-  // Banner "Te has inscrito ✓": cuando hay enrollment con progreso = 0 y se
-  // creó hace muy poco (después del click en EnrollButton + refresh).
   const justEnrolled =
     !isLive &&
     !!enrolled &&
@@ -57,18 +63,17 @@ export default async function CourseDetailPage({ params }: Props) {
     <div className="page-stack px-5 py-5">
       <BackLink fallbackHref={AREA_HREF_MAP[course.area]} label={AREA_LABEL_MAP[course.area]} />
 
-      {/* HERO */}
       <header className="relative -mx-5 -mt-5">
         <div
           className="relative overflow-hidden px-5 pb-6 pt-8 text-ink-inverse"
           style={{
-            background: `linear-gradient(135deg, ${course.accent_color} 0%, ${darken(course.accent_color, 22)} 100%)`
+            background: areaHeroGradient(theme.core, theme.coreDark)
           }}
         >
           <div
             aria-hidden
             className="pointer-events-none absolute -right-24 -top-12 h-64 w-64 rounded-full opacity-20"
-            style={{ background: "radial-gradient(circle, #fff 0%, transparent 70%)" }}
+            style={{ background: HERO_RADIAL_GLOW }}
           />
           <div className="relative flex items-center gap-4">
             <span
@@ -126,14 +131,14 @@ export default async function CourseDetailPage({ params }: Props) {
         <div
           className="flex items-start gap-3 rounded-2xl border p-3"
           style={{
-            background: `${course.accent_color}14`,
-            borderColor: `${course.accent_color}33`
+            background: areaTint(accent, 0.08),
+            borderColor: areaTint(accent, 0.2)
           }}
           role="status"
         >
           <span
             className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-ink-inverse"
-            style={{ background: course.accent_color }}
+            style={{ background: accent }}
             aria-hidden
           >
             <IconCheck size={16} />
@@ -149,12 +154,11 @@ export default async function CourseDetailPage({ params }: Props) {
         </div>
       )}
 
-      {/* CTA principal */}
       {isLive ? (
         isAirNow || isSoon ? (
           <LiveClassJoinButton
             courseId={course.id}
-            accent={course.accent_color}
+            accent={accent}
             label={isAirNow ? "Recordarme la sesión" : "Apúntame al recordatorio"}
             initialReminder={!!enrolled?.reminder_set}
           />
@@ -162,7 +166,7 @@ export default async function CourseDetailPage({ params }: Props) {
           <ReminderToggleForm
             courseId={course.id}
             initial={!!enrolled?.reminder_set}
-            accent={course.accent_color}
+            accent={accent}
           />
         )
       ) : completed ? (
@@ -180,13 +184,12 @@ export default async function CourseDetailPage({ params }: Props) {
           totalLessons={course.lessons_count}
           progress={progress}
           currentLesson={enrolled.current_lesson}
-          accent={course.accent_color}
+          accent={accent}
         />
       ) : (
-        <EnrollButton courseId={course.id} accent={course.accent_color} />
+        <EnrollButton courseId={course.id} accent={accent} />
       )}
 
-      {/* Meta secundaria */}
       <section className="card">
         <h2 className="text-sm font-bold text-ink-primary">Qué vas a conseguir</h2>
         <p className="mt-1 text-sm text-ink-secondary">{course.exit_market}</p>
@@ -195,7 +198,6 @@ export default async function CourseDetailPage({ params }: Props) {
         )}
       </section>
 
-      {/* Lecciones */}
       {!isLive && (
         <section>
           <h2 className="label-eyebrow mb-2">Lecciones</h2>
@@ -211,14 +213,14 @@ export default async function CourseDetailPage({ params }: Props) {
                     className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-xs font-bold"
                     style={{
                       background: done
-                        ? course.accent_color
+                        ? accent
                         : current
-                          ? `${course.accent_color}22`
-                          : "#F4F4F2",
+                          ? areaTintMedium(accent)
+                          : "var(--outline-soft, #F4F4F2)",
                       color: done
-                        ? "#fff"
+                        ? theme.onCore
                         : current
-                          ? course.accent_color
+                          ? theme.text
                           : "var(--ink-muted, #6E6E6E)"
                     }}
                   >
@@ -235,7 +237,7 @@ export default async function CourseDetailPage({ params }: Props) {
                   {(current || (!enrolled && i === 0)) && (
                     <span
                       className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-ink-inverse"
-                      style={{ background: course.accent_color }}
+                      style={{ background: accent }}
                     >
                       <IconPlayerPlayFilled size={12} aria-hidden />
                     </span>
@@ -286,13 +288,4 @@ export default async function CourseDetailPage({ params }: Props) {
       )}
     </div>
   );
-}
-
-function darken(hex: string, percent: number): string {
-  const clean = hex.replace("#", "");
-  const num = parseInt(clean, 16);
-  const r = Math.max(0, ((num >> 16) & 0xff) - Math.round((255 * percent) / 100));
-  const g = Math.max(0, ((num >> 8) & 0xff) - Math.round((255 * percent) / 100));
-  const b = Math.max(0, (num & 0xff) - Math.round((255 * percent) / 100));
-  return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
 }

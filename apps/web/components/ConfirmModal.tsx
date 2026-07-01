@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useId, useRef } from "react";
+import { useId, useRef } from "react";
 import { IconAlertTriangle, IconCheck, IconX } from "@tabler/icons-react";
+import { useModalLayer } from "@/hooks/useModalLayer";
 import { Portal } from "./Portal";
 
 export type ConfirmModalTone = "default" | "primary" | "danger";
@@ -22,9 +23,8 @@ export type ConfirmModalProps = {
 /**
  * Bottom-sheet modal de confirmación reutilizable.
  *
- * - Foco trapeado en el primer botón al abrir.
- * - ESC para cancelar; click en backdrop también cancela.
- * - Bloquea el scroll del body cuando está abierto.
+ * - Focus trap + Escape + bloqueo de scroll vía useModalLayer.
+ * - Click en backdrop cancela.
  * - `tone` cambia el color del botón principal (primary = brand, danger = rojo).
  */
 export function ConfirmModal({
@@ -41,43 +41,24 @@ export function ConfirmModal({
 }: ConfirmModalProps) {
   const titleId = useId();
   const descId = useId();
+  const panelRef = useRef<HTMLDivElement>(null);
   const confirmRef = useRef<HTMLButtonElement>(null);
 
-  useEffect(() => {
-    if (!open) return;
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-
-    function handleKey(e: KeyboardEvent) {
-      if (e.key === "Escape" && !busy) onCancel();
-    }
-    window.addEventListener("keydown", handleKey);
-
-    const timer = window.setTimeout(() => {
-      confirmRef.current?.focus();
-    }, 50);
-
-    return () => {
-      document.body.style.overflow = prevOverflow;
-      window.removeEventListener("keydown", handleKey);
-      window.clearTimeout(timer);
-    };
-  }, [open, onCancel, busy]);
+  useModalLayer({
+    open,
+    onClose: onCancel,
+    dismissible: !busy,
+    panelRef
+  });
 
   if (!open) return null;
 
-  const confirmTone =
-    tone === "danger"
-      ? {
-          background: "linear-gradient(135deg, #F43F5E 0%, #E11D48 100%)",
-          boxShadow: "0 12px 32px -8px rgba(225, 29, 72, 0.4)"
-        }
-      : tone === "primary"
-      ? undefined
-      : { background: "#0A0A0A" };
-
   const confirmClass =
-    tone === "primary" ? "btn-primary" : "btn-primary !shadow-none";
+    tone === "primary"
+      ? "btn-primary"
+      : tone === "danger"
+        ? "btn-primary !bg-state-danger !shadow-none"
+        : "btn-primary !bg-ink-primary !shadow-none";
 
   const defaultIcon =
     tone === "danger" ? (
@@ -107,6 +88,7 @@ export function ConfirmModal({
         }}
       >
         <div
+          ref={panelRef}
           className="w-full max-w-[460px] origin-bottom rounded-3xl border border-outline-soft bg-elevated p-6 shadow-lift animate-[sheet-in_220ms_cubic-bezier(0.16,1,0.3,1)]"
           onClick={(e) => e.stopPropagation()}
         >
@@ -151,7 +133,6 @@ export function ConfirmModal({
               type="button"
               onClick={onConfirm}
               disabled={busy}
-              style={confirmTone}
               className={confirmClass}
             >
               {busy ? "Procesando…" : confirmLabel}

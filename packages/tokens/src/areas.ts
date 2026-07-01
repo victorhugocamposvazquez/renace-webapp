@@ -85,8 +85,8 @@ export const AREA_THEMES: Record<AreaId, AreaTheme> = {
 };
 
 export const ARIA_THEME = {
-  label: "Aria",
-  subtitle: "Tu acompañante",
+  label: "Apoyo",
+  subtitle: "Tu espacio de acompañamiento",
   core: "#0F6E56",
   tint: "#DFF1E8",
   border: "#C7E4D5",

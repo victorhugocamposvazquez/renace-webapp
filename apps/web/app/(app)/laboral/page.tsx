@@ -10,11 +10,12 @@ import {
   listAreaProgress
 } from "@renace/supabase";
 import { laboralPhaseFromPercent } from "@renace/core";
+import { AREA_THEMES } from "@renace/tokens";
 import { BackLink } from "@/components/BackLink";
 import { AreaHeader } from "@/components/AreaHeader";
 import { OfferCard } from "@/components/laboral/OfferCard";
-import { CourseShelf } from "@/components/cursos/CourseShelf";
-import { ContinueWatchingShelf } from "@/components/cursos/ContinueWatchingShelf";
+import { CourseListSection } from "@/components/cursos/CourseListSection";
+import { ContinueWatchingList } from "@/components/cursos/ContinueWatchingList";
 
 export const metadata: Metadata = { title: "Laboral · RENACE" };
 
@@ -65,24 +66,29 @@ export default async function LaboralPage() {
       </article>
 
       {continueLaboral.length > 0 && (
-        <ContinueWatchingShelf
+        <ContinueWatchingList
           courses={continueLaboral}
           subtitle="Tus cursos laborales activos"
+          seeAllHref="/cursos?tab=catalog&area=laboral"
         />
       )}
 
-      <CourseShelf
+      <CourseListSection
         title="Cursos para encontrar trabajo"
         subtitle="Salidas reales, hoy"
         courses={highDemand.length > 0 ? highDemand : recommended}
-        seeAllHref="/cursos?tab=catalog"
+        seeAllHref="/cursos?tab=catalog&area=laboral"
+        limit={5}
+        accentColor={AREA_THEMES.laboral.core}
       />
 
       {transverse.length > 0 && (
-        <CourseShelf
+        <CourseListSection
           title="Hábitos que sostienen"
           subtitle="Base transversal para cualquier empleo"
           courses={transverse}
+          limit={5}
+          accentColor={AREA_THEMES.laboral.core}
         />
       )}
 

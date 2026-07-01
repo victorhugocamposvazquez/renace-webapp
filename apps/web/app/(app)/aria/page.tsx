@@ -7,7 +7,7 @@ import {
   IconHelpCircle,
   IconVideo,
   IconChevronRight,
-  IconCalendarEvent
+  IconUsers
 } from "@tabler/icons-react";
 import { requireUser } from "@/lib/auth";
 import { getProfile, listAriaMessages } from "@renace/supabase";
@@ -22,21 +22,39 @@ const QUICK_HELP = [
     icon: IconMessageHeart,
     title: "Necesito hablar",
     desc: "Con una persona del equipo, ahora",
-    tone: "brand" as const
+    tone: "brand" as const,
+    href: "/aria?intent=talk#chat"
   },
   {
     icon: IconHelpCircle,
     title: "Tengo una duda",
     desc: "Sobre la plataforma o tu proceso",
-    tone: "info" as const
+    tone: "info" as const,
+    href: "/aria?intent=question#chat"
   },
   {
     icon: IconVideo,
     title: "Pedir una videollamada",
-    desc: "Cara a cara con tu referente",
-    tone: "fis" as const
+    desc: "Cuando el equipo tenga disponibilidad",
+    tone: "fis" as const,
+    href: "/aria?intent=video#chat"
   }
-];
+] as const;
+
+function intentPrompt(intent: string | null): string | null {
+  switch (intent) {
+    case "talk":
+      return "Necesito hablar con alguien del equipo ahora.";
+    case "question":
+      return "Tengo una duda sobre la plataforma o mi proceso.";
+    case "video":
+      return "Me gustaría pedir una videollamada con el equipo cuando sea posible.";
+    case "breathing":
+      return "Me gustaría empezar una respiración 4-7-8, ¿me guías?";
+    default:
+      return null;
+  }
+}
 
 export default async function ApoyoPage({
   searchParams
@@ -82,36 +100,47 @@ export default async function ApoyoPage({
             </span>
             <div className="flex-1">
               <p className="text-sm font-bold text-ink-primary">
-                ¿Necesitas hablar ahora?
+                ¿Lo necesitas ahora mismo?
               </p>
               <p className="mt-0.5 text-xs leading-relaxed text-ink-muted">
-                Línea de escucha abierta 24/7. Te atiende una persona, sin juicios.
+                La línea <strong>024</strong> atiende las 24 horas en España (gratuita). En
+                la app también puedes hablar con el equipo o activar el modo apoyo.
               </p>
             </div>
           </div>
-          <Link
-            href="/crisis"
-            className="mt-3 flex h-12 items-center justify-center rounded-2xl bg-state-danger text-sm font-bold text-ink-inverse transition-transform active:scale-[0.98]"
-          >
-            Buscar ayuda ahora
-          </Link>
+          <div className="mt-3 flex flex-col gap-2">
+            <a
+              href="tel:024"
+              className="flex h-12 items-center justify-center rounded-2xl bg-state-danger text-sm font-bold text-ink-inverse transition-transform active:scale-[0.98]"
+            >
+              Llamar al 024
+            </a>
+            <Link
+              href="/crisis"
+              className="flex h-12 items-center justify-center rounded-2xl border border-state-danger/30 bg-elevated text-sm font-bold text-state-danger transition-transform active:scale-[0.98]"
+            >
+              Modo apoyo en la app
+            </Link>
+          </div>
         </div>
       </section>
 
       <section className="page-inset">
-        <p className="label-eyebrow mb-2 text-brand-700">Tu referente</p>
+        <p className="label-eyebrow mb-2 text-brand-700">Tu equipo de apoyo</p>
         <div className="card">
           <div className="flex items-center gap-3">
             <span
               aria-hidden
-              className="relative grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-brand-gradient text-lg font-bold text-ink-inverse"
+              className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-brand-50 text-brand-700"
             >
-              R
-              <span className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-elevated bg-brand-600" />
+              <IconUsers size={22} stroke={1.8} aria-hidden />
             </span>
             <div className="flex-1">
-              <p className="text-base font-bold text-ink-primary">Tu referente</p>
-              <p className="text-xs text-ink-muted">Psicóloga del equipo · te acompaña en tu camino</p>
+              <p className="text-base font-bold text-ink-primary">Equipo RENACE</p>
+              <p className="text-xs text-ink-muted">
+                Profesionales del programa te acompañan. Si te asignan un referente concreto,
+                lo verás aquí.
+              </p>
             </div>
           </div>
           <div className="mt-4 flex gap-2.5">
@@ -119,13 +148,13 @@ export default async function ApoyoPage({
               href="#chat"
               className="flex h-12 flex-1 items-center justify-center rounded-2xl bg-brand-600 text-sm font-bold text-ink-inverse transition-transform active:scale-[0.98]"
             >
-              Escribir
+              Escribir al equipo
             </Link>
             <Link
-              href="#chat"
-              className="flex h-12 flex-1 items-center justify-center gap-2 rounded-2xl bg-brand-50 text-sm font-bold text-brand-700 transition-transform active:scale-[0.98]"
+              href="/crisis"
+              className="flex h-12 flex-1 items-center justify-center rounded-2xl bg-brand-50 text-sm font-bold text-brand-700 transition-transform active:scale-[0.98]"
             >
-              <IconCalendarEvent size={18} aria-hidden /> Pedir cita
+              Urgencia
             </Link>
           </div>
         </div>
@@ -140,11 +169,7 @@ export default async function ApoyoPage({
             role: m.role,
             content: m.content
           }))}
-          initialPrompt={
-            intent === "breathing"
-              ? "Me gustaría empezar una respiración 4-7-8, ¿me guías?"
-              : null
-          }
+          initialPrompt={intentPrompt(intent)}
           embedded
         />
       </section>
@@ -163,7 +188,7 @@ export default async function ApoyoPage({
             return (
               <li key={item.title}>
                 <Link
-                  href="#chat"
+                  href={item.href}
                   className="flex items-center gap-3.5 rounded-2xl border border-outline-soft bg-elevated px-4 py-3.5 shadow-soft transition-transform active:scale-[0.99]"
                 >
                   <span

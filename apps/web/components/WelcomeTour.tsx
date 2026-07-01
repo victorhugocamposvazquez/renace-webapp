@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { IconMessageHeart, IconCompass, IconHeartHandshake, IconX } from "@tabler/icons-react";
-import { Portal } from "./Portal";
+import { ModalLayer } from "./ModalLayer";
 
 const SEEN_KEY = "renace_welcome_done";
 
@@ -32,8 +32,6 @@ export function WelcomeTour() {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    // Se muestra si venimos del onboarding (?welcome=1) o si el usuario aún no
-    // ha visto la guía nunca. Así nadie nuevo se queda sin la explicación.
     const seen =
       typeof window !== "undefined" && window.localStorage.getItem(SEEN_KEY) === "1";
     if (params.get("welcome") === "1" || !seen) {
@@ -54,54 +52,49 @@ export function WelcomeTour() {
     }
   }
 
-  if (!open) return null;
-
   const current = STEPS[step]!;
   const Icon = current.icon;
   const isLast = step === STEPS.length - 1;
 
   return (
-    <Portal>
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-label="Bienvenida a RENACE"
-        className="fixed inset-0 z-[100] flex items-end justify-center bg-ink-primary/55 px-4 backdrop-blur-[2px] sm:items-center"
-        style={{ paddingBottom: "max(env(safe-area-inset-bottom), 16px)" }}
-      >
-        <div className="w-full max-w-[460px] rounded-3xl border border-outline-soft bg-elevated p-5 shadow-lift">
-          <div className="flex items-start justify-between">
-            <p className="label-eyebrow text-brand-700">Bienvenido/a</p>
-            <button type="button" onClick={close} aria-label="Cerrar" className="tap-target text-ink-subtle">
-              <IconX size={20} aria-hidden />
-            </button>
-          </div>
-          <div className="mt-4 grid h-14 w-14 place-items-center rounded-2xl bg-brand-50 text-brand-700">
-            <Icon size={28} aria-hidden />
-          </div>
-          <h2 className="mt-4 text-xl font-bold text-ink-primary">{current.title}</h2>
-          <p className="mt-2 text-sm text-ink-muted">{current.body}</p>
-          <div className="mt-4 flex gap-1.5" aria-hidden>
-            {STEPS.map((_, i) => (
-              <span
-                key={i}
-                className={`h-1.5 flex-1 rounded-full ${i <= step ? "bg-brand-600" : "bg-outline-soft"}`}
-              />
-            ))}
-          </div>
-          <div className="mt-5 flex gap-2">
-            {!isLast ? (
-              <button type="button" onClick={() => setStep((s) => s + 1)} className="btn-primary flex-1">
-                Siguiente
-              </button>
-            ) : (
-              <button type="button" onClick={close} className="btn-primary flex-1">
-                Empezar
-              </button>
-            )}
-          </div>
-        </div>
+    <ModalLayer
+      open={open}
+      onClose={close}
+      ariaLabel="Bienvenida a RENACE"
+      align="center"
+      overlayClassName="z-[100] bg-ink-primary/55 backdrop-blur-[2px] pb-[max(env(safe-area-inset-bottom),16px)]"
+      panelClassName="rounded-3xl border border-outline-soft bg-elevated p-5 shadow-lift"
+    >
+      <div className="flex items-start justify-between">
+        <p className="label-eyebrow text-brand-700">Bienvenido/a</p>
+        <button type="button" onClick={close} aria-label="Cerrar" className="tap-target text-ink-subtle">
+          <IconX size={20} aria-hidden />
+        </button>
       </div>
-    </Portal>
+      <div className="mt-4 grid h-14 w-14 place-items-center rounded-2xl bg-brand-50 text-brand-700">
+        <Icon size={28} aria-hidden />
+      </div>
+      <h2 className="mt-4 text-xl font-bold text-ink-primary">{current.title}</h2>
+      <p className="mt-2 text-sm text-ink-muted">{current.body}</p>
+      <div className="mt-4 flex gap-1.5" aria-hidden>
+        {STEPS.map((_, i) => (
+          <span
+            key={i}
+            className={`h-1.5 flex-1 rounded-full ${i <= step ? "bg-brand-600" : "bg-outline-soft"}`}
+          />
+        ))}
+      </div>
+      <div className="mt-5 flex gap-2">
+        {!isLast ? (
+          <button type="button" onClick={() => setStep((s) => s + 1)} className="btn-primary flex-1">
+            Siguiente
+          </button>
+        ) : (
+          <button type="button" onClick={close} className="btn-primary flex-1">
+            Empezar
+          </button>
+        )}
+      </div>
+    </ModalLayer>
   );
 }

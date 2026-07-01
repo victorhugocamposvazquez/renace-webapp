@@ -15,7 +15,12 @@ import {
   listUpcomingLiveClasses,
   listAreaCourses,
   getTodayMicroActionDone,
-  listActiveDates
+  listActiveDates,
+  hasJournalToday,
+  hasFisicaActivityToday,
+  hasLiveReminderToday,
+  hasCourseSeenToday,
+  hasActivityKindToday
 } from "@renace/supabase";
 import {
   pickMicroAction,
@@ -76,17 +81,24 @@ export default async function HomePage() {
     lastMood: todayMood?.score ?? null
   });
 
-  const [microDone, activeDates] = await Promise.all([
-    getTodayMicroActionDone(client, userId, action.id),
-    listActiveDates(client, userId, 60)
-  ]);
+  const topCourse = inProgressCourses[0];
+
+  const [microDone, activeDates, journalToday, physicalDone, liveReminder, breathingToday, courseSeenToday] =
+    await Promise.all([
+      getTodayMicroActionDone(client, userId, action.id),
+      listActiveDates(client, userId, 60),
+      hasJournalToday(client, userId),
+      hasFisicaActivityToday(client, userId),
+      hasLiveReminderToday(client, userId),
+      hasActivityKindToday(client, userId, "breathing"),
+      topCourse ? hasCourseSeenToday(client, userId, topCourse.id) : Promise.resolve(false)
+    ]);
 
   const today = todayDateString();
   const streak = computePresenceStreak(activeDates, today);
   const reasons = profile.onboarding_reasons ?? [];
   const streakText = streakLabel(streak, reasons);
 
-  const topCourse = inProgressCourses[0];
   const courseHref = topCourse
     ? `/cursos/${topCourse.slug}/leccion/${Math.max(1, (topCourse.enrollment?.current_lesson ?? 0) + 1)}`
     : null;
@@ -197,11 +209,14 @@ export default async function HomePage() {
 
           <section className="page-inset -mx-5 mt-4 space-y-4 px-5">
             <TodayPath
-              alias={profile.alias.split(" ")[0] ?? profile.alias}
               moodDone={todayMood !== null}
+              physicalDone={physicalDone}
               physical={physicalForPath}
+              liveDone={liveForPath ? liveReminder : breathingToday}
               liveClass={liveForPath}
+              courseDone={courseSeenToday}
               course={courseForPath}
+              diaryDone={journalToday}
             />
             <div id="accion-hoy" className="scroll-mt-24">
               <MicroActionCard action={action} doneToday={microDone} />
@@ -279,13 +294,13 @@ function buildAriaIntro({
   todayMoodScore: number | null;
 }): string {
   if (todayMoodScore === null) {
-    return `Hola ${aliasFirst}. ¿Cómo te encuentras hoy? Cuéntame en una palabra.`;
+    return `${aliasFirst}, ¿cómo amaneces hoy? El equipo está aquí si quieres contarlo.`;
   }
   if (todayMoodScore <= 2) {
-    return `He visto que hoy te estás sintiendo bajo. ¿Probamos un ejercicio de respiración 4-7-8?`;
+    return `${aliasFirst}, parece un día difícil. ¿Hablamos con el equipo o probamos una respiración guiada?`;
   }
   if (todayMoodScore === 3) {
-    return `Día neutro. ¿Hacemos un repaso de cómo va tu plan?`;
+    return `Día neutro, ${aliasFirst}. ¿Repasamos juntos cómo va tu plan?`;
   }
-  return `Buen ánimo hoy. ¿Aprovechamos para avanzar en algo del plan?`;
+  return `Buen ánimo hoy, ${aliasFirst}. ¿Avanzamos en algo del plan cuando te venga bien?`;
 }

@@ -9,6 +9,7 @@ import {
 import type { ComponentType } from "react";
 import { AREA_META, type AreaId } from "@renace/core";
 import { AREA_THEMES } from "@renace/tokens";
+import { areaHeroGradient, HERO_RADIAL_GLOW } from "@/lib/areaHeroStyles";
 
 const AREA_ICON: Record<AreaId, ComponentType<IconProps>> = {
   emocional: IconHeartHandshake,
@@ -39,13 +40,13 @@ export function AreaHeader({
     <header
       className="relative -mx-5 -mt-5 overflow-hidden px-5 pb-6 pt-6 text-ink-inverse"
       style={{
-        background: `linear-gradient(135deg, ${theme.core} 0%, ${theme.coreDark} 100%)`
+        background: areaHeroGradient(theme.core, theme.coreDark)
       }}
     >
       <div
         aria-hidden
         className="pointer-events-none absolute -right-20 -top-12 h-56 w-56 rounded-full opacity-20"
-        style={{ background: "radial-gradient(circle, #fff 0%, transparent 70%)" }}
+        style={{ background: HERO_RADIAL_GLOW }}
       />
       <div className="relative flex items-center gap-3">
         <span
